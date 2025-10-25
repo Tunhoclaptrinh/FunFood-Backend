@@ -1,0 +1,384 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Nguyễn Văn A",
+      "email": "nguyenvana@email.com",
+      "phone": "0912345678",
+      "avatar": "https://i.pravatar.cc/150?img=1",
+      "address": "123 Đường ABC, Quận 1, TP.HCM",
+      "createdAt": "2024-01-15T10:30:00Z"
+    },
+    {
+      "id": 2,
+      "name": "Trần Thị B",
+      "email": "tranthib@email.com",
+      "phone": "0987654321",
+      "avatar": "https://i.pravatar.cc/150?img=5",
+      "address": "456 Đường XYZ, Quận 3, TP.HCM",
+      "createdAt": "2024-02-20T14:20:00Z"
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "Cơm",
+      "icon": "🍚",
+      "image": "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400"
+    },
+    {
+      "id": 2,
+      "name": "Phở",
+      "icon": "🍜",
+      "image": "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=400"
+    },
+    {
+      "id": 3,
+      "name": "Bánh mì",
+      "icon": "🥖",
+      "image": "https://images.unsplash.com/photo-1558030006-450675393462?w=400"
+    },
+    {
+      "id": 4,
+      "name": "Pizza",
+      "icon": "🍕",
+      "image": "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400"
+    },
+    {
+      "id": 5,
+      "name": "Burger",
+      "icon": "🍔",
+      "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400"
+    },
+    {
+      "id": 6,
+      "name": "Đồ uống",
+      "icon": "🥤",
+      "image": "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400"
+    },
+    {
+      "id": 7,
+      "name": "Tráng miệng",
+      "icon": "🍰",
+      "image": "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400"
+    }
+  ],
+  "restaurants": [
+    {
+      "id": 1,
+      "name": "Quán Cơm Tấm Sườn Bì Chả",
+      "description": "Cơm tấm truyền thống Sài Gòn",
+      "image": "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=600",
+      "rating": 4.5,
+      "totalReviews": 128,
+      "deliveryTime": "20-30 phút",
+      "deliveryFee": 15000,
+      "address": "789 Đường Lê Văn Sỹ, Quận 3",
+      "isOpen": true,
+      "categoryId": 1
+    },
+    {
+      "id": 2,
+      "name": "Phở Hà Nội",
+      "description": "Phở bò chính gốc Hà Nội",
+      "image": "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=600",
+      "rating": 4.7,
+      "totalReviews": 256,
+      "deliveryTime": "25-35 phút",
+      "deliveryFee": 20000,
+      "address": "123 Đường Pasteur, Quận 1",
+      "isOpen": true,
+      "categoryId": 2
+    },
+    {
+      "id": 3,
+      "name": "Bánh Mì Huỳnh Hoa",
+      "description": "Bánh mì thập cẩm đặc biệt",
+      "image": "https://images.unsplash.com/photo-1558030006-450675393462?w=600",
+      "rating": 4.8,
+      "totalReviews": 512,
+      "deliveryTime": "15-25 phút",
+      "deliveryFee": 10000,
+      "address": "456 Đường Lê Thị Riêng, Quận 1",
+      "isOpen": true,
+      "categoryId": 3
+    },
+    {
+      "id": 4,
+      "name": "Pizza 4P's",
+      "description": "Pizza phong cách Nhật Bản",
+      "image": "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600",
+      "rating": 4.6,
+      "totalReviews": 342,
+      "deliveryTime": "30-40 phút",
+      "deliveryFee": 25000,
+      "address": "222 Đường Nguyễn Thị Minh Khai, Quận 3",
+      "isOpen": false,
+      "categoryId": 4
+    }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "name": "Cơm Tấm Sườn Bì Chả",
+      "description": "Cơm tấm với sườn nướng, bì, chả trứng",
+      "price": 45000,
+      "image": "https://images.unsplash.com/photo-1603052875702-0010ad6ec0db?w=600",
+      "restaurantId": 1,
+      "categoryId": 1,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 2,
+      "name": "Cơm Tấm Sườn Nướng",
+      "description": "Cơm tấm với sườn nướng",
+      "price": 35000,
+      "image": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=600",
+      "restaurantId": 1,
+      "categoryId": 1,
+      "available": true,
+      "discount": 10
+    },
+    {
+      "id": 3,
+      "name": "Phở Bò Tái",
+      "description": "Phở bò với thịt tái",
+      "price": 55000,
+      "image": "https://images.unsplash.com/photo-1591814468924-caf88d1232e1?w=600",
+      "restaurantId": 2,
+      "categoryId": 2,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 4,
+      "name": "Phở Bò Chín",
+      "description": "Phở bò với thịt chín",
+      "price": 50000,
+      "image": "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=600",
+      "restaurantId": 2,
+      "categoryId": 2,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 5,
+      "name": "Bánh Mì Thập Cẩm",
+      "description": "Bánh mì với đầy đủ topping",
+      "price": 25000,
+      "image": "https://images.unsplash.com/photo-1558030006-450675393462?w=600",
+      "restaurantId": 3,
+      "categoryId": 3,
+      "available": true,
+      "discount": 15
+    },
+    {
+      "id": 6,
+      "name": "Bánh Mì Xíu Mại",
+      "description": "Bánh mì với xíu mại",
+      "price": 20000,
+      "image": "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600",
+      "restaurantId": 3,
+      "categoryId": 3,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 7,
+      "name": "Pizza Margherita",
+      "description": "Pizza phô mai cà chua",
+      "price": 180000,
+      "image": "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=600",
+      "restaurantId": 4,
+      "categoryId": 4,
+      "available": true,
+      "discount": 20
+    },
+    {
+      "id": 8,
+      "name": "Pizza Pepperoni",
+      "description": "Pizza xúc xích pepperoni",
+      "price": 220000,
+      "image": "https://images.unsplash.com/photo-1628840042765-356cda07504e?w=600",
+      "restaurantId": 4,
+      "categoryId": 4,
+      "available": false,
+      "discount": 0
+    }
+  ],
+  "orders": [
+    {
+      "id": 1,
+      "userId": 1,
+      "restaurantId": 1,
+      "items": [
+        {
+          "productId": 1,
+          "productName": "Cơm Tấm Sườn Bì Chả",
+          "quantity": 2,
+          "price": 45000
+        }
+      ],
+      "subtotal": 90000,
+      "deliveryFee": 15000,
+      "discount": 0,
+      "total": 105000,
+      "status": "delivered",
+      "deliveryAddress": "123 Đường ABC, Quận 1, TP.HCM",
+      "paymentMethod": "cash",
+      "note": "Không hành",
+      "createdAt": "2024-10-20T12:30:00Z",
+      "updatedAt": "2024-10-20T13:15:00Z"
+    },
+    {
+      "id": 2,
+      "userId": 1,
+      "restaurantId": 2,
+      "items": [
+        {
+          "productId": 3,
+          "productName": "Phở Bò Tái",
+          "quantity": 1,
+          "price": 55000
+        },
+        {
+          "productId": 4,
+          "productName": "Phở Bò Chín",
+          "quantity": 1,
+          "price": 50000
+        }
+      ],
+      "subtotal": 105000,
+      "deliveryFee": 20000,
+      "discount": 10000,
+      "total": 115000,
+      "status": "delivering",
+      "deliveryAddress": "123 Đường ABC, Quận 1, TP.HCM",
+      "paymentMethod": "momo",
+      "note": "",
+      "createdAt": "2024-10-24T18:45:00Z",
+      "updatedAt": "2024-10-24T19:00:00Z"
+    },
+    {
+      "id": 3,
+      "userId": 2,
+      "restaurantId": 3,
+      "items": [
+        {
+          "productId": 5,
+          "productName": "Bánh Mì Thập Cẩm",
+          "quantity": 3,
+          "price": 25000
+        }
+      ],
+      "subtotal": 75000,
+      "deliveryFee": 10000,
+      "discount": 5000,
+      "total": 80000,
+      "status": "confirmed",
+      "deliveryAddress": "456 Đường XYZ, Quận 3, TP.HCM",
+      "paymentMethod": "zalopay",
+      "note": "Gọi trước khi đến",
+      "createdAt": "2024-10-25T09:15:00Z",
+      "updatedAt": "2024-10-25T09:20:00Z"
+    }
+  ],
+  "cart": [
+    {
+      "id": 1,
+      "userId": 1,
+      "productId": 1,
+      "quantity": 2
+    },
+    {
+      "id": 2,
+      "userId": 1,
+      "productId": 3,
+      "quantity": 1
+    }
+  ],
+  "favorites": [
+    {
+      "id": 1,
+      "userId": 1,
+      "restaurantId": 2
+    },
+    {
+      "id": 2,
+      "userId": 1,
+      "restaurantId": 3
+    },
+    {
+      "id": 3,
+      "userId": 2,
+      "restaurantId": 1
+    }
+  ],
+  "reviews": [
+    {
+      "id": 1,
+      "userId": 1,
+      "restaurantId": 1,
+      "orderId": 1,
+      "rating": 5,
+      "comment": "Cơm ngon, giao hàng nhanh!",
+      "createdAt": "2024-10-20T14:00:00Z"
+    },
+    {
+      "id": 2,
+      "userId": 2,
+      "restaurantId": 3,
+      "orderId": null,
+      "rating": 4,
+      "comment": "Bánh mì ngon nhưng hơi đợi lâu",
+      "createdAt": "2024-10-22T16:30:00Z"
+    }
+  ],
+  "promotions": [
+    {
+      "id": 1,
+      "code": "FUNFOOD10",
+      "description": "Giảm 10% cho đơn từ 100k",
+      "discountType": "percentage",
+      "discountValue": 10,
+      "minOrderValue": 100000,
+      "maxDiscount": 50000,
+      "validFrom": "2024-10-01T00:00:00Z",
+      "validTo": "2024-12-31T23:59:59Z",
+      "isActive": true
+    },
+    {
+      "id": 2,
+      "code": "FREESHIP",
+      "description": "Miễn phí ship cho đơn từ 200k",
+      "discountType": "delivery",
+      "discountValue": 100,
+      "minOrderValue": 200000,
+      "maxDiscount": 30000,
+      "validFrom": "2024-10-01T00:00:00Z",
+      "validTo": "2024-11-30T23:59:59Z",
+      "isActive": true
+    }
+  ],
+  "notifications": [
+    {
+      "id": 1,
+      "userId": 1,
+      "title": "Đơn hàng đã được giao",
+      "message": "Đơn hàng #1 của bạn đã được giao thành công",
+      "type": "order",
+      "isRead": false,
+      "createdAt": "2024-10-20T13:15:00Z"
+    },
+    {
+      "id": 2,
+      "userId": 1,
+      "title": "Khuyến mãi mới",
+      "message": "Giảm 10% cho đơn hàng tiếp theo với mã FUNFOOD10",
+      "type": "promotion",
+      "isRead": false,
+      "createdAt": "2024-10-24T10:00:00Z"
+    }
+  ]
+}
