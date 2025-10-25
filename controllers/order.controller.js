@@ -1,47 +1,49 @@
 const { validationResult } = require('express-validator');
 const db = require('../config/database');
 
+/**
+ * GET /api/orders
+ * Query examples:
+ * - ?status=delivered
+ * - ?_page=1&_limit=10
+ * - ?_sort=createdAt&_order=desc
+ * - ?total_gte=100000
+ * - ?createdAt_gte=2024-10-01
+ * - ?_expand=restaurant
+ */
 exports.getMyOrders = async (req, res, next) => {
   try {
-    const { status } = req.query;
-    let orders = db.findMany('orders', { userId: req.user.id });
-
-    if (status) {
-      orders = orders.filter(o => o.status === status);
-    }
-
-    // Sort by date descending
-    orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const result = db.findAllAdvanced('orders', {
+      ...req.parsedQuery,
+      filter: {
+        ...req.parsedQuery.filter,
+        userId: req.user.id
+      }
+    });
 
     res.json({
       success: true,
-      count: orders.length,
-      data: orders
+      count: result.data.length,
+      data: result.data,
+      pagination: result.pagination
     });
   } catch (error) {
     next(error);
   }
 };
 
+/**
+ * GET /api/orders/all (Admin only)
+ */
 exports.getAllOrders = async (req, res, next) => {
   try {
-    const { status, userId } = req.query;
-    let orders = db.findAll('orders');
-
-    if (status) {
-      orders = orders.filter(o => o.status === status);
-    }
-
-    if (userId) {
-      orders = orders.filter(o => o.userId === parseInt(userId));
-    }
-
-    orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const result = db.findAllAdvanced('orders', req.parsedQuery);
 
     res.json({
       success: true,
-      count: orders.length,
-      data: orders
+      count: result.data.length,
+      data: result.data,
+      pagination: result.pagination
     });
   } catch (error) {
     next(error);
