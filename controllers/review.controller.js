@@ -179,3 +179,30 @@ exports.deleteReview = async (req, res, next) => {
     next(error);
   }
 };
+
+
+exports.getAllReviews = async (req, res, next) => {
+  try {
+    const reviews = db.findAll('reviews'); // hoặc findMany('reviews', {}) tùy bạn
+    res.json({
+      success: true,
+      count: reviews.length,
+      data: reviews
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getMyReviews = async (req, res, next) => {
+  try {
+    const reviews = db.findMany('reviews', { userId: req.user.id });
+    res.json({
+      success: true,
+      count: reviews.length,
+      data: reviews
+    });
+  } catch (error) {
+    next(error);
+  }
+};

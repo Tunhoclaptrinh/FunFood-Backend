@@ -17,7 +17,6 @@ app.use(formatResponse);
 app.use(validateQuery); // Optional
 app.use(logQuery);      // Optional for debugging
 
-
 // Import routes
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
@@ -30,6 +29,9 @@ const favoriteRoutes = require('./routes/favorite.routes');
 const reviewRoutes = require('./routes/review.routes');
 const promotionRoutes = require('./routes/promotion.routes');
 const addressRoutes = require('./routes/address.routes');
+
+// Import endpoints definition
+const endpoints = require('./config/endpoints');
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -44,7 +46,6 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/promotions', promotionRoutes);
 app.use('/api/addresses', addressRoutes);
 
-
 // API docs endpoint
 app.get('/api', (req, res) => {
   res.json({
@@ -58,7 +59,7 @@ app.get('/api', (req, res) => {
       'Operators: ?field_gte=value, ?field_lte=value, ?field_ne=value',
       'Relationships: ?_embed=related or ?_expand=foreign_key'
     ],
-    endpoints: { /* ... */ }
+    endpoints // Tự động load từ endpoints.js
   });
 });
 
