@@ -2,14 +2,21 @@ const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
 const reviewController = require('../controllers/review.controller');
-const { protect } = require('../middleware/auth.middleware');
+const { protect, authorize } = require('../middleware/auth.middleware');
 
+// Public routes
 router.get('/restaurant/:restaurantId', reviewController.getRestaurantReviews);
+
+// Protected routes
+router.get('/', protect, authorize('admin'), reviewController.getAllReviews);
+router.get('/user/me', protect, reviewController.getMyReviews);
+
 router.post('/', protect, [
   body('restaurantId').notEmpty().withMessage('Restaurant is required'),
   body('rating').isInt({ min: 1, max: 5 }).withMessage('Rating must be between 1 and 5'),
   body('comment').notEmpty().withMessage('Comment is required')
 ], reviewController.createReview);
+
 router.put('/:id', protect, reviewController.updateReview);
 router.delete('/:id', protect, reviewController.deleteReview);
 

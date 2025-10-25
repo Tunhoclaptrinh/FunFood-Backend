@@ -3,6 +3,7 @@ const db = require('../config/database');
 
 /**
  * GET /api/orders
+ * Get current user's orders
  * Query examples:
  * - ?status=delivered
  * - ?_page=1&_limit=10
@@ -34,6 +35,7 @@ exports.getMyOrders = async (req, res, next) => {
 
 /**
  * GET /api/orders/all (Admin only)
+ * Get all orders with filters
  */
 exports.getAllOrders = async (req, res, next) => {
   try {
@@ -50,6 +52,10 @@ exports.getAllOrders = async (req, res, next) => {
   }
 };
 
+/**
+ * GET /api/orders/:id
+ * Get order details
+ */
 exports.getOrder = async (req, res, next) => {
   try {
     const order = db.findById('orders', req.params.id);
@@ -78,6 +84,10 @@ exports.getOrder = async (req, res, next) => {
   }
 };
 
+/**
+ * POST /api/orders
+ * Create new order
+ */
 exports.createOrder = async (req, res, next) => {
   try {
     const errors = validationResult(req);
@@ -90,12 +100,24 @@ exports.createOrder = async (req, res, next) => {
 
     const { restaurantId, items, deliveryAddress, paymentMethod, note, promotionCode } = req.body;
 
+    // Validate items
+    if (!items || items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Order must have at least one item'
+      });
+    }
+
     // Calculate totals
     let subtotal = 0;
     const orderItems = items.map(item => {
       const product = db.findById('products', item.productId);
       if (!product) {
         throw new Error(`Product ${item.productId} not found`);
+      }
+
+      if (!product.available) {
+        throw new Error(`Product ${product.name} is not available`);
       }
 
       const itemPrice = product.price * (1 - product.discount / 100);
@@ -112,19 +134,31 @@ exports.createOrder = async (req, res, next) => {
 
     // Get delivery fee
     const restaurant = db.findById('restaurants', restaurantId);
-    const deliveryFee = restaurant?.deliveryFee || 0;
+    if (!restaurant) {
+      return res.status(404).json({
+        success: false,
+        message: 'Restaurant not found'
+      });
+    }
+    const deliveryFee = restaurant.deliveryFee || 0;
 
     // Apply promotion
     let discount = 0;
     if (promotionCode) {
-      const promotion = db.findOne('promotions', { code: promotionCode, isActive: true });
-      if (promotion && subtotal >= promotion.minOrderValue) {
-        if (promotion.discountType === 'percentage') {
-          discount = Math.min((subtotal * promotion.discountValue / 100), promotion.maxDiscount);
-        } else if (promotion.discountType === 'fixed') {
-          discount = promotion.discountValue;
-        } else if (promotion.discountType === 'delivery') {
-          discount = deliveryFee;
+      const promotion = db.findOne('promotions', { code: promotionCode.toUpperCase(), isActive: true });
+      if (promotion) {
+        const now = new Date();
+        const validFrom = new Date(promotion.validFrom);
+        const validTo = new Date(promotion.validTo);
+
+        if (validFrom <= now && validTo >= now && subtotal >= promotion.minOrderValue) {
+          if (promotion.discountType === 'percentage') {
+            discount = Math.min((subtotal * promotion.discountValue / 100), promotion.maxDiscount || Infinity);
+          } else if (promotion.discountType === 'fixed') {
+            discount = promotion.discountValue;
+          } else if (promotion.discountType === 'delivery') {
+            discount = deliveryFee;
+          }
         }
       }
     }
@@ -133,23 +167,30 @@ exports.createOrder = async (req, res, next) => {
 
     const order = db.create('orders', {
       userId: req.user.id,
-      restaurantId,
+      restaurantId: parseInt(restaurantId),
       items: orderItems,
-      subtotal,
+      subtotal: Math.round(subtotal),
       deliveryFee,
-      discount,
-      total,
+      discount: Math.round(discount),
+      total: Math.round(total),
       status: 'pending',
       deliveryAddress,
       paymentMethod,
       note: note || '',
+      promotionCode: promotionCode ? promotionCode.toUpperCase() : null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     });
 
     // Clear cart after order
     const cartItems = db.findMany('cart', { userId: req.user.id });
-    cartItems.forEach(item => db.delete('cart', item.id));
+    cartItems.forEach(item => {
+      // Only clear items from the same restaurant
+      const product = db.findById('products', item.productId);
+      if (product && product.restaurantId === parseInt(restaurantId)) {
+        db.delete('cart', item.id);
+      }
+    });
 
     res.status(201).json({
       success: true,
@@ -161,14 +202,19 @@ exports.createOrder = async (req, res, next) => {
   }
 };
 
+/**
+ * PATCH /api/orders/:id/status
+ * Update order status
+ */
 exports.updateOrderStatus = async (req, res, next) => {
   try {
     const { status } = req.body;
 
-    if (!['pending', 'confirmed', 'preparing', 'delivering', 'delivered', 'cancelled'].includes(status)) {
+    const validStatuses = ['pending', 'confirmed', 'preparing', 'delivering', 'delivered', 'cancelled'];
+    if (!validStatuses.includes(status)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid status'
+        message: `Invalid status. Must be one of: ${validStatuses.join(', ')}`
       });
     }
 
@@ -182,11 +228,21 @@ exports.updateOrderStatus = async (req, res, next) => {
     }
 
     // Check authorization
-    if (order.userId !== req.user.id && req.user.role !== 'admin') {
-      return res.status(403).json({
-        success: false,
-        message: 'Not authorized to update this order'
-      });
+    // Customers can only cancel their orders
+    // Admin can change any status
+    if (req.user.role !== 'admin') {
+      if (order.userId !== req.user.id) {
+        return res.status(403).json({
+          success: false,
+          message: 'Not authorized to update this order'
+        });
+      }
+      if (status !== 'cancelled') {
+        return res.status(403).json({
+          success: false,
+          message: 'Customers can only cancel orders'
+        });
+      }
     }
 
     const updatedOrder = db.update('orders', req.params.id, {
@@ -204,6 +260,10 @@ exports.updateOrderStatus = async (req, res, next) => {
   }
 };
 
+/**
+ * DELETE /api/orders/:id
+ * Cancel order
+ */
 exports.cancelOrder = async (req, res, next) => {
   try {
     const order = db.findById('orders', req.params.id);
@@ -227,7 +287,8 @@ exports.cancelOrder = async (req, res, next) => {
     if (!['pending', 'confirmed'].includes(order.status)) {
       return res.status(400).json({
         success: false,
-        message: 'Cannot cancel order in current status'
+        message: 'Cannot cancel order in current status',
+        currentStatus: order.status
       });
     }
 

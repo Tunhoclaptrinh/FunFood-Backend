@@ -1,35 +1,37 @@
 const db = require('../config/database');
 
+/**
+ * GET /api/restaurants
+ * Supports:
+ * - ?_page=1&_limit=10 - Pagination
+ * - ?_sort=rating&_order=desc - Sorting
+ * - ?q=pizza - Full-text search
+ * - ?categoryId=1 - Filter by category
+ * - ?isOpen=true - Filter by status
+ * - ?rating_gte=4.5 - Filter by minimum rating
+ * - ?deliveryFee_lte=20000 - Filter by max delivery fee
+ * - ?_embed=products - Include products
+ * - ?_expand=category - Populate category
+ */
 exports.getRestaurants = async (req, res, next) => {
   try {
-    const { categoryId, isOpen, minRating } = req.query;
-    let restaurants = db.findAll('restaurants');
-
-    // Filter by category
-    if (categoryId) {
-      restaurants = restaurants.filter(r => r.categoryId === parseInt(categoryId));
-    }
-
-    // Filter by open status
-    if (isOpen !== undefined) {
-      restaurants = restaurants.filter(r => r.isOpen === (isOpen === 'true'));
-    }
-
-    // Filter by rating
-    if (minRating) {
-      restaurants = restaurants.filter(r => r.rating >= parseFloat(minRating));
-    }
+    const result = db.findAllAdvanced('restaurants', req.parsedQuery);
 
     res.json({
       success: true,
-      count: restaurants.length,
-      data: restaurants
+      count: result.data.length,
+      data: result.data,
+      pagination: result.pagination
     });
   } catch (error) {
     next(error);
   }
 };
 
+/**
+ * GET /api/restaurants/search?q=...
+ * Search restaurants by name or description
+ */
 exports.searchRestaurants = async (req, res, next) => {
   try {
     const { q } = req.query;
@@ -41,21 +43,29 @@ exports.searchRestaurants = async (req, res, next) => {
       });
     }
 
-    const restaurants = db.findAll('restaurants').filter(r =>
-      r.name.toLowerCase().includes(q.toLowerCase()) ||
-      r.description.toLowerCase().includes(q.toLowerCase())
-    );
+    const result = db.findAllAdvanced('restaurants', {
+      q,
+      page: req.parsedQuery.page,
+      limit: req.parsedQuery.limit,
+      sort: req.parsedQuery.sort,
+      order: req.parsedQuery.order
+    });
 
     res.json({
       success: true,
-      count: restaurants.length,
-      data: restaurants
+      count: result.data.length,
+      data: result.data,
+      pagination: result.pagination
     });
   } catch (error) {
     next(error);
   }
 };
 
+/**
+ * GET /api/restaurants/:id
+ * Supports ?_embed=products,reviews
+ */
 exports.getRestaurant = async (req, res, next) => {
   try {
     const restaurant = db.findById('restaurants', req.params.id);
@@ -67,15 +77,26 @@ exports.getRestaurant = async (req, res, next) => {
       });
     }
 
+    // Apply relations if requested
+    let enriched = restaurant;
+    if (req.parsedQuery.embed) {
+      const result = db.applyRelations([restaurant], 'restaurants', req.parsedQuery);
+      enriched = result[0];
+    }
+
     res.json({
       success: true,
-      data: restaurant
+      data: enriched
     });
   } catch (error) {
     next(error);
   }
 };
 
+/**
+ * GET /api/restaurants/:id/products
+ * Get all products for a restaurant with pagination
+ */
 exports.getRestaurantProducts = async (req, res, next) => {
   try {
     const restaurant = db.findById('restaurants', req.params.id);
@@ -87,18 +108,29 @@ exports.getRestaurantProducts = async (req, res, next) => {
       });
     }
 
-    const products = db.findMany('products', { restaurantId: parseInt(req.params.id) });
+    const result = db.findAllAdvanced('products', {
+      ...req.parsedQuery,
+      filter: {
+        ...req.parsedQuery.filter,
+        restaurantId: parseInt(req.params.id)
+      }
+    });
 
     res.json({
       success: true,
-      count: products.length,
-      data: products
+      count: result.data.length,
+      data: result.data,
+      pagination: result.pagination
     });
   } catch (error) {
     next(error);
   }
 };
 
+/**
+ * POST /api/restaurants (Admin only)
+ * Create new restaurant
+ */
 exports.createRestaurant = async (req, res, next) => {
   try {
     const restaurant = db.create('restaurants', {
@@ -118,6 +150,10 @@ exports.createRestaurant = async (req, res, next) => {
   }
 };
 
+/**
+ * PUT /api/restaurants/:id (Admin only)
+ * Update restaurant
+ */
 exports.updateRestaurant = async (req, res, next) => {
   try {
     const restaurant = db.update('restaurants', req.params.id, req.body);
@@ -139,6 +175,10 @@ exports.updateRestaurant = async (req, res, next) => {
   }
 };
 
+/**
+ * DELETE /api/restaurants/:id (Admin only)
+ * Delete restaurant
+ */
 exports.deleteRestaurant = async (req, res, next) => {
   try {
     const result = db.delete('restaurants', req.params.id);
