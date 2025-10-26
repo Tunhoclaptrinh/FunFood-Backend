@@ -1,177 +1,183 @@
 # 🍔 FunFood Backend API
 
-Backend API hoàn chỉnh cho ứng dụng đặt đồ ăn FunFood - Xây dựng với Node.js, Express, JWT Authentication.
+[![Node.js](https://img.shields.io/badge/Node.js-18.x-green.svg)](https://nodejs.org/)
+[![Express](https://img.shields.io/badge/Express-4.18-blue.svg)](https://expressjs.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+Backend API hoàn chỉnh cho ứng dụng đặt đồ ăn FunFood. Được xây dựng với Node.js, Express, JWT Authentication và tích hợp đầy đủ tính năng của JSON-Server.
 
 ## 📋 Mục lục
 
-- [Tính năng](#tính-năng)
-- [Cài đặt](#cài-đặt)
-- [Cấu trúc thư mục](#cấu-trúc-thư-mục)
-- [API Endpoints](#api-endpoints)
-- [Ví dụ sử dụng](#ví-dụ-sử-dụng)
-- [Tích hợp Android](#tích-hợp-android)
+- [Tính năng](#-tính-năng)
+- [Công nghệ](#-công-nghệ)
+- [Cài đặt nhanh](#-cài-đặt-nhanh)
+- [Cấu trúc dự án](#-cấu-trúc-dự-án)
+- [API Endpoints](#-api-endpoints)
+- [Tính năng JSON-Server](#-tính-năng-json-server)
+- [Authentication](#-authentication)
+- [Ví dụ sử dụng](#-ví-dụ-sử-dụng)
+- [Testing](#-testing)
+- [Deployment](#-deployment)
 
 ## ✨ Tính năng
 
-### 🔐 Authentication & Authorization
+### 🎯 Tính năng cốt lõi
 
-- ✅ Đăng ký tài khoản
-- ✅ Đăng nhập với JWT token
-- ✅ Đổi mật khẩu
-- ✅ Protected routes với middleware
-- ✅ Role-based access (customer, admin)
-- ✅ Password hashing với bcrypt
+- ✅ **Authentication & Authorization**
 
-### 🏪 Quản lý nhà hàng
+  - Đăng ký, đăng nhập với JWT
+  - Role-based access control (customer, admin)
+  - Đổi mật khẩu
+  - Password hashing với bcrypt
+  - Protected routes với middleware
 
-- ✅ Danh sách nhà hàng
-- ✅ Lọc theo danh mục, trạng thái mở/đóng
-- ✅ Tìm kiếm nhà hàng
-- ✅ Xem chi tiết & menu nhà hàng
-- ✅ Đánh giá & rating tự động
+- ✅ **Quản lý nhà hàng**
 
-### 🍕 Quản lý sản phẩm
+  - CRUD nhà hàng với phân quyền
+  - Lọc theo category, status, rating
+  - Tìm kiếm full-text (tất cả các trường - fields không kể trường cụ thể)
+  - Tự động cập nhật rating từ reviews
 
-- ✅ Danh sách món ăn
-- ✅ Lọc theo nhà hàng, danh mục
-- ✅ Tìm kiếm món ăn
-- ✅ Quản lý giá & giảm giá
+- ✅ **Quản lý sản phẩm**
 
-### 🛒 Giỏ hàng
+  - CRUD sản phẩm
+  - Lọc theo nhà hàng, category, giá
+  - Quản lý giảm giá
+  - Trạng thái available/unavailable
 
-- ✅ Thêm/Xóa/Cập nhật giỏ hàng
-- ✅ Tính tổng tự động
-- ✅ Xóa toàn bộ giỏ hàng
+- ✅ **Giỏ hàng**
 
-### 📦 Đơn hàng
+  - Thêm/xóa/cập nhật items
+  - Tính tổng tự động
+  - Sync giỏ hàng từ client
+  - Group theo restaurant
 
-- ✅ Tạo đơn hàng
-- ✅ Theo dõi trạng thái đơn (pending, confirmed, preparing, delivering, delivered, cancelled)
-- ✅ Lịch sử đơn hàng
-- ✅ Hủy đơn hàng
-- ✅ Tính toán giá tự động (subtotal, delivery fee, discount)
+- ✅ **Đơn hàng**
 
-### ❤️ Yêu thích
+  - Tạo đơn hàng với validation
+  - Tracking status (6 trạng thái)
+  - Tự động áp dụng khuyến mãi
+  - Lịch sử đơn hàng có phân trang
 
-- ✅ Thêm/Xóa nhà hàng yêu thích
-- ✅ Danh sách yêu thích
-- ✅ Kiểm tra trạng thái yêu thích
+- ✅ **Yêu thích**
 
-### ⭐ Đánh giá
+  - Thêm/xóa restaurants yêu thích
+  - Toggle favorite
+  - Kiểm tra trạng thái favorite
 
-- ✅ Đánh giá nhà hàng (1-5 sao)
-- ✅ Viết nhận xét
-- ✅ Cập nhật rating tự động
+- ✅ **Đánh giá**
 
-### 🎟️ Khuyến mãi
+  - Đánh giá nhà hàng (1-5 sao)
+  - Tự động cập nhật rating
+  - Chống duplicate review
 
-- ✅ Mã giảm giá
-- ✅ Validate mã promotion
-- ✅ Nhiều loại discount (percentage, fixed, delivery)
+- ✅ **Khuyến mãi**
 
-### 📍 Địa chỉ
+  - Nhiều loại discount (%, fixed, delivery)
+  - Validate mã promotion
+  - Giới hạn sử dụng
 
-- ✅ Quản lý nhiều địa chỉ
-- ✅ Đặt địa chỉ mặc định
-- ✅ Lưu tọa độ GPS
+- ✅ **Địa chỉ giao hàng**
+  - Quản lý nhiều địa chỉ
+  - Đặt địa chỉ mặc định
+  - Lưu tọa độ GPS
 
-## 🚀 Cài đặt
+### 🚀 Tính năng JSON-Server Style
+
+- ✅ **Pagination** - `?_page=1&_limit=10`
+- ✅ **Sorting** - `?_sort=rating&_order=desc`
+- ✅ **Full-text Search** - `?q=pizza`
+- ✅ **Filtering** - `?categoryId=1&isOpen=true`
+- ✅ **Operators** - `?price_gte=50000&price_lte=100000`
+- ✅ **Like Search** - `?name_like=phở`
+- ✅ **In Operator** - `?status_in=pending,confirmed`
+- ✅ **Relationships** - `?_embed=products&_expand=category`
+- ✅ **Response Headers** - X-Total-Count, Link, X-Total-Pages
+
+## 🛠 Công nghệ
+
+- **Runtime**: Node.js 18.x
+- **Framework**: Express 4.18
+- **Authentication**: JWT (jsonwebtoken)
+- **Password Hashing**: bcryptjs
+- **Validation**: express-validator
+- **Database**: JSON file-based (development)
+- **CORS**: Enabled
+- **Environment**: dotenv
+
+## 🚀 Cài đặt nhanh
 
 ### 1. Clone hoặc tạo project
 
 ```bash
 mkdir funfood-backend
 cd funfood-backend
-npm init -y
 ```
 
 ### 2. Cài đặt dependencies
 
 ```bash
-npm install express bcryptjs jsonwebtoken cors dotenv express-validator uuid
-npm install --save-dev nodemon
+npm install
 ```
 
-### 3. Tạo cấu trúc thư mục
+### 3. Tạo file .env
 
 ```bash
-mkdir config controllers middleware routes utils database
-```
-
-### 4. Tạo file .env
-
-```env
 PORT=3000
 JWT_SECRET=funfood_secret_key_2024_change_this_in_production
 JWT_EXPIRE=30d
 NODE_ENV=development
 ```
 
-### 5. Tạo database/db.json
-
-```json
-{
-  "users": [],
-  "categories": [],
-  "restaurants": [],
-  "products": [],
-  "orders": [],
-  "cart": [],
-  "favorites": [],
-  "reviews": [],
-  "promotions": [],
-  "addresses": []
-}
-```
-
-### 6. Copy code từ artifact vào các file tương ứng
-
-- `server.js` - Main server file
-- `config/database.js` - Database handler
-- `middleware/auth.middleware.js` - Authentication middleware
-- `utils/helpers.js` - Helper functions
-- `routes/*.routes.js` - All route files
-- `controllers/*.controller.js` - All controller files
-
-### 7. Cập nhật package.json
-
-```json
-{
-  "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
-  }
-}
-```
-
-### 8. Chạy server
+### 4. Seed database với dữ liệu mẫu
 
 ```bash
-npm run dev
+npm run seed
 ```
 
-Server sẽ chạy tại `http://localhost:3000`
+### 5. Chạy server
 
-## 📁 Cấu trúc thư mục
+```bash
+# Development mode (auto-reload)
+npm run dev
+
+# Production mode
+npm start
+```
+
+Server sẽ chạy tại: **http://localhost:3000**
+
+### 6. Test API
+
+```bash
+# Health check
+curl http://localhost:3000/api/health
+
+# API documentation
+curl http://localhost:3000/api
+```
+
+## 📁 Cấu trúc dự án
 
 ```
 funfood-backend/
 ├── config/
-│   └── database.js              # Database handler (JSON-based)
+│   └── database.js              # Database handler với JSON-Server features
 ├── controllers/
 │   ├── auth.controller.js       # Authentication logic
-│   ├── user.controller.js       # User management
-│   ├── category.controller.js   # Categories
-│   ├── restaurant.controller.js # Restaurants
-│   ├── product.controller.js    # Products/Menu
-│   ├── order.controller.js      # Orders
-│   ├── cart.controller.js       # Shopping cart
-│   ├── favorite.controller.js   # Favorites
-│   ├── review.controller.js     # Reviews & ratings
-│   ├── promotion.controller.js  # Promotions
-│   └── address.controller.js    # Addresses
+│   ├── user.controller.js       # User management + stats
+│   ├── category.controller.js   # Categories CRUD
+│   ├── restaurant.controller.js # Restaurants + advanced queries
+│   ├── product.controller.js    # Products + filtering
+│   ├── order.controller.js      # Orders + tracking
+│   ├── cart.controller.js       # Cart + sync
+│   ├── favorite.controller.js   # Favorites + toggle
+│   ├── review.controller.js     # Reviews + rating update
+│   ├── promotion.controller.js  # Promotions + validation
+│   └── address.controller.js    # Addresses + default
 ├── middleware/
-│   └── auth.middleware.js       # JWT authentication & authorization
+│   ├── auth.middleware.js       # JWT authentication & authorization
+│   └── query.middleware.js      # Query parser & response formatter
 ├── routes/
 │   ├── auth.routes.js           # Auth endpoints
 │   ├── user.routes.js           # User endpoints
@@ -185,109 +191,227 @@ funfood-backend/
 │   ├── promotion.routes.js      # Promotion endpoints
 │   └── address.routes.js        # Address endpoints
 ├── utils/
-│   └── helpers.js               # Helper functions
+│   ├── helpers.js               # Helper functions (JWT, bcrypt, etc.)
+│   └── seedData.js              # Seed script for sample data
 ├── database/
-│   └── db.json                  # JSON database
+│   └── db.json                  # JSON database (auto-generated)
 ├── .env                         # Environment variables
-├── package.json
-└── server.js                    # Main entry point
+├── package.json                 # Dependencies & scripts
+├── server.js                    # Main entry point
+└── README.md                    # This file
 ```
 
 ## 🔌 API Endpoints
 
-### Authentication (Public)
+### Base URL
 
-| Method | Endpoint                    | Description                    |
-| ------ | --------------------------- | ------------------------------ |
-| POST   | `/api/auth/register`        | Đăng ký tài khoản              |
-| POST   | `/api/auth/login`           | Đăng nhập                      |
-| GET    | `/api/auth/me`              | Lấy thông tin user (protected) |
-| POST   | `/api/auth/logout`          | Đăng xuất (protected)          |
-| PUT    | `/api/auth/change-password` | Đổi mật khẩu (protected)       |
+```
+http://localhost:3000/api
+```
 
-### Categories (Public)
+### 1. Authentication (`/api/auth`)
 
-| Method | Endpoint              | Description        |
-| ------ | --------------------- | ------------------ |
-| GET    | `/api/categories`     | Danh sách danh mục |
-| GET    | `/api/categories/:id` | Chi tiết danh mục  |
+| Method | Endpoint           | Description             | Auth      |
+| ------ | ------------------ | ----------------------- | --------- |
+| POST   | `/register`        | Đăng ký tài khoản       | Public    |
+| POST   | `/login`           | Đăng nhập               | Public    |
+| GET    | `/me`              | Thông tin user hiện tại | Protected |
+| POST   | `/logout`          | Đăng xuất               | Protected |
+| PUT    | `/change-password` | Đổi mật khẩu            | Protected |
 
-### Restaurants (Public)
+### 2. Users (`/api/users`)
 
-| Method | Endpoint                        | Description        |
-| ------ | ------------------------------- | ------------------ |
-| GET    | `/api/restaurants`              | Danh sách nhà hàng |
-| GET    | `/api/restaurants/search?q=...` | Tìm kiếm nhà hàng  |
-| GET    | `/api/restaurants/:id`          | Chi tiết nhà hàng  |
-| GET    | `/api/restaurants/:id/products` | Menu nhà hàng      |
+| Method | Endpoint         | Description        | Auth        |
+| ------ | ---------------- | ------------------ | ----------- |
+| GET    | `/`              | Danh sách users    | Admin       |
+| GET    | `/:id`           | Chi tiết user      | Owner/Admin |
+| GET    | `/:id/activity`  | Hoạt động của user | Owner/Admin |
+| GET    | `/stats/summary` | Thống kê users     | Admin       |
+| PUT    | `/profile`       | Cập nhật profile   | Protected   |
+| PUT    | `/:id`           | Cập nhật user      | Admin       |
+| PATCH  | `/:id/status`    | Bật/tắt user       | Admin       |
+| DELETE | `/:id`           | Xóa user (soft)    | Admin       |
+| DELETE | `/:id/permanent` | Xóa vĩnh viễn      | Admin       |
 
-### Products (Public)
+### 3. Categories (`/api/categories`)
 
-| Method | Endpoint                     | Description      |
-| ------ | ---------------------------- | ---------------- |
-| GET    | `/api/products`              | Danh sách món ăn |
-| GET    | `/api/products/search?q=...` | Tìm kiếm món ăn  |
-| GET    | `/api/products/:id`          | Chi tiết món ăn  |
+| Method | Endpoint | Description          | Auth   |
+| ------ | -------- | -------------------- | ------ |
+| GET    | `/`      | Danh sách categories | Public |
+| GET    | `/:id`   | Chi tiết category    | Public |
+| POST   | `/`      | Tạo category         | Admin  |
+| PUT    | `/:id`   | Cập nhật category    | Admin  |
+| DELETE | `/:id`   | Xóa category         | Admin  |
 
-### Cart (Protected)
+### 4. Restaurants (`/api/restaurants`)
 
-| Method | Endpoint        | Description       |
-| ------ | --------------- | ----------------- |
-| GET    | `/api/cart`     | Lấy giỏ hàng      |
-| POST   | `/api/cart`     | Thêm vào giỏ      |
-| PUT    | `/api/cart/:id` | Cập nhật số lượng |
-| DELETE | `/api/cart/:id` | Xóa khỏi giỏ      |
-| DELETE | `/api/cart`     | Xóa toàn bộ giỏ   |
+| Method | Endpoint        | Description           | Auth   |
+| ------ | --------------- | --------------------- | ------ |
+| GET    | `/`             | Danh sách restaurants | Public |
+| GET    | `/search?q=...` | Tìm kiếm              | Public |
+| GET    | `/:id`          | Chi tiết restaurant   | Public |
+| GET    | `/:id/products` | Menu của restaurant   | Public |
+| POST   | `/`             | Tạo restaurant        | Admin  |
+| PUT    | `/:id`          | Cập nhật restaurant   | Admin  |
+| DELETE | `/:id`          | Xóa restaurant        | Admin  |
 
-### Orders (Protected)
+### 5. Products (`/api/products`)
 
-| Method | Endpoint                 | Description         |
-| ------ | ------------------------ | ------------------- |
-| GET    | `/api/orders`            | Đơn hàng của tôi    |
-| GET    | `/api/orders/:id`        | Chi tiết đơn hàng   |
-| POST   | `/api/orders`            | Tạo đơn hàng        |
-| PATCH  | `/api/orders/:id/status` | Cập nhật trạng thái |
-| DELETE | `/api/orders/:id`        | Hủy đơn hàng        |
+| Method | Endpoint        | Description        | Auth   |
+| ------ | --------------- | ------------------ | ------ |
+| GET    | `/`             | Danh sách products | Public |
+| GET    | `/search?q=...` | Tìm kiếm           | Public |
+| GET    | `/:id`          | Chi tiết product   | Public |
+| POST   | `/`             | Tạo product        | Admin  |
+| PUT    | `/:id`          | Cập nhật product   | Admin  |
+| DELETE | `/:id`          | Xóa product        | Admin  |
 
-### Favorites (Protected)
+### 6. Cart (`/api/cart`)
 
-| Method | Endpoint                             | Description         |
-| ------ | ------------------------------------ | ------------------- |
-| GET    | `/api/favorites`                     | Danh sách yêu thích |
-| POST   | `/api/favorites/:restaurantId`       | Thêm yêu thích      |
-| DELETE | `/api/favorites/:restaurantId`       | Xóa yêu thích       |
-| GET    | `/api/favorites/check/:restaurantId` | Kiểm tra yêu thích  |
+| Method | Endpoint          | Description              | Auth      |
+| ------ | ----------------- | ------------------------ | --------- |
+| GET    | `/`               | Lấy giỏ hàng             | Protected |
+| POST   | `/`               | Thêm vào giỏ             | Protected |
+| POST   | `/sync`           | Đồng bộ giỏ              | Protected |
+| PUT    | `/:id`            | Cập nhật số lượng        | Protected |
+| DELETE | `/:id`            | Xóa item                 | Protected |
+| DELETE | `/restaurant/:id` | Xóa items của restaurant | Protected |
+| DELETE | `/`               | Xóa toàn bộ giỏ          | Protected |
 
-### Reviews (Protected)
+### 7. Orders (`/api/orders`)
 
-| Method | Endpoint                                | Description           |
-| ------ | --------------------------------------- | --------------------- |
-| GET    | `/api/reviews/restaurant/:restaurantId` | Đánh giá của nhà hàng |
-| POST   | `/api/reviews`                          | Tạo đánh giá          |
-| PUT    | `/api/reviews/:id`                      | Cập nhật đánh giá     |
-| DELETE | `/api/reviews/:id`                      | Xóa đánh giá          |
+| Method | Endpoint      | Description         | Auth        |
+| ------ | ------------- | ------------------- | ----------- |
+| GET    | `/`           | Đơn hàng của tôi    | Protected   |
+| GET    | `/all`        | Tất cả đơn hàng     | Admin       |
+| GET    | `/:id`        | Chi tiết đơn hàng   | Owner/Admin |
+| POST   | `/`           | Tạo đơn hàng        | Protected   |
+| PATCH  | `/:id/status` | Cập nhật trạng thái | Owner/Admin |
+| DELETE | `/:id`        | Hủy đơn hàng        | Owner/Admin |
 
-### Promotions (Public/Protected)
+### 8. Favorites (`/api/favorites`)
 
-| Method | Endpoint                   | Description               |
-| ------ | -------------------------- | ------------------------- |
-| GET    | `/api/promotions`          | Danh sách khuyến mãi      |
-| GET    | `/api/promotions/active`   | Khuyến mãi đang hoạt động |
-| POST   | `/api/promotions/validate` | Validate mã (protected)   |
+| Method | Endpoint                | Description         | Auth      |
+| ------ | ----------------------- | ------------------- | --------- |
+| GET    | `/`                     | Danh sách yêu thích | Protected |
+| GET    | `/restaurants`          | Danh sách IDs       | Protected |
+| GET    | `/check/:restaurantId`  | Kiểm tra favorite   | Protected |
+| POST   | `/:restaurantId`        | Thêm favorite       | Protected |
+| POST   | `/toggle/:restaurantId` | Toggle favorite     | Protected |
+| DELETE | `/:restaurantId`        | Xóa favorite        | Protected |
+| DELETE | `/`                     | Xóa tất cả          | Protected |
 
-### Addresses (Protected)
+### 9. Reviews (`/api/reviews`)
 
-| Method | Endpoint                     | Description          |
-| ------ | ---------------------------- | -------------------- |
-| GET    | `/api/addresses`             | Danh sách địa chỉ    |
-| POST   | `/api/addresses`             | Thêm địa chỉ         |
-| PUT    | `/api/addresses/:id`         | Cập nhật địa chỉ     |
-| DELETE | `/api/addresses/:id`         | Xóa địa chỉ          |
-| PATCH  | `/api/addresses/:id/default` | Đặt địa chỉ mặc định |
+| Method | Endpoint                    | Description            | Auth        |
+| ------ | --------------------------- | ---------------------- | ----------- |
+| GET    | `/restaurant/:restaurantId` | Reviews của restaurant | Public      |
+| GET    | `/`                         | Tất cả reviews         | Admin       |
+| GET    | `/user/me`                  | Reviews của tôi        | Protected   |
+| POST   | `/`                         | Tạo review             | Protected   |
+| PUT    | `/:id`                      | Cập nhật review        | Owner       |
+| DELETE | `/:id`                      | Xóa review             | Owner/Admin |
 
-## 📝 Ví dụ sử dụng
+### 10. Promotions (`/api/promotions`)
 
-### 1. Đăng ký
+| Method | Endpoint      | Description            | Auth      |
+| ------ | ------------- | ---------------------- | --------- |
+| GET    | `/`           | Danh sách promotions   | Public    |
+| GET    | `/active`     | Promotions đang active | Public    |
+| GET    | `/code/:code` | Lấy theo code          | Public    |
+| POST   | `/validate`   | Validate mã            | Protected |
+| POST   | `/`           | Tạo promotion          | Admin     |
+| PUT    | `/:id`        | Cập nhật promotion     | Admin     |
+| PATCH  | `/:id/toggle` | Bật/tắt promotion      | Admin     |
+| DELETE | `/:id`        | Xóa promotion          | Admin     |
+
+### 11. Addresses (`/api/addresses`)
+
+| Method | Endpoint       | Description         | Auth      |
+| ------ | -------------- | ------------------- | --------- |
+| GET    | `/`            | Danh sách addresses | Protected |
+| GET    | `/default`     | Địa chỉ mặc định    | Protected |
+| GET    | `/:id`         | Chi tiết address    | Protected |
+| POST   | `/`            | Tạo address         | Protected |
+| PUT    | `/:id`         | Cập nhật address    | Protected |
+| PATCH  | `/:id/default` | Đặt mặc định        | Protected |
+| DELETE | `/:id`         | Xóa address         | Protected |
+| DELETE | `/`            | Xóa non-default     | Protected |
+
+## 🎨 Tính năng JSON-Server
+
+### Pagination
+
+```bash
+# Trang 1, 10 items
+GET /api/restaurants?_page=1&_limit=10
+
+# Response headers:
+X-Total-Count: 50
+X-Total-Pages: 5
+X-Current-Page: 1
+X-Per-Page: 10
+Link: <...>; rel="first", <...>; rel="next", <...>; rel="last"
+```
+
+### Sorting
+
+```bash
+# Sắp xếp theo rating giảm dần
+GET /api/restaurants?_sort=rating&_order=desc
+
+# Sắp xếp nhiều trường
+GET /api/products?_sort=price,name&_order=asc
+```
+
+### Full-text Search
+
+```bash
+# Tìm trong tất cả fields
+GET /api/restaurants?q=pizza
+
+# Kết hợp với pagination
+GET /api/products?q=cơm&_page=1&_limit=20
+```
+
+### Filtering
+
+```bash
+# Exact match
+GET /api/restaurants?categoryId=1&isOpen=true
+
+# Operators
+GET /api/products?price_gte=50000&price_lte=100000
+GET /api/products?discount_ne=0
+GET /api/restaurants?rating_gte=4.5
+
+# Like search
+GET /api/products?name_like=pizza
+
+# In operator
+GET /api/orders?status_in=pending,confirmed
+```
+
+### Relationships
+
+```bash
+# Embed (nhúng dữ liệu con)
+GET /api/restaurants/1?_embed=products,reviews
+
+# Expand (mở rộng foreign key)
+GET /api/products/1?_expand=restaurant,category
+```
+
+### Kết hợp
+
+```bash
+# Tìm pizza, giá 100k-200k, sắp xếp, phân trang
+GET /api/products?q=pizza&price_gte=100000&price_lte=200000&_sort=price&_order=asc&_page=1&_limit=10
+```
+
+## 🔐 Authentication
+
+### Đăng ký
 
 ```bash
 curl -X POST http://localhost:3000/api/auth/register \
@@ -300,26 +424,7 @@ curl -X POST http://localhost:3000/api/auth/register \
   }'
 ```
 
-Response:
-
-```json
-{
-  "success": true,
-  "message": "User registered successfully",
-  "data": {
-    "user": {
-      "id": 1,
-      "email": "user@example.com",
-      "name": "Nguyễn Văn A",
-      "phone": "0912345678",
-      "role": "customer"
-    },
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-  }
-}
-```
-
-### 2. Đăng nhập
+### Đăng nhập
 
 ```bash
 curl -X POST http://localhost:3000/api/auth/login \
@@ -329,3 +434,203 @@ curl -X POST http://localhost:3000/api/auth/login \
     "password": "123456"
   }'
 ```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "user": { ... },
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  }
+}
+```
+
+### Sử dụng Token
+
+```bash
+curl http://localhost:3000/api/orders \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+## 💡 Ví dụ sử dụng
+
+### 1. Lấy top restaurants theo rating
+
+```bash
+curl "http://localhost:3000/api/restaurants?_sort=rating&_order=desc&_limit=5&_embed=products"
+```
+
+### 2. Tìm món ăn giá rẻ
+
+```bash
+curl "http://localhost:3000/api/products?price_lte=50000&available=true&_sort=price&_order=asc"
+```
+
+### 3. Tạo đơn hàng
+
+```bash
+curl -X POST http://localhost:3000/api/orders \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "restaurantId": 1,
+    "items": [
+      { "productId": 1, "quantity": 2 },
+      { "productId": 2, "quantity": 1 }
+    ],
+    "deliveryAddress": "123 Test Street",
+    "paymentMethod": "cash",
+    "promotionCode": "FUNFOOD10"
+  }'
+```
+
+### 4. Xem đơn hàng đã hoàn thành
+
+```bash
+curl "http://localhost:3000/api/orders?status=delivered&_sort=createdAt&_order=desc" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+## 🧪 Testing
+
+### Test accounts (sau khi seed)
+
+```
+Admin:
+Email: admin@funfood.com
+Password: 123456
+
+Customer 1:
+Email: user@funfood.com
+Password: 123456
+
+Customer 2:
+Email: customer@funfood.com
+Password: 123456
+```
+
+### Test flow
+
+```bash
+# 1. Login
+TOKEN=$(curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@funfood.com","password":"123456"}' \
+  | jq -r '.data.token')
+
+# 2. Get restaurants
+curl "http://localhost:3000/api/restaurants?_page=1&_limit=5"
+
+# 3. Add to cart
+curl -X POST http://localhost:3000/api/cart \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"productId":1,"quantity":2}'
+
+# 4. View cart
+curl http://localhost:3000/api/cart \
+  -H "Authorization: Bearer $TOKEN"
+
+# 5. Create order
+curl -X POST http://localhost:3000/api/orders \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{
+    "restaurantId":1,
+    "items":[{"productId":1,"quantity":2}],
+    "deliveryAddress":"123 Test St",
+    "paymentMethod":"cash"
+  }'
+```
+
+## 📦 Deployment
+
+### Production checklist
+
+- [ ] Đổi `JWT_SECRET` trong `.env`
+- [ ] Set `NODE_ENV=production`
+- [ ] Chuyển sang database thực (MongoDB, PostgreSQL)
+- [ ] Enable HTTPS
+- [ ] Setup rate limiting
+- [ ] Add logging (Winston, Morgan)
+- [ ] Setup monitoring
+- [ ] Configure CORS properly
+- [ ] Add compression middleware
+- [ ] Setup backup strategy
+
+### Deploy lên Heroku
+
+```bash
+# Install Heroku CLI
+heroku login
+
+# Create app
+heroku create funfood-api
+
+# Set environment variables
+heroku config:set JWT_SECRET=your_secret
+heroku config:set NODE_ENV=production
+
+# Deploy
+git push heroku main
+
+# Open
+heroku open
+```
+
+### Deploy lên VPS
+
+```bash
+# Clone project
+git clone your-repo
+cd funfood-backend
+
+# Install dependencies
+npm install --production
+
+# Setup PM2
+npm install -g pm2
+pm2 start server.js --name funfood-api
+
+# Setup Nginx reverse proxy
+# ... (configure Nginx)
+
+# Setup SSL with Let's Encrypt
+# ... (configure SSL)
+```
+
+## 📚 Tài liệu bổ sung
+
+- [API_ENDPOINTS.md](API_ENDPOINTS.md) - Chi tiết tất cả endpoints
+- [MIGRATION.md](MIGRATION.md) - Hướng dẫn nâng cấp từ version cũ
+- [QUICK_START.md](QUICK_START.md) - Hướng dẫn bắt đầu nhanh
+
+## 🤝 Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+## 👥 Authors
+
+- **Your Name** - Initial work
+
+## 🙏 Acknowledgments
+
+- Inspired by [JSON Server](https://github.com/typicode/json-server)
+- Built with [Express.js](https://expressjs.com/)
+- Authentication with [JWT](https://jwt.io/)
+
+---
+
+Made with ❤️ for FunFood App
