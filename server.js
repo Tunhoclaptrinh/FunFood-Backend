@@ -29,6 +29,7 @@ const favoriteRoutes = require('./routes/favorite.routes');
 const reviewRoutes = require('./routes/review.routes');
 const promotionRoutes = require('./routes/promotion.routes');
 const addressRoutes = require('./routes/address.routes');
+const notificationRoutes = require('./routes/notification.routes');
 
 // Import endpoints definition
 const endpoints = require('./config/endpoints');
@@ -45,6 +46,7 @@ app.use('/api/favorites', favoriteRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/promotions', promotionRoutes);
 app.use('/api/addresses', addressRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // API docs endpoint
 app.get('/api', (req, res) => {

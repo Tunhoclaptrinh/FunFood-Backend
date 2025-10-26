@@ -98,7 +98,7 @@ exports.createOrder = async (req, res, next) => {
       });
     }
 
-    const { restaurantId, items, deliveryAddress, paymentMethod, note, promotionCode } = req.body;
+    const { restaurantId, items, deliveryAddress, paymentMethod, note, promotionCode, deliveryLatitude, deliveryLongitude, } = req.body;
 
     // Validate items
     if (!items || items.length === 0) {
@@ -140,7 +140,22 @@ exports.createOrder = async (req, res, next) => {
         message: 'Restaurant not found'
       });
     }
-    const deliveryFee = restaurant.deliveryFee || 0;
+
+    // Calculate delivery fee based on distance (optional)
+    let deliveryFee = restaurant.deliveryFee || 0;
+
+    if (deliveryLatitude && deliveryLongitude && restaurant.latitude && restaurant.longitude) {
+      const distance = calculateDistance(
+        restaurant.latitude,
+        restaurant.longitude,
+        deliveryLatitude,
+        deliveryLongitude
+      );
+
+      // Dynamic delivery fee
+      deliveryFee = calculateDeliveryFee(distance);
+    }
+
 
     // Apply promotion
     let discount = 0;
@@ -172,9 +187,11 @@ exports.createOrder = async (req, res, next) => {
       subtotal: Math.round(subtotal),
       deliveryFee,
       discount: Math.round(discount),
-      total: Math.round(total),
+      total: Math.round(subtotal + deliveryFee - discount),
       status: 'pending',
       deliveryAddress,
+      deliveryLatitude: deliveryLatitude || null,
+      deliveryLongitude: deliveryLongitude || null,
       paymentMethod,
       note: note || '',
       promotionCode: promotionCode ? promotionCode.toUpperCase() : null,
@@ -200,6 +217,21 @@ exports.createOrder = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+
+  // Helper: Calculate delivery fee based on distance
+  function calculateDeliveryFee(distance) {
+    const baseFee = 15000;
+    const perKm = 5000;
+
+    if (distance <= 2) {
+      return baseFee;
+    } else if (distance <= 5) {
+      return baseFee + Math.ceil(distance - 2) * perKm;
+    } else {
+      return baseFee + 3 * perKm + Math.ceil(distance - 5) * 7000;
+    }
+  }
+
 };
 
 /**
