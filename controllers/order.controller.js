@@ -1,5 +1,6 @@
 const { validationResult } = require('express-validator');
 const db = require('../config/database');
+import { calculateDistance, calculateDeliveryFee } from '../utils/helpers';
 
 /**
  * GET /api/orders
@@ -217,21 +218,6 @@ exports.createOrder = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-
-  // Helper: Calculate delivery fee based on distance
-  function calculateDeliveryFee(distance) {
-    const baseFee = 15000;
-    const perKm = 5000;
-
-    if (distance <= 2) {
-      return baseFee;
-    } else if (distance <= 5) {
-      return baseFee + Math.ceil(distance - 2) * perKm;
-    } else {
-      return baseFee + 3 * perKm + Math.ceil(distance - 5) * 7000;
-    }
-  }
-
 };
 
 /**
