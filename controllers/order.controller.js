@@ -1,6 +1,6 @@
 const { validationResult } = require('express-validator');
 const db = require('../config/database');
-import { calculateDistance, calculateDeliveryFee } from '.js';
+const { calculateDistance, calculateDeliveryFee } = require('../utils/helpers');
 
 /**
  * GET /api/orders
