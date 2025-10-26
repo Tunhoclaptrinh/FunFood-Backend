@@ -1,5 +1,5 @@
 const db = require('../config/database');
-import { calculateDistance } from '../utils/helpers';
+import { calculateDistance } from '../utils/helpers.js';
 
 
 /**
