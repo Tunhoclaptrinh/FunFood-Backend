@@ -3,7 +3,8 @@
 [![Node.js](https://img.shields.io/badge/Node.js-18.x-green.svg)](https://nodejs.org/)
 [![Express](https://img.shields.io/badge/Express-4.18-blue.svg)](https://expressjs.com/)
 [![JWT](https://img.shields.io/badge/JWT-9.0-orange.svg)](https://jwt.io/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+<!-- [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) -->
 
 Backend API hoàn chỉnh cho ứng dụng đặt đồ ăn FunFood. Được xây dựng với Node.js, Express, JWT Authentication và tích hợp đầy đủ tính năng JSON-Server style queries với GPS tracking.
 
@@ -705,7 +706,6 @@ sudo certbot --nginx -d your-domain.com
 - **[API_ENDPOINTS.md](API_ENDPOINTS.md)** - Complete API reference với tất cả 80 endpoints
 - **[MIGRATION.md](MIGRATION.md)** - Migration guide từ v1.0 → v2.0
 - **[QUICK_START.md](QUICK_START.md)** - Quick start guide
-- **[UPDATES_NEEDED.md](UPDATES_NEEDED.md)** - Danh sách updates cần thiết
 
 ## 🤝 Contributing
 
@@ -717,15 +717,15 @@ Contributions are welcome!
 4. Push to branch (`git push origin feature/AmazingFeature`)
 5. Open Pull Request
 
-## 📄 License
+<!-- ## 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License. -->
 
-## 👥 Support
+<!-- ## 👥 Support
 
 - **Email**: support@funfood.com
 - **Issues**: [GitHub Issues](https://github.com/your-repo/issues)
-- **Docs**: [Full Documentation](https://docs.funfood.com)
+- **Docs**: [Full Documentation](https://docs.funfood.com) -->
 
 ## 🙏 Acknowledgments
 
