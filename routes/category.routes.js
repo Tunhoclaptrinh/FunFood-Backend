@@ -1,12 +1,23 @@
-const express = require('express');
-const router = express.Router();
 const categoryController = require('../controllers/category.controller');
-const { protect, authorize } = require('../middleware/auth.middleware');
+const validation = require('../middleware/validation.middleware');
 
-router.get('/', categoryController.getCategories);
-router.get('/:id', categoryController.getCategory);
-router.post('/', protect, authorize('admin'), categoryController.createCategory);
-router.put('/:id', protect, authorize('admin'), categoryController.updateCategory);
-router.delete('/:id', protect, authorize('admin'), categoryController.deleteCategory);
-
-module.exports = router;
+router.get('/', categoryController.getAll);          // From BaseController
+router.get('/search', categoryController.search);    // From BaseController
+router.get('/:id', categoryController.getById);      // From BaseController
+router.post('/',
+  protect,
+  authorize('admin'),
+  validation.category.create,  // Centralized validation
+  categoryController.create    // From BaseController
+);
+router.put('/:id',
+  protect,
+  authorize('admin'),
+  validation.category.update,
+  categoryController.update
+);
+router.delete('/:id',
+  protect,
+  authorize('admin'),
+  categoryController.delete
+);
