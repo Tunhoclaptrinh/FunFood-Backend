@@ -1,15 +1,13 @@
-/**
- * Product Service - Extend BaseService
- */
 const BaseService = require('../utils/BaseService');
 const db = require('../config/database');
 
+/**
+ * Product Service - Extend BaseService
+ */
 class ProductService extends BaseService {
   constructor() {
     super('products');
   }
-
-  // ============= OVERRIDE HOOKS =============
 
   async validateCreate(data) {
     // Check restaurant exists
@@ -52,8 +50,6 @@ class ProductService extends BaseService {
       updatedAt: new Date().toISOString()
     };
   }
-
-  // ============= CUSTOM METHODS =============
 
   /**
    * Get products by restaurant

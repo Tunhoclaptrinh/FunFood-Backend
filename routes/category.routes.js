@@ -1,5 +1,8 @@
-const categoryController = require('../controllers/category.controller');
+const express = require('express');
+const router = express.Router();
+const { protect, authorize } = require('../middleware/auth.middleware');
 const validation = require('../middleware/validation.middleware');
+const categoryController = require('../controllers/category.controller');
 
 router.get('/', categoryController.getAll);          // From BaseController
 router.get('/search', categoryController.search);    // From BaseController
@@ -21,3 +24,5 @@ router.delete('/:id',
   authorize('admin'),
   categoryController.delete
 );
+
+module.exports = router;

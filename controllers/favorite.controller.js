@@ -1,110 +1,121 @@
-const db = require('../config/database');
+const favoriteService = require('../services/favorite.service');
+const BaseController = require('../utils/BaseController');
 
-exports.getFavorites = async (req, res, next) => {
-  try {
-    const favorites = db.findMany('favorites', { userId: req.user.id });
-
-    // Enrich with restaurant details
-    const enrichedFavorites = favorites.map(fav => {
-      const restaurant = db.findById('restaurants', fav.restaurantId);
-      return {
-        ...fav,
-        restaurant: restaurant || null
-      };
-    });
-
-    res.json({
-      success: true,
-      count: enrichedFavorites.length,
-      data: enrichedFavorites
-    });
-  } catch (error) {
-    next(error);
+class FavoriteController extends BaseController {
+  constructor() {
+    super(favoriteService);
   }
-};
 
-exports.addFavorite = async (req, res, next) => {
-  try {
-    const { restaurantId } = req.params;
+  getFavorites = async (req, res, next) => {
+    try {
+      const result = await this.service.getFavorites(req.user.id, req.parsedQuery);
 
-    // Check if restaurant exists
-    const restaurant = db.findById('restaurants', restaurantId);
-    if (!restaurant) {
-      return res.status(404).json({
-        success: false,
-        message: 'Restaurant not found'
+      res.json({
+        success: true,
+        count: result.data.length,
+        data: result.data
       });
+    } catch (error) {
+      next(error);
     }
+  };
 
-    // Check if already favorited
-    const existing = db.findOne('favorites', {
-      userId: req.user.id,
-      restaurantId: parseInt(restaurantId)
-    });
+  getFavoriteRestaurantIds = async (req, res, next) => {
+    try {
+      const result = await this.service.getFavoriteRestaurantIds(req.user.id);
 
-    if (existing) {
-      return res.status(400).json({
-        success: false,
-        message: 'Restaurant already in favorites'
+      res.json({
+        success: true,
+        count: result.data.length,
+        data: result.data
       });
+    } catch (error) {
+      next(error);
     }
+  };
 
-    const favorite = db.create('favorites', {
-      userId: req.user.id,
-      restaurantId: parseInt(restaurantId)
-    });
+  addFavorite = async (req, res, next) => {
+    try {
+      const result = await this.service.addFavorite(
+        req.user.id,
+        req.params.restaurantId
+      );
 
-    res.status(201).json({
-      success: true,
-      message: 'Added to favorites',
-      data: favorite
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+      if (!result.success) {
+        return res.status(result.statusCode || 400).json({
+          success: false,
+          message: result.message
+        });
+      }
 
-exports.removeFavorite = async (req, res, next) => {
-  try {
-    const { restaurantId } = req.params;
-
-    const favorite = db.findOne('favorites', {
-      userId: req.user.id,
-      restaurantId: parseInt(restaurantId)
-    });
-
-    if (!favorite) {
-      return res.status(404).json({
-        success: false,
-        message: 'Favorite not found'
-      });
+      res.status(201).json(result);
+    } catch (error) {
+      next(error);
     }
+  };
 
-    db.delete('favorites', favorite.id);
+  removeFavorite = async (req, res, next) => {
+    try {
+      const result = await this.service.removeFavorite(
+        req.user.id,
+        req.params.restaurantId
+      );
 
-    res.json({
-      success: true,
-      message: 'Removed from favorites'
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+      if (!result.success) {
+        return res.status(result.statusCode || 400).json({
+          success: false,
+          message: result.message
+        });
+      }
 
-exports.checkFavorite = async (req, res, next) => {
-  try {
-    const { restaurantId } = req.params;
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
 
-    const favorite = db.findOne('favorites', {
-      userId: req.user.id,
-      restaurantId: parseInt(restaurantId)
-    });
+  toggleFavorite = async (req, res, next) => {
+    try {
+      const result = await this.service.toggleFavorite(
+        req.user.id,
+        req.params.restaurantId
+      );
 
-    res.json({
-      success: true,
-      isFavorite: !!favorite
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+      if (!result.success) {
+        return res.status(result.statusCode || 400).json({
+          success: false,
+          message: result.message
+        });
+      }
+
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  checkFavorite = async (req, res, next) => {
+    try {
+      const result = await this.service.checkFavorite(
+        req.user.id,
+        req.params.restaurantId
+      );
+
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  clearAll = async (req, res, next) => {
+    try {
+      const result = await this.service.clearAll(req.user.id);
+
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
+}
+
+module.exports = new FavoriteController();

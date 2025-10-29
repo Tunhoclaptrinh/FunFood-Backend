@@ -2,12 +2,20 @@ const express = require('express');
 const router = express.Router();
 const promotionController = require('../controllers/promotion.controller');
 const { protect, authorize } = require('../middleware/auth.middleware');
+const validation = require('../middleware/validation.middleware');
 
-router.get('/', promotionController.getPromotions);
+// Public routes
+router.get('/', promotionController.getAll);
 router.get('/active', promotionController.getActivePromotions);
-router.post('/validate', protect, promotionController.validatePromotion);
-router.post('/', protect, authorize('admin'), promotionController.createPromotion);
-router.put('/:id', protect, authorize('admin'), promotionController.updatePromotion);
-router.delete('/:id', protect, authorize('admin'), promotionController.deletePromotion);
+router.get('/code/:code', promotionController.getByCode);
+
+// Protected routes
+router.post('/validate', protect, validation.promotion.validate, promotionController.validatePromotion);
+
+// Admin routes
+router.post('/', protect, authorize('admin'), validation.promotion.create, promotionController.create);
+router.put('/:id', protect, authorize('admin'), promotionController.update);
+router.patch('/:id/toggle', protect, authorize('admin'), promotionController.toggleActive);
+router.delete('/:id', protect, authorize('admin'), promotionController.delete);
 
 module.exports = router;
