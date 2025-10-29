@@ -1,167 +1,71 @@
-const db = require('../config/database');
+const BaseController = require('../utils/BaseController');
+const productService = require('../services/product.service');
 
-/**
- * GET /api/products
- * Query examples:
- * - ?_page=1&_limit=20
- * - ?_sort=price&_order=asc
- * - ?restaurantId=1
- * - ?categoryId=2
- * - ?available=true
- * - ?price_gte=50000&price_lte=100000
- * - ?discount_ne=0 (products with discount)
- * - ?name_like=pizza
- * - ?_expand=restaurant,category
- */
-exports.getProducts = async (req, res, next) => {
-  try {
-    const result = db.findAllAdvanced('products', req.parsedQuery);
-
-    res.json({
-      success: true,
-      count: result.data.length,
-      data: result.data,
-      pagination: result.pagination
-    });
-  } catch (error) {
-    next(error);
+class ProductController extends BaseController {
+  constructor() {
+    super(productService);
   }
-};
 
-/**
- * GET /api/products/search?q=...
- * Search products by name or description
- */
-exports.searchProducts = async (req, res, next) => {
-  try {
-    const { q } = req.query;
+  getDiscounted = async (req, res, next) => {
+    try {
+      const result = await this.service.getDiscounted(req.parsedQuery);
 
-    if (!q) {
-      return res.status(400).json({
-        success: false,
-        message: 'Search query is required'
+      res.json({
+        success: true,
+        count: result.data.length,
+        data: result.data,
+        pagination: result.pagination
       });
+    } catch (error) {
+      next(error);
     }
+  };
 
-    const result = db.findAllAdvanced('products', {
-      q,
-      page: req.parsedQuery.page,
-      limit: req.parsedQuery.limit,
-      sort: req.parsedQuery.sort,
-      order: req.parsedQuery.order,
-      expand: req.parsedQuery.expand
-    });
+  getById = async (req, res, next) => {
+    try {
+      const result = await this.service.findById(req.params.id);
 
-    res.json({
-      success: true,
-      count: result.data.length,
-      data: result.data,
-      pagination: result.pagination
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+      if (!result.success) {
+        return res.status(result.statusCode || 404).json({
+          success: false,
+          message: result.message
+        });
+      }
 
-/**
- * GET /api/products/:id
- * Get product details
- * Supports ?_expand=restaurant,category
- */
-exports.getProduct = async (req, res, next) => {
-  try {
-    const product = db.findById('products', req.params.id);
+      let enriched = result.data;
+      if (req.parsedQuery.expand) {
+        const db = require('../config/database');
+        const items = db.applyRelations([result.data], 'products', req.parsedQuery);
+        enriched = items[0];
+      }
 
-    if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: 'Product not found'
+      res.json({
+        success: true,
+        data: enriched
       });
+    } catch (error) {
+      next(error);
     }
+  };
 
-    // Expand relations if requested
-    let enriched = product;
-    if (req.parsedQuery.expand) {
-      const result = db.applyRelations([product], 'products', req.parsedQuery);
-      enriched = result[0];
+  bulkUpdateAvailability = async (req, res, next) => {
+    try {
+      const { productIds, available } = req.body;
+
+      if (!Array.isArray(productIds) || typeof available !== 'boolean') {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid request: productIds (array) and available (boolean) required'
+        });
+      }
+
+      const result = await this.service.bulkUpdateAvailability(productIds, available);
+
+      res.json(result);
+    } catch (error) {
+      next(error);
     }
+  };
+}
 
-    res.json({
-      success: true,
-      data: enriched
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * POST /api/products (Admin only)
- * Create new product
- */
-exports.createProduct = async (req, res, next) => {
-  try {
-    const product = db.create('products', {
-      ...req.body,
-      available: req.body.available !== undefined ? req.body.available : true,
-      discount: req.body.discount || 0
-    });
-
-    res.status(201).json({
-      success: true,
-      message: 'Product created successfully',
-      data: product
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * PUT /api/products/:id (Admin only)
- * Update product
- */
-exports.updateProduct = async (req, res, next) => {
-  try {
-    const product = db.update('products', req.params.id, req.body);
-
-    if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: 'Product not found'
-      });
-    }
-
-    res.json({
-      success: true,
-      message: 'Product updated successfully',
-      data: product
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * DELETE /api/products/:id (Admin only)
- * Delete product
- */
-exports.deleteProduct = async (req, res, next) => {
-  try {
-    const result = db.delete('products', req.params.id);
-
-    if (!result) {
-      return res.status(404).json({
-        success: false,
-        message: 'Product not found'
-      });
-    }
-
-    res.json({
-      success: true,
-      message: 'Product deleted successfully'
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+module.exports = new ProductController();

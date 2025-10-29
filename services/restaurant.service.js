@@ -1,17 +1,12 @@
-/**
- * Restaurant Service - Extend BaseService
- * Chỉ cần viết các logic đặc thù riêng cho Restaurant
- */
 const BaseService = require('../utils/BaseService');
 const db = require('../config/database');
 const { calculateDistance } = require('../utils/helpers');
 
+
 class RestaurantService extends BaseService {
   constructor() {
-    super('restaurants'); // Collection name
+    super('restaurants');  // Collection name
   }
-
-  // ============= OVERRIDE HOOKS =============
 
   /**
    * Validate before create restaurant
@@ -41,8 +36,8 @@ class RestaurantService extends BaseService {
   }
 
   /**
-   * Transform data before create
-   */
+ * Transform data before create
+ */
   async beforeCreate(data) {
     return {
       ...data,
@@ -69,12 +64,9 @@ class RestaurantService extends BaseService {
 
     return { success: true };
   }
-
-  // ============= CUSTOM METHODS =============
-
   /**
-   * Get nearby restaurants (GPS)
-   */
+ * Get nearby restaurants (GPS)
+ */
   async getNearby(latitude, longitude, radius = 5, options = {}) {
     try {
       const allRestaurants = db.findAll('restaurants');
@@ -82,9 +74,7 @@ class RestaurantService extends BaseService {
       // Calculate distance for each
       const restaurantsWithDistance = allRestaurants
         .map(restaurant => {
-          if (!restaurant.latitude || !restaurant.longitude) {
-            return null;
-          }
+          if (!restaurant.latitude || !restaurant.longitude) return null;
 
           const distance = calculateDistance(
             parseFloat(latitude),
@@ -132,8 +122,8 @@ class RestaurantService extends BaseService {
   }
 
   /**
-   * Get restaurant menu (products)
-   */
+     * Get restaurant menu (products)
+     */
   async getMenu(restaurantId, options = {}) {
     try {
       // Check restaurant exists
@@ -162,8 +152,8 @@ class RestaurantService extends BaseService {
   }
 
   /**
-   * Update restaurant rating (called after review)
-   */
+  * Update restaurant rating (called after review)
+  */
   async updateRating(restaurantId) {
     try {
       const reviews = db.findMany('reviews', { restaurantId: parseInt(restaurantId) });

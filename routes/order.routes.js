@@ -1,21 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const { body } = require('express-validator');
 const orderController = require('../controllers/order.controller');
 const { protect, authorize } = require('../middleware/auth.middleware');
+const validation = require('../middleware/validation.middleware');
 
 router.get('/', protect, orderController.getMyOrders);
-router.get('/all', protect, authorize('admin'), orderController.getAllOrders);
-router.get('/:id', protect, orderController.getOrder);
-router.post('/', protect, [
-  body('restaurantId').notEmpty().withMessage('Restaurant is required'),
-  body('items').isArray({ min: 1 }).withMessage('Order must have at least 1 item'),
-  body('deliveryAddress').notEmpty().withMessage('Delivery address is required'),
-  body('deliveryLatitude').optional().isFloat().withMessage('Invalid latitude'),
-  body('deliveryLongitude').optional().isFloat().withMessage('Invalid longitude'),
-  body('paymentMethod').notEmpty().withMessage('Payment method is required')
-], orderController.createOrder);
-router.patch('/:id/status', protect, orderController.updateOrderStatus);
+router.get('/all', protect, authorize('admin'), orderController.getAll);
+router.get('/:id', protect, orderController.getById);
+router.post('/', protect, validation.order.create, orderController.create);
+router.patch('/:id/status', protect, validation.order.updateStatus, orderController.updateStatus);
 router.delete('/:id', protect, orderController.cancelOrder);
 
 module.exports = router;
