@@ -1,201 +1,16 @@
 /**
- * Enhanced Base Service
- * Tích hợp: CRUD + Validation + Import/Export + Schema Definition
- * 
- * Cách dùng:
- * 1. Extend BaseService
- * 2. Định nghĩa schema trong constructor
- * 3. Tự động có đầy đủ: CRUD, validation, import/export
+ * Base Service - Chứa logic CRUD cơ bản
+ * Các service khác sẽ extend class này
  */
-
 const db = require('../config/database');
-const XLSX = require('xlsx');
-const { Parser } = require('json2csv');
 
 class BaseService {
-  constructor(collectionName, schema = null) {
+  constructor(collectionName) {
     this.collection = collectionName;
-    this.schema = schema || this.defineSchema();
-    this.BATCH_SIZE = 100;
-  }
-
-  // ============= SCHEMA DEFINITION =============
-  /**
-   * Define entity schema - OVERRIDE trong child class
-   * @returns {Object} Schema definition
-   */
-  defineSchema() {
-    return {};
   }
 
   /**
-   * Get validation rules from schema
-   */
-  getValidationRules() {
-    const rules = {};
-    for (const [field, config] of Object.entries(this.schema)) {
-      rules[field] = {
-        required: config.required || false,
-        type: config.type || 'string',
-        min: config.min,
-        max: config.max,
-        values: config.values,
-        unique: config.unique || false,
-        foreignKey: config.foreignKey,
-        default: config.default,
-        validate: config.validate // Custom validator function
-      };
-    }
-    return rules;
-  }
-
-  // ============= VALIDATION =============
-  /**
-   * Validate data against schema
-   */
-  async validate(data, mode = 'create') {
-    const rules = this.getValidationRules();
-    const errors = [];
-
-    for (const [field, rule] of Object.entries(rules)) {
-      const value = data[field];
-
-      // Skip validation for update if field not provided
-      if (mode === 'update' && value === undefined) continue;
-
-      // Required check
-      if (rule.required && (value === undefined || value === null || value === '')) {
-        errors.push(`${field} is required`);
-        continue;
-      }
-
-      // Skip if optional and empty
-      if (!rule.required && (value === undefined || value === null || value === '')) {
-        continue;
-      }
-
-      // Type validation
-      const typeError = this.validateType(field, value, rule);
-      if (typeError) errors.push(typeError);
-
-      // Range validation
-      if (rule.min !== undefined && value < rule.min) {
-        errors.push(`${field} must be >= ${rule.min}`);
-      }
-      if (rule.max !== undefined && value > rule.max) {
-        errors.push(`${field} must be <= ${rule.max}`);
-      }
-
-      // Enum validation
-      if (rule.values && !rule.values.includes(value)) {
-        errors.push(`${field} must be one of: ${rule.values.join(', ')}`);
-      }
-
-      // Foreign key validation
-      if (rule.foreignKey) {
-        const related = db.findById(rule.foreignKey, value);
-        if (!related) {
-          errors.push(`${field} references non-existent ${rule.foreignKey}`);
-        }
-      }
-
-      // Unique validation (for create)
-      if (mode === 'create' && rule.unique && value) {
-        const existing = db.findOne(this.collection, { [field]: value });
-        if (existing) {
-          errors.push(`${field} '${value}' already exists`);
-        }
-      }
-
-      // Custom validation
-      if (rule.validate) {
-        const customError = rule.validate(value, data);
-        if (customError) errors.push(customError);
-      }
-    }
-
-    return {
-      isValid: errors.length === 0,
-      errors
-    };
-  }
-
-  /**
-   * Validate field type
-   */
-  validateType(field, value, rule) {
-    switch (rule.type) {
-      case 'string':
-        if (typeof value !== 'string') return `${field} must be a string`;
-        break;
-      case 'number':
-        if (isNaN(Number(value))) return `${field} must be a number`;
-        break;
-      case 'boolean':
-        const boolVal = String(value).toLowerCase();
-        if (!['true', 'false', '1', '0', 'yes', 'no'].includes(boolVal)) {
-          return `${field} must be true/false`;
-        }
-        break;
-      case 'email':
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(value)) return `${field} must be a valid email`;
-        break;
-      case 'date':
-        const date = new Date(value);
-        if (isNaN(date.getTime())) return `${field} must be a valid date`;
-        break;
-      case 'url':
-        try {
-          new URL(value);
-        } catch {
-          return `${field} must be a valid URL`;
-        }
-        break;
-    }
-    return null;
-  }
-
-  /**
-   * Transform data based on schema
-   */
-  transformData(data) {
-    const transformed = {};
-    const rules = this.getValidationRules();
-
-    for (const [field, rule] of Object.entries(rules)) {
-      let value = data[field];
-
-      // Use default if not provided
-      if ((value === undefined || value === null || value === '') && rule.default !== undefined) {
-        value = typeof rule.default === 'function' ? rule.default() : rule.default;
-      }
-
-      // Type conversion
-      if (value !== undefined && value !== null && value !== '') {
-        switch (rule.type) {
-          case 'number':
-            transformed[field] = Number(value);
-            break;
-          case 'boolean':
-            const boolStr = String(value).toLowerCase();
-            transformed[field] = ['true', '1', 'yes'].includes(boolStr);
-            break;
-          case 'date':
-            transformed[field] = new Date(value).toISOString();
-            break;
-          default:
-            transformed[field] = value;
-        }
-      }
-    }
-
-    return transformed;
-  }
-
-  // ============= CRUD WITH AUTO-VALIDATION =============
-  /**
-   * Find all with advanced filtering
+   * Get all records với advanced filtering
    */
   async findAll(options = {}) {
     try {
@@ -211,7 +26,7 @@ class BaseService {
   }
 
   /**
-   * Find by ID
+   * Get one record by ID
    */
   async findById(id) {
     try {
@@ -223,46 +38,62 @@ class BaseService {
           statusCode: 404
         };
       }
-      return { success: true, data: item };
+      return {
+        success: true,
+        data: item
+      };
     } catch (error) {
       throw error;
     }
   }
 
   /**
-   * Create with auto-validation
+   * Find one by query
+   */
+  async findOne(query) {
+    try {
+      const item = db.findOne(this.collection, query);
+      return {
+        success: !!item,
+        data: item
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Find many by query
+   */
+  async findMany(query) {
+    try {
+      const items = db.findMany(this.collection, query);
+      return {
+        success: true,
+        data: items
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Create new record
    */
   async create(data) {
     try {
-      // Auto validate
-      const validation = await this.validate(data, 'create');
-      if (!validation.isValid) {
-        return {
-          success: false,
-          message: 'Validation failed',
-          errors: validation.errors,
-          statusCode: 400
-        };
+      // Validate before create (có thể override)
+      const validation = await this.validateCreate(data);
+      if (!validation.success) {
+        return validation;
       }
 
-      // Custom validation hook
-      const customValidation = await this.validateCreate(data);
-      if (!customValidation.success) {
-        return customValidation;
-      }
+      // Transform data before save (có thể override)
+      const transformedData = await this.beforeCreate(data);
 
-      // Transform & add timestamps
-      const transformed = this.transformData(data);
-      const enriched = await this.beforeCreate({
-        ...transformed,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      });
+      const item = db.create(this.collection, transformedData);
 
-      // Create
-      const item = db.create(this.collection, enriched);
-
-      // Hook
+      // Hook after create (có thể override)
       await this.afterCreate(item);
 
       return {
@@ -276,42 +107,28 @@ class BaseService {
   }
 
   /**
-   * Update with auto-validation
+   * Update record
    */
   async update(id, data) {
     try {
       // Check exists
       const existCheck = await this.findById(id);
-      if (!existCheck.success) return existCheck;
-
-      // Auto validate
-      const validation = await this.validate(data, 'update');
-      if (!validation.isValid) {
-        return {
-          success: false,
-          message: 'Validation failed',
-          errors: validation.errors,
-          statusCode: 400
-        };
+      if (!existCheck.success) {
+        return existCheck;
       }
 
-      // Custom validation hook
-      const customValidation = await this.validateUpdate(id, data);
-      if (!customValidation.success) {
-        return customValidation;
+      // Validate before update
+      const validation = await this.validateUpdate(id, data);
+      if (!validation.success) {
+        return validation;
       }
 
-      // Transform & update timestamp
-      const transformed = this.transformData(data);
-      const enriched = await this.beforeUpdate(id, {
-        ...transformed,
-        updatedAt: new Date().toISOString()
-      });
+      // Transform data
+      const transformedData = await this.beforeUpdate(id, data);
 
-      // Update
-      const updated = db.update(this.collection, id, enriched);
+      const updated = db.update(this.collection, id, transformedData);
 
-      // Hook
+      // Hook after update
       await this.afterUpdate(updated);
 
       return {
@@ -325,18 +142,28 @@ class BaseService {
   }
 
   /**
-   * Delete
+   * Delete record
    */
   async delete(id) {
     try {
+      // Check exists
       const existCheck = await this.findById(id);
-      if (!existCheck.success) return existCheck;
+      if (!existCheck.success) {
+        return existCheck;
+      }
 
+      // Validate before delete
       const validation = await this.validateDelete(id);
-      if (!validation.success) return validation;
+      if (!validation.success) {
+        return validation;
+      }
 
+      // Hook before delete
       await this.beforeDelete(id);
-      db.delete(this.collection, id);
+
+      const result = db.delete(this.collection, id);
+
+      // Hook after delete
       await this.afterDelete(id);
 
       return {
@@ -348,215 +175,9 @@ class BaseService {
     }
   }
 
-  // ============= IMPORT/EXPORT =============
   /**
-   * Import data from file buffer
+   * Search with full-text
    */
-  async import(fileBuffer, filename, options = {}) {
-    try {
-      // Parse file
-      const rawData = this.parseFile(fileBuffer, filename);
-
-      // Validate headers
-      const headerValidation = this.validateHeaders(rawData);
-      if (!headerValidation.valid) {
-        return {
-          success: false,
-          message: 'Invalid file headers',
-          errors: headerValidation.errors
-        };
-      }
-
-      const results = {
-        total: rawData.length,
-        success: 0,
-        failed: 0,
-        errors: [],
-        inserted: []
-      };
-
-      // Process in batches
-      for (let i = 0; i < rawData.length; i += this.BATCH_SIZE) {
-        const batch = rawData.slice(i, i + this.BATCH_SIZE);
-
-        for (let j = 0; j < batch.length; j++) {
-          const rowIndex = i + j + 2; // Excel row number
-          const row = batch[j];
-
-          try {
-            // Validate row
-            const validation = await this.validate(row, 'create');
-            if (!validation.isValid) {
-              results.failed++;
-              results.errors.push({
-                row: rowIndex,
-                data: row,
-                errors: validation.errors
-              });
-              continue;
-            }
-
-            // Create
-            const result = await this.create(row);
-            if (result.success) {
-              results.success++;
-              results.inserted.push(result.data);
-            } else {
-              results.failed++;
-              results.errors.push({
-                row: rowIndex,
-                data: row,
-                errors: [result.message]
-              });
-            }
-          } catch (error) {
-            results.failed++;
-            results.errors.push({
-              row: rowIndex,
-              data: row,
-              errors: [error.message]
-            });
-          }
-        }
-      }
-
-      return {
-        success: true,
-        message: `Import completed: ${results.success} succeeded, ${results.failed} failed`,
-        data: results
-      };
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * Export data to Excel/CSV
-   */
-  async export(format = 'xlsx', options = {}) {
-    try {
-      // Get data
-      const result = await this.findAll(options);
-      let data = result.data;
-
-      // Select columns
-      const columns = options.columns || Object.keys(this.schema);
-      const exportData = data.map(item => {
-        const row = {};
-        columns.forEach(col => {
-          row[col] = item[col];
-        });
-        return row;
-      });
-
-      // Generate file
-      if (format === 'csv') {
-        return this.generateCSV(exportData);
-      } else {
-        return this.generateExcel(exportData);
-      }
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  /**
-   * Generate import template
-   */
-  generateTemplate(format = 'xlsx') {
-    const templateRow = {};
-    const instructionRow = {};
-
-    for (const [field, config] of Object.entries(this.schema)) {
-      templateRow[field] = '';
-
-      let instruction = config.type;
-      if (config.required) instruction += ', required';
-      if (config.foreignKey) instruction += `, FK: ${config.foreignKey}`;
-      if (config.min !== undefined) instruction += `, min: ${config.min}`;
-      if (config.max !== undefined) instruction += `, max: ${config.max}`;
-      if (config.values) instruction += `, values: ${config.values.join('|')}`;
-
-      instructionRow[field] = instruction;
-    }
-
-    const data = [instructionRow, templateRow];
-
-    if (format === 'csv') {
-      return this.generateCSV(data);
-    } else {
-      return this.generateExcel(data);
-    }
-  }
-
-  // ============= FILE PROCESSING HELPERS =============
-  parseFile(fileBuffer, filename) {
-    const extension = filename.split('.').pop().toLowerCase();
-
-    if (extension === 'csv') {
-      const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
-      const sheetName = workbook.SheetNames[0];
-      return XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-    } else if (['xlsx', 'xls'].includes(extension)) {
-      const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
-      const sheetName = workbook.SheetNames[0];
-      return XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-    } else {
-      throw new Error('Unsupported file format');
-    }
-  }
-
-  validateHeaders(data) {
-    if (!data || data.length === 0) {
-      return { valid: false, errors: ['File is empty'] };
-    }
-
-    const fileHeaders = Object.keys(data[0]);
-    const requiredHeaders = Object.keys(this.schema).filter(
-      key => this.schema[key].required
-    );
-    const missingHeaders = requiredHeaders.filter(h => !fileHeaders.includes(h));
-
-    if (missingHeaders.length > 0) {
-      return {
-        valid: false,
-        errors: [`Missing required columns: ${missingHeaders.join(', ')}`]
-      };
-    }
-
-    return { valid: true, errors: [] };
-  }
-
-  generateExcel(data, sheetName = 'Sheet1') {
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-    return XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
-  }
-
-  generateCSV(data) {
-    if (data.length === 0) return Buffer.from('');
-    const parser = new Parser();
-    const csv = parser.parse(data);
-    return Buffer.from(csv);
-  }
-
-  // ============= HOOKS - Override in child class =============
-  async validateCreate(data) { return { success: true }; }
-  async validateUpdate(id, data) { return { success: true }; }
-  async validateDelete(id) { return { success: true }; }
-  async beforeCreate(data) { return data; }
-  async beforeUpdate(id, data) { return data; }
-  async afterCreate(item) { }
-  async afterUpdate(item) { }
-  async beforeDelete(id) { }
-  async afterDelete(id) { }
-
-  // ============= UTILITIES =============
-  getModelName() {
-    return this.collection.slice(0, -1);
-  }
-
   async search(query, options = {}) {
     try {
       const result = db.findAllAdvanced(this.collection, {
@@ -571,6 +192,80 @@ class BaseService {
     } catch (error) {
       throw error;
     }
+  }
+
+  // ============= HOOKS - Override trong child class =============
+
+  /**
+   * Validate before create
+   */
+  async validateCreate(data) {
+    return { success: true };
+  }
+
+  /**
+   * Validate before update
+   */
+  async validateUpdate(id, data) {
+    return { success: true };
+  }
+
+  /**
+   * Validate before delete
+   */
+  async validateDelete(id) {
+    return { success: true };
+  }
+
+  /**
+   * Transform data before create
+   */
+  async beforeCreate(data) {
+    return data;
+  }
+
+  /**
+   * Transform data before update
+   */
+  async beforeUpdate(id, data) {
+    return data;
+  }
+
+  /**
+   * Hook after create
+   */
+  async afterCreate(item) {
+    // Do nothing by default
+  }
+
+  /**
+   * Hook after update
+   */
+  async afterUpdate(item) {
+    // Do nothing by default
+  }
+
+  /**
+   * Hook before delete
+   */
+  async beforeDelete(id) {
+    // Do nothing by default
+  }
+
+  /**
+   * Hook after delete
+   */
+  async afterDelete(id) {
+    // Do nothing by default
+  }
+
+  // ============= HELPERS =============
+
+  /**
+   * Get model name for messages
+   */
+  getModelName() {
+    return this.collection.slice(0, -1); // Remove 's' at the end
   }
 }
 

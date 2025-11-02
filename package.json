@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "seed": "node utils/seedData.js",
     "dev": "nodemon server.js"
   },
   "dependencies": {
