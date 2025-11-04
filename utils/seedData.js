@@ -50,6 +50,62 @@ const seedData = {
       "createdAt": "2024-03-10T09:15:00Z",
       "lastLogin": "2024-10-25T18:45:00Z",
       "updatedAt": "2024-10-25T18:45:00Z"
+    },
+    {
+      "id": 4,
+      "name": "Lê Văn C",
+      "email": "le.van.c@funfood.com",
+      "password": hashedPassword,
+      "phone": "0905123456",
+      "avatar": "https://ui-avatars.com/api/?name=Le+Van+C&background=EF4444&color=fff",
+      "address": "246 Sư Vạn Hạnh, Quận 10, TP.HCM",
+      "role": "customer",
+      "isActive": true,
+      "createdAt": "2024-04-10T11:00:00Z",
+      "lastLogin": "2024-10-26T10:15:00Z",
+      "updatedAt": "2024-10-26T10:15:00Z"
+    },
+    {
+      "id": 5,
+      "name": "Phạm Thị D",
+      "email": "pham.thi.d@funfood.com",
+      "password": hashedPassword,
+      "phone": "0906789012",
+      "avatar": "https://ui-avatars.com/api/?name=Pham+Thi+D&background=8B5CF6&color=fff",
+      "address": "12 Nguyễn Oanh, Quận Gò Vấp, TP.HCM",
+      "role": "customer",
+      "isActive": true,
+      "createdAt": "2024-05-15T16:30:00Z",
+      "lastLogin": "2024-10-25T20:00:00Z",
+      "updatedAt": "2024-10-25T20:00:00Z"
+    },
+    {
+      "id": 6,
+      "name": "Hoàng Minh (Shipper)",
+      "email": "shipper@funfood.com",
+      "password": hashedPassword,
+      "phone": "0909999888",
+      "avatar": "https://ui-avatars.com/api/?name=Hoang+Minh&background=F97316&color=fff",
+      "address": "459 Âu Cơ, Quận Tân Bình, TP.HCM",
+      "role": "shipper",
+      "isActive": true,
+      "createdAt": "2024-01-20T08:00:00Z",
+      "lastLogin": "2024-10-26T10:20:00Z",
+      "updatedAt": "2024-10-26T10:20:00Z"
+    },
+    {
+      "id": 7,
+      "name": "Quản Lý (Nhà Hàng Chay)",
+      "email": "manager.chay@funfood.com",
+      "password": hashedPassword,
+      "phone": "0918888777",
+      "avatar": "https://ui-avatars.com/api/?name=Manager&background=22C55E&color=fff",
+      "address": "111 Nguyễn Trãi, Quận 5, TP.HCM",
+      "role": "manager",
+      "isActive": true,
+      "createdAt": "2024-03-01T09:00:00Z",
+      "lastLogin": "2024-10-25T15:00:00Z",
+      "updatedAt": "2024-10-25T15:00:00Z"
     }
   ],
   "categories": [
@@ -100,6 +156,30 @@ const seedData = {
       "name": "Lẩu",
       "icon": "🍲",
       "image": "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=400"
+    },
+    {
+      "id": 9,
+      "name": "Đồ chay",
+      "icon": "🥗",
+      "image": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400"
+    },
+    {
+      "id": 10,
+      "name": "Hải sản",
+      "icon": "🦞",
+      "image": "https://images.unsplash.com/photo-1559737558-b103c62391b5?w=400"
+    },
+    {
+      "id": 11,
+      "name": "Mì",
+      "icon": "🍝",
+      "image": "https://images.unsplash.com/photo-1551183053-bf942103f628?w=400"
+    },
+    {
+      "id": 12,
+      "name": "Lẩu & Nướng",
+      "icon": "🔥",
+      "image": "https://images.unsplash.com/photo-1628292416042-83b54d6f1a8e?w=400"
     }
   ],
   "restaurants": [
@@ -228,6 +308,78 @@ const seedData = {
       "closeTime": "23:00",
       "isOpen": false,
       "categoryId": 8
+    },
+    {
+      "id": 8,
+      "name": "Nhà Hàng Chay An Lạc",
+      "description": "Ẩm thực chay thanh tịnh, tốt cho sức khỏe. Đa dạng món lẩu nấm, cơm chiên, gỏi cuốn.",
+      "image": "https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?w=600",
+      "rating": 4.8,
+      "totalReviews": 152,
+      "deliveryTime": "25-35 phút",
+      "deliveryFee": 18000,
+      "address": "246 Sư Vạn Hạnh, Phường 2, Quận 10, TP.HCM",
+      "latitude": 10.7729,
+      "longitude": 106.6698,
+      "phone": "0283 8889999",
+      "openTime": "08:00",
+      "closeTime": "21:00",
+      "isOpen": true,
+      "categoryId": 9
+    },
+    {
+      "id": 9,
+      "name": "Hải Sản Biển Đông",
+      "description": "Hải sản tươi sống, bắt tại hồ. Chuyên tôm hùm, cua rang me, hàu nướng phô mai.",
+      "image": "https://images.unsplash.com/photo-1569091722979-8b432f831f6f?w=600",
+      "rating": 4.6,
+      "totalReviews": 210,
+      "deliveryTime": "30-45 phút",
+      "deliveryFee": 25000,
+      "address": "120 Hoàng Diệu, Phường 12, Quận 4, TP.HCM",
+      "latitude": 10.7554,
+      "longitude": 106.7032,
+      "phone": "0283 7776666",
+      "openTime": "10:00",
+      "closeTime": "23:00",
+      "isOpen": true,
+      "categoryId": 10
+    },
+    {
+      "id": 10,
+      "name": "Mì Ý Pasta Mania",
+      "description": "Thiên đường mì Ý với các loại sốt đặc trưng: Carbonara, Bolognese, Pesto.",
+      "image": "https://images.unsplash.com/photo-1595295433158-e4b02e0e3b6e?w=600",
+      "rating": 4.4,
+      "totalReviews": 95,
+      "deliveryTime": "20-30 phút",
+      "deliveryFee": 15000,
+      "address": "55 Thảo Điền, Phường Thảo Điền, Quận 2, TP.HCM",
+      "latitude": 10.8016,
+      "longitude": 106.7329,
+      "phone": "0283 5554444",
+      "openTime": "09:00",
+      "closeTime": "22:00",
+      "isOpen": true,
+      "categoryId": 11
+    },
+    {
+      "id": 11,
+      "name": "Cơm Gà Xối Mỡ 99",
+      "description": "Cơm gà da giòn, xối mỡ hành thơm lừng. Kèm theo canh rong biển và gỏi.",
+      "image": "https://images.unsplash.com/photo-1625037687820-2c7b5818d0f1?w=600",
+      "rating": 4.5,
+      "totalReviews": 320,
+      "deliveryTime": "15-25 phút",
+      "deliveryFee": 12000,
+      "address": "150 Nguyễn Trãi, Phường 3, Quận 5, TP.HCM",
+      "latitude": 10.7562,
+      "longitude": 106.6713,
+      "phone": "0283 2223333",
+      "openTime": "07:00",
+      "closeTime": "21:00",
+      "isOpen": true,
+      "categoryId": 1
     }
   ],
   "products": [
@@ -450,6 +602,116 @@ const seedData = {
       "categoryId": 8,
       "available": false,
       "discount": 5
+    },
+    {
+      "id": 21,
+      "name": "Lẩu Nấm Chay",
+      "description": "Lẩu nấm chay thanh đạm, nước dùng ngọt từ rau củ, kèm nhiều loại nấm tươi",
+      "price": 180000,
+      "image": "https://images.unsplash.com/photo-1541832676-9b7e3b28521a?w=600",
+      "restaurantId": 8,
+      "categoryId": 9,
+      "available": true,
+      "discount": 10
+    },
+    {
+      "id": 22,
+      "name": "Cơm Chiên Rau Củ Chay",
+      "description": "Cơm chiên với đậu hũ, chả chay, và các loại rau củ tươi: cà rốt, đậu que, bắp",
+      "price": 45000,
+      "image": "https://images.unsplash.com/photo-1582578304443-39c4f739551c?w=600",
+      "restaurantId": 8,
+      "categoryId": 9,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 23,
+      "name": "Tôm Hùm Nướng Phô Mai",
+      "description": "Tôm hùm Canada (nửa con) nướng phô mai mozzarella béo ngậy",
+      "price": 450000,
+      "image": "https://images.unsplash.com/photo-1625943555530-d55c7a4d5b27?w=600",
+      "restaurantId": 9,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 24,
+      "name": "Cua Rang Me",
+      "description": "Cua thịt (1 con 500g) rang sốt me chua ngọt đậm đà, kèm bánh mì",
+      "price": 320000,
+      "image": "https://images.unsplash.com/photo-1601666680450-a8d6b38c1097?w=600",
+      "restaurantId": 9,
+      "categoryId": 10,
+      "available": true,
+      "discount": 15
+    },
+    {
+      "id": 25,
+      "name": "Mì Ý Carbonara",
+      "description": "Mì Ý sốt kem trứng, thịt xông khói, phô mai parmesan",
+      "price": 125000,
+      "image": "https://images.unsplash.com/photo-1621996346565-e326e2c14213?w=600",
+      "restaurantId": 10,
+      "categoryId": 11,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 26,
+      "name": "Mì Ý Bò Bằm (Bolognese)",
+      "description": "Mì Ý sốt cà chua bò bằm hầm chậm, lá húng quế thơm",
+      "price": 115000,
+      "image": "https://images.unsplash.com/photo-1598866594240-a31c3c9e9021?w=600",
+      "restaurantId": 10,
+      "categoryId": 11,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 27,
+      "name": "Cơm Gà Xối Mỡ (Đùi)",
+      "description": "Đùi gà góc tư da giòn rụm, xối mỡ hành, cơm chiên trứng",
+      "price": 55000,
+      "image": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=600",
+      "restaurantId": 11,
+      "categoryId": 1,
+      "available": true,
+      "discount": 10
+    },
+    {
+      "id": 28,
+      "name": "Cơm Gà Luộc (Má Đùi)",
+      "description": "Má đùi gà ta luộc, cơm nấu nước luộc gà, kèm gỏi và nước mắm gừng",
+      "price": 45000,
+      "image": "https://images.unsplash.com/photo-1617013800250-5e8a04b1e5f1?w=600",
+      "restaurantId": 11,
+      "categoryId": 1,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 29,
+      "name": "Combo Lẩu Thái Tomyum (2 người)",
+      "description": "Set lẩu tomyum chua cay, gồm 200g ba chỉ bò, 200g hải sản (tôm, mực), vắt mì và rau nấm",
+      "price": 299000,
+      "image": "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=600",
+      "restaurantId": 7,
+      "categoryId": 8,
+      "available": true,
+      "discount": 10
+    },
+    {
+      "id": 30,
+      "name": "Trà Chanh Giã Tay",
+      "description": "Trà chanh pha thủ công, hương vị đậm đà, giải khát",
+      "price": 25000,
+      "image": "https://images.unsplash.com/photo-1587080292723-c0817266c108?w=600",
+      "restaurantId": 6,
+      "categoryId": 6,
+      "available": true,
+      "discount": 0
     }
   ],
   "orders": [
@@ -574,6 +836,94 @@ const seedData = {
       "promotionCode": null,
       "createdAt": "2024-10-26T10:00:00Z",
       "updatedAt": "2024-10-26T10:00:00Z"
+    },
+    {
+      "id": 5,
+      "userId": 4,
+      "restaurantId": 8,
+      "items": [
+        {
+          "productId": 21,
+          "productName": "Lẩu Nấm Chay",
+          "quantity": 1,
+          "price": 180000,
+          "discount": 10
+        },
+        {
+          "productId": 22,
+          "productName": "Cơm Chiên Rau Củ Chay",
+          "quantity": 2,
+          "price": 45000,
+          "discount": 0
+        }
+      ],
+      "subtotal": 252000,
+      "deliveryFee": 18000,
+      "discount": 0,
+      "total": 270000,
+      "status": "delivered",
+      "deliveryAddress": "246 Sư Vạn Hạnh, Quận 10, TP.HCM",
+      "deliveryLatitude": 10.7729,
+      "deliveryLongitude": 106.6698,
+      "paymentMethod": "card",
+      "note": "Giao nhanh giúp mình, đồ ăn chay xin để riêng",
+      "promotionCode": null,
+      "createdAt": "2024-10-25T11:30:00Z",
+      "updatedAt": "2024-10-25T12:10:00Z"
+    },
+    {
+      "id": 6,
+      "userId": 5,
+      "restaurantId": 9,
+      "items": [
+        {
+          "productId": 23,
+          "productName": "Tôm Hùm Nướng Phô Mai",
+          "quantity": 1,
+          "price": 450000,
+          "discount": 0
+        }
+      ],
+      "subtotal": 450000,
+      "deliveryFee": 25000,
+      "discount": 50000,
+      "total": 425000,
+      "status": "delivering",
+      "deliveryAddress": "12 Nguyễn Oanh, Quận Gò Vấp, TP.HCM",
+      "deliveryLatitude": 10.8354,
+      "deliveryLongitude": 106.6784,
+      "paymentMethod": "momo",
+      "note": "Chúc shipper buổi tối vui vẻ!",
+      "promotionCode": "WELCOME50",
+      "createdAt": "2024-10-26T10:30:00Z",
+      "updatedAt": "2024-10-26T10:45:00Z"
+    },
+    {
+      "id": 7,
+      "userId": 2,
+      "restaurantId": 11,
+      "items": [
+        {
+          "productId": 27,
+          "productName": "Cơm Gà Xối Mỡ (Đùi)",
+          "quantity": 2,
+          "price": 55000,
+          "discount": 10
+        }
+      ],
+      "subtotal": 99000,
+      "deliveryFee": 12000,
+      "discount": 19800,
+      "total": 91200,
+      "status": "confirmed",
+      "deliveryAddress": "100 Đường Nguyễn Đình Chiểu, Phường Đa Kao, Quận 1, TP.HCM",
+      "deliveryLatitude": 10.7881,
+      "deliveryLongitude": 106.6983,
+      "paymentMethod": "cash",
+      "note": "Giao lên lầu 5, phòng 501. Cảm ơn.",
+      "promotionCode": "WEEKEND20",
+      "createdAt": "2024-10-26T10:50:00Z",
+      "updatedAt": "2024-10-26T10:55:00Z"
     }
   ],
   "cart": [
@@ -600,6 +950,22 @@ const seedData = {
       "quantity": 1,
       "createdAt": "2024-10-26T08:15:00Z",
       "updatedAt": "2024-10-26T08:15:00Z"
+    },
+    {
+      "id": 4,
+      "userId": 4,
+      "productId": 25,
+      "quantity": 1,
+      "createdAt": "2024-10-26T10:18:00Z",
+      "updatedAt": "2024-10-26T10:18:00Z"
+    },
+    {
+      "id": 5,
+      "userId": 5,
+      "productId": 27,
+      "quantity": 2,
+      "createdAt": "2024-10-26T08:30:00Z",
+      "updatedAt": "2024-10-26T08:32:00Z"
     }
   ],
   "favorites": [
@@ -632,6 +998,31 @@ const seedData = {
       "userId": 3,
       "restaurantId": 6,
       "createdAt": "2024-10-23T09:00:00Z"
+    },
+
+    {
+      "id": 6,
+      "userId": 4,
+      "restaurantId": 8,
+      "createdAt": "2024-10-25T13:00:00Z"
+    },
+    {
+      "id": 7,
+      "userId": 5,
+      "restaurantId": 9,
+      "createdAt": "2024-10-26T10:50:00Z"
+    },
+    {
+      "id": 8,
+      "userId": 5,
+      "restaurantId": 11,
+      "createdAt": "2024-10-26T08:35:00Z"
+    },
+    {
+      "id": 9,
+      "userId": 2,
+      "restaurantId": 11,
+      "createdAt": "2024-10-26T11:00:00Z"
     }
   ],
   "reviews": [
@@ -674,6 +1065,26 @@ const seedData = {
       "comment": "Trà sữa ngon, trân châu dai. Nhưng hơi ngọt với mình.",
       "createdAt": "2024-10-24T15:45:00Z",
       "updatedAt": "2024-10-24T15:45:00Z"
+    },
+    {
+      "id": 5,
+      "userId": 4,
+      "restaurantId": 8,
+      "orderId": 5,
+      "rating": 5,
+      "comment": "Đồ chay nhà hàng làm rất ngon, vị thanh đạm, vừa miệng. Lẩu nấm nhiều nấm tươi, rất hài lòng. Giao hàng cũng nhanh nữa.",
+      "createdAt": "2024-10-25T13:00:00Z",
+      "updatedAt": "2024-10-25T13:00:00Z"
+    },
+    {
+      "id": 6,
+      "userId": 2,
+      "restaurantId": 1,
+      "orderId": 1,
+      "rating": 4,
+      "comment": "Lần này quay lại ăn thấy cơm hơi khô, nhưng sườn nướng vẫn ngon như ngày nào. Ship nhanh.",
+      "createdAt": "2024-10-26T10:00:00Z",
+      "updatedAt": "2024-10-26T10:00:00Z"
     }
   ],
   "promotions": [
@@ -761,6 +1172,57 @@ const seedData = {
       "isActive": false,
       "createdAt": "2024-01-01T00:00:00Z",
       "updatedAt": "2024-10-01T00:00:00Z"
+    },
+    {
+      "id": 6,
+      "code": "VEGGIEDAY",
+      "description": "Giảm 15% cho các món chay (áp dụng cho danh mục Đồ chay)",
+      "discountType": "percentage",
+      "discountValue": 15,
+      "minOrderValue": 150000,
+      "maxDiscount": 40000,
+      "validFrom": "2024-10-01T00:00:00Z",
+      "validTo": "2024-10-31T23:59:59Z",
+      "usageLimit": 200,
+      "perUserLimit": 1,
+      "usageCount": 12,
+      "isActive": true,
+      "createdAt": "2024-10-01T00:00:00Z",
+      "updatedAt": "2024-10-25T11:30:00Z"
+    },
+    {
+      "id": 7,
+      "code": "SEAFOOD",
+      "description": "Giảm 40,000đ cho đơn hàng Hải sản từ 300,000đ",
+      "discountType": "fixed",
+      "discountValue": 40000,
+      "minOrderValue": 300000,
+      "maxDiscount": 40000,
+      "validFrom": "2024-10-15T00:00:00Z",
+      "validTo": "2024-11-15T23:59:59Z",
+      "usageLimit": null,
+      "perUserLimit": 2,
+      "usageCount": 35,
+      "isActive": true,
+      "createdAt": "2024-10-15T00:00:00Z",
+      "updatedAt": "2024-10-26T10:30:00Z"
+    },
+    {
+      "id": 8,
+      "code": "LUNCHTIME",
+      "description": "Giảm 15,000đ cho đơn hàng đặt từ 11:00 - 13:00",
+      "discountType": "fixed",
+      "discountValue": 15000,
+      "minOrderValue": 70000,
+      "maxDiscount": 15000,
+      "validFrom": "2024-01-01T00:00:00Z",
+      "validTo": "2024-12-31T23:59:59Z",
+      "usageLimit": null,
+      "perUserLimit": null,
+      "usageCount": 550,
+      "isActive": true,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-10-26T11:00:00Z"
     }
   ],
   "addresses": [
@@ -833,6 +1295,48 @@ const seedData = {
       "isDefault": false,
       "createdAt": "2024-04-05T08:15:00Z",
       "updatedAt": "2024-04-05T08:15:00Z"
+    },
+    {
+      "id": 6,
+      "userId": 4,
+      "label": "Nhà",
+      "address": "246 Sư Vạn Hạnh, Phường 2, Quận 10, TP.HCM",
+      "recipientName": "Lê Văn C",
+      "recipientPhone": "0905123456",
+      "latitude": 10.7729,
+      "longitude": 106.6698,
+      "note": "Hẻm bên cạnh nhà hàng chay An Lạc",
+      "isDefault": true,
+      "createdAt": "2024-04-10T11:05:00Z",
+      "updatedAt": "2024-04-10T11:05:00Z"
+    },
+    {
+      "id": 7,
+      "userId": 5,
+      "label": "Nhà",
+      "address": "12 Nguyễn Oanh, Phường 7, Quận Gò Vấp, TP.HCM",
+      "recipientName": "Phạm Thị D",
+      "recipientPhone": "0906789012",
+      "latitude": 10.8354,
+      "longitude": 106.6784,
+      "note": "Cổng màu xanh lá",
+      "isDefault": true,
+      "createdAt": "2024-05-15T16:35:00Z",
+      "updatedAt": "2024-05-15T16:35:00Z"
+    },
+    {
+      "id": 8,
+      "userId": 6,
+      "label": "Nhà",
+      "address": "459 Âu Cơ, Phường Phú Trung, Quận Tân Bình, TP.HCM",
+      "recipientName": "Hoàng Minh",
+      "recipientPhone": "0909999888",
+      "latitude": 10.7854,
+      "longitude": 106.6432,
+      "note": "",
+      "isDefault": true,
+      "createdAt": "2024-01-20T08:05:00Z",
+      "updatedAt": "2024-01-20T08:05:00Z"
     }
   ],
   "notifications": [
@@ -885,6 +1389,46 @@ const seedData = {
       "refId": 2,
       "isRead": false,
       "createdAt": "2024-10-26T07:00:00Z"
+    },
+    {
+      "id": 6,
+      "userId": 4,
+      "title": "Đơn hàng đã được giao",
+      "message": "Đơn hàng #5 của bạn (Nhà Hàng Chay An Lạc) đã được giao thành công. Hãy đánh giá trải nghiệm nhé!",
+      "type": "order",
+      "refId": 5,
+      "isRead": false,
+      "createdAt": "2024-10-25T12:10:00Z"
+    },
+    {
+      "id": 7,
+      "userId": 5,
+      "title": "Đơn hàng đang giao",
+      "message": "Shipper Hoàng Minh đang trên đường giao đơn hàng #6. Chúc bạn ngon miệng!",
+      "type": "order",
+      "refId": 6,
+      "isRead": false,
+      "createdAt": "2024-10-26T10:45:00Z"
+    },
+    {
+      "id": 8,
+      "userId": 2,
+      "title": "Đơn hàng đã xác nhận",
+      "message": "Cơm Gà Xối Mỡ 99 đã xác nhận đơn hàng #7 của bạn. Đang chuẩn bị...",
+      "type": "order",
+      "refId": 7,
+      "isRead": false,
+      "createdAt": "2024-10-26T10:55:00Z"
+    },
+    {
+      "id": 9,
+      "userId": 4,
+      "title": "Ăn chay thanh đạm",
+      "message": "Giảm ngay 15% cho các món chay với mã VEGGIEDAY. Đừng bỏ lỡ!",
+      "type": "promotion",
+      "refId": 6,
+      "isRead": false,
+      "createdAt": "2024-10-25T09:00:00Z"
     }
   ]
 };
