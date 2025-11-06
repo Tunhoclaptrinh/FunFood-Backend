@@ -99,17 +99,21 @@ exports.login = async (req, res, next) => {
       lastLogin: new Date().toISOString()
     });
 
+    // Load latest user from DB
+    const updatedUser = db.findById('users', user.id);
+
     // Generate token
-    const token = generateToken(user.id);
+    const token = generateToken(updatedUser.id);
 
     res.json({
       success: true,
       message: 'Login successful',
       data: {
-        user: sanitizeUser(user),
+        user: sanitizeUser(updatedUser),
         token
       }
     });
+
   } catch (error) {
     next(error);
   }
