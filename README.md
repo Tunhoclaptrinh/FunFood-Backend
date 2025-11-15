@@ -3,7 +3,8 @@
 [![Node.js](https://img.shields.io/badge/Node.js-18.x-green.svg)](https://nodejs.org/)
 [![Express](https://img.shields.io/badge/Express-4.18-blue.svg)](https://expressjs.com/)
 [![JWT](https://img.shields.io/badge/JWT-9.0-orange.svg)](https://jwt.io/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](#license)
+
+<!-- [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](#license) -->
 
 Backend API hoàn chỉnh cho ứng dụng đặt đồ ăn FunFood. Được xây dựng với Node.js, Express, JWT Authentication và tích hợp đầy đủ tính năng JSON-Server style queries với GPS tracking, RBAC, Payment Gateway Integration và nhiều hơn nữa.
 
@@ -946,13 +947,13 @@ Contributions are welcome!
 4. Push to branch (`git push origin feature/AmazingFeature`)
 5. Open Pull Request
 
----
+<!-- ---
 
 ## 📄 License
 
 This project is licensed under the MIT License.
 
----
+--- -->
 
 ## 🙏 Acknowledgments
 
