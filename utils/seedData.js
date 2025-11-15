@@ -972,57 +972,121 @@ const seedData = {
     {
       "id": 1,
       "userId": 2,
-      "restaurantId": 2,
+      "type": "restaurant",
+      "referenceId": 2,
       "createdAt": "2024-10-15T10:00:00Z"
     },
     {
       "id": 2,
       "userId": 2,
-      "restaurantId": 3,
+      "type": "restaurant",
+      "referenceId": 3,
       "createdAt": "2024-10-18T14:30:00Z"
     },
     {
       "id": 3,
       "userId": 2,
-      "restaurantId": 4,
+      "type": "restaurant",
+      "referenceId": 4,
       "createdAt": "2024-10-20T16:20:00Z"
     },
     {
       "id": 4,
-      "userId": 3,
-      "restaurantId": 1,
-      "createdAt": "2024-10-22T11:45:00Z"
+      "userId": 2,
+      "type": "product",
+      "referenceId": 10,
+      "createdAt": "2024-10-21T09:00:00Z"
     },
     {
       "id": 5,
-      "userId": 3,
-      "restaurantId": 6,
-      "createdAt": "2024-10-23T09:00:00Z"
+      "userId": 2,
+      "type": "product",
+      "referenceId": 13,
+      "createdAt": "2024-10-22T15:30:00Z"
     },
-
+    {
+      "id": 14,
+      "userId": 2,
+      "type": "restaurant",
+      "referenceId": 11,
+      "createdAt": "2024-10-26T11:00:00Z"
+    },
+    {
+      "id": 15,
+      "userId": 2,
+      "type": "product",
+      "referenceId": 16,
+      "createdAt": "2024-10-26T12:00:00Z"
+    },
     {
       "id": 6,
-      "userId": 4,
-      "restaurantId": 8,
-      "createdAt": "2024-10-25T13:00:00Z"
+      "userId": 3,
+      "type": "restaurant",
+      "referenceId": 1,
+      "createdAt": "2024-10-22T11:45:00Z"
     },
     {
       "id": 7,
-      "userId": 5,
-      "restaurantId": 9,
-      "createdAt": "2024-10-26T10:50:00Z"
+      "userId": 3,
+      "type": "restaurant",
+      "referenceId": 6,
+      "createdAt": "2024-10-23T09:00:00Z"
     },
     {
       "id": 8,
-      "userId": 5,
-      "restaurantId": 11,
-      "createdAt": "2024-10-26T08:35:00Z"
+      "userId": 3,
+      "type": "product",
+      "referenceId": 4,
+      "createdAt": "2024-10-23T14:20:00Z"
     },
     {
       "id": 9,
-      "userId": 2,
-      "restaurantId": 11,
-      "createdAt": "2024-10-26T11:00:00Z"
+      "userId": 4,
+      "type": "restaurant",
+      "referenceId": 8,
+      "createdAt": "2024-10-25T13:00:00Z"
+    },
+    {
+      "id": 10,
+      "userId": 4,
+      "type": "product",
+      "referenceId": 21,
+      "createdAt": "2024-10-25T16:00:00Z"
+    },
+    {
+      "id": 16,
+      "userId": 4,
+      "type": "product",
+      "referenceId": 22,
+      "createdAt": "2024-10-25T16:30:00Z"
+    },
+    {
+      "id": 11,
+      "userId": 5,
+      "type": "restaurant",
+      "referenceId": 9,
+      "createdAt": "2024-10-26T10:50:00Z"
+    },
+    {
+      "id": 12,
+      "userId": 5,
+      "type": "restaurant",
+      "referenceId": 11,
+      "createdAt": "2024-10-26T08:35:00Z"
+    },
+    {
+      "id": 13,
+      "userId": 5,
+      "type": "product",
+      "referenceId": 23,
+      "createdAt": "2024-10-26T11:15:00Z"
+    },
+    {
+      "id": 17,
+      "userId": 5,
+      "type": "product",
+      "referenceId": 24,
+      "createdAt": "2024-10-26T11:20:00Z"
     }
   ],
   "reviews": [
