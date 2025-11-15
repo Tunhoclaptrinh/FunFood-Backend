@@ -70,14 +70,40 @@ const orderValidation = {
 // ============= REVIEW VALIDATIONS =============
 const reviewValidation = {
   create: [
-    body('restaurantId').isInt().withMessage('Restaurant ID is required'),
-    body('rating').isInt({ min: 1, max: 5 }).withMessage('Rating must be 1-5'),
-    body('comment').notEmpty().withMessage('Comment is required'),
-    body('orderId').optional().isInt().withMessage('Order ID must be a number')
+    body('type')
+      .isIn(['restaurant', 'product'])
+      .withMessage('Type must be "restaurant" or "product"'),
+    body('restaurantId')
+      .isInt()
+      .withMessage('Restaurant ID is required'),
+    body('productId')
+      .if((value, { req }) => req.body.type === 'product')
+      .isInt()
+      .withMessage('Product ID is required for product review'),
+    body('rating')
+      .isInt({ min: 1, max: 5 })
+      .withMessage('Rating must be between 1 and 5'),
+    body('comment')
+      .notEmpty()
+      .trim()
+      .isLength({ min: 5, max: 500 })
+      .withMessage('Comment must be between 5 and 500 characters'),
+    body('orderId')
+      .optional()
+      .isInt()
+      .withMessage('Order ID must be a number')
   ],
+
   update: [
-    body('rating').optional().isInt({ min: 1, max: 5 }).withMessage('Rating must be 1-5'),
-    body('comment').optional().notEmpty().withMessage('Comment cannot be empty')
+    body('rating')
+      .optional()
+      .isInt({ min: 1, max: 5 })
+      .withMessage('Rating must be between 1 and 5'),
+    body('comment')
+      .optional()
+      .trim()
+      .isLength({ min: 5, max: 500 })
+      .withMessage('Comment must be between 5 and 500 characters')
   ]
 };
 
