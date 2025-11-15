@@ -30,6 +30,8 @@ const reviewRoutes = require('./routes/review.routes');
 const promotionRoutes = require('./routes/promotion.routes');
 const addressRoutes = require('./routes/address.routes');
 const notificationRoutes = require('./routes/notification.routes');
+const shipperRoutes = require('./routes/shipper.routes');
+const managerRoutes = require('./routes/manager.routes');
 
 // Import endpoints definition
 const endpoints = require('./config/endpoints');
@@ -47,6 +49,8 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/promotions', promotionRoutes);
 app.use('/api/addresses', addressRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/shipper', shipperRoutes);
+app.use('/api/manager', managerRoutes);
 
 // API docs endpoint
 app.get('/api', (req, res) => {
