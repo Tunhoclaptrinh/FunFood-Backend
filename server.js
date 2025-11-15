@@ -31,6 +31,19 @@ const promotionRoutes = require('./routes/promotion.routes');
 const addressRoutes = require('./routes/address.routes');
 const notificationRoutes = require('./routes/notification.routes');
 
+// Import shipper & manager routes (if they exist)
+let shipperRoutes, managerRoutes;
+try {
+  shipperRoutes = require('./routes/shipper.routes');
+} catch (err) {
+  console.log('⚠️  Shipper routes not found, skipping...');
+}
+try {
+  managerRoutes = require('./routes/manager.routes');
+} catch (err) {
+  console.log('⚠️  Manager routes not found, skipping...');
+}
+
 // Import endpoints definition
 const endpoints = require('./config/endpoints');
 
@@ -48,11 +61,28 @@ app.use('/api/promotions', promotionRoutes);
 app.use('/api/addresses', addressRoutes);
 app.use('/api/notifications', notificationRoutes);
 
+// Conditional routes
+if (shipperRoutes) {
+  app.use('/api/shipper', shipperRoutes);
+}
+if (managerRoutes) {
+  app.use('/api/manager', managerRoutes);
+}
+
+// Permissions endpoint
+const { protect } = require('./middleware/auth.middleware');
+try {
+  const { getUserPermissions } = require('./middleware/rbac.middleware');
+  app.get('/api/permissions', protect, getUserPermissions);
+} catch (err) {
+  console.log('⚠️  RBAC middleware not found, skipping permissions endpoint...');
+}
+
 // API docs endpoint
 app.get('/api', (req, res) => {
   res.json({
     message: 'FunFood API - JSON Server Style',
-    version: '1.0.0',
+    version: '2.0.0',
     features: [
       'Pagination: ?_page=1&_limit=10',
       'Sorting: ?_sort=field&_order=asc|desc',
@@ -70,17 +100,23 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'OK',
     message: 'FunFood API is running',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error('❌ Error:', err.stack);
+
   res.status(err.status || 500).json({
     success: false,
     message: err.message || 'Internal Server Error',
-    error: process.env.NODE_ENV === 'development' ? err : {}
+    error: process.env.NODE_ENV === 'development' ? {
+      stack: err.stack,
+      ...err
+    } : undefined
   });
 });
 
@@ -88,12 +124,33 @@ app.use((err, req, res, next) => {
 app.use((req, res) => {
   res.status(404).json({
     success: false,
-    message: 'Route not found'
+    message: 'Route not found',
+    path: req.path,
+    method: req.method
   });
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 FunFood Server running on port ${PORT}`);
-  console.log(`📍 http://localhost:${PORT}`);
+  console.log(`
+╔══════════════════════════════════════════════════════════════════╗
+║   🚀 FunFood Server Started!                                     ║
+╠══════════════════════════════════════════════════════════════════╣
+║   📍 URL: http://localhost:${PORT}                                  ║
+║   🌍 Environment: ${process.env.NODE_ENV || 'development'}                                    ║
+║   📊 API Docs: http://localhost:${PORT}/api                         ║
+║   ❤️  Health: http://localhost:${PORT}/api/health                    ║
+╚══════════════════════════════════════════════════════════════════╝
+  `);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('👋 SIGTERM received, shutting down gracefully...');
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  console.log('👋 SIGINT received, shutting down gracefully...');
+  process.exit(0);
 });
