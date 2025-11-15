@@ -101,10 +101,21 @@ app.get('/api', (req, res) => {
     documentation: {
       full_docs: '/docs/API_ENDPOINTS.md',
       postman_collection: '/docs/funfood-api.postman_collection.json',
-      status_page: '/api/health'
+      status_page: '/api/health',
+      endpoints: '/api/endpoints',
+
     }
   });
 });
+
+app.get('/api/endpoints', (req, res) => {
+  res.json({
+    documentation: {
+      ...endpoints
+    }
+  });
+});
+
 
 // Health Check
 app.get('/api/health', (req, res) => {
