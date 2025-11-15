@@ -14,8 +14,8 @@ const { parseQuery, formatResponse, validateQuery, logQuery } = require('./middl
 // Apply query parsing to all routes
 app.use(parseQuery);
 app.use(formatResponse);
-app.use(validateQuery); // Optional
-app.use(logQuery);      // Optional for debugging
+app.use(validateQuery);
+app.use(logQuery);
 
 // Import routes
 const authRoutes = require('./routes/auth.routes');
@@ -30,24 +30,26 @@ const reviewRoutes = require('./routes/review.routes');
 const promotionRoutes = require('./routes/promotion.routes');
 const addressRoutes = require('./routes/address.routes');
 const notificationRoutes = require('./routes/notification.routes');
+const paymentRoutes = require('./routes/payment.routes');
 
-// Import shipper & manager routes (if they exist)
+// Optional routes
 let shipperRoutes, managerRoutes;
 try {
   shipperRoutes = require('./routes/shipper.routes');
 } catch (err) {
-  console.log('⚠️  Shipper routes not found, skipping...');
+  console.log('⚠️  Shipper routes not found');
 }
 try {
   managerRoutes = require('./routes/manager.routes');
 } catch (err) {
-  console.log('⚠️  Manager routes not found, skipping...');
+  console.log('⚠️  Manager routes not found');
 }
 
-// Import endpoints definition
 const endpoints = require('./config/endpoints');
 
-// Routes
+// ==================== ROUTES ====================
+
+// API v1
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/categories', categoryRoutes);
@@ -60,8 +62,8 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/promotions', promotionRoutes);
 app.use('/api/addresses', addressRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/payment', paymentRoutes);
 
-// Conditional routes
 if (shipperRoutes) {
   app.use('/api/shipper', shipperRoutes);
 }
@@ -69,66 +71,97 @@ if (managerRoutes) {
   app.use('/api/manager', managerRoutes);
 }
 
+// ==================== UTILITIES ====================
+
 // Permissions endpoint
-const { protect } = require('./middleware/auth.middleware');
 try {
   const { getUserPermissions } = require('./middleware/rbac.middleware');
-  app.get('/api/permissions', protect, getUserPermissions);
+  app.get('/api/permissions', require('./middleware/auth.middleware').protect, getUserPermissions);
 } catch (err) {
-  console.log('⚠️  RBAC middleware not found, skipping permissions endpoint...');
+  console.log('⚠️  RBAC permissions endpoint not available');
 }
 
-// API docs endpoint
+// API Documentation
 app.get('/api', (req, res) => {
   res.json({
-    message: 'FunFood API - JSON Server Style',
+    message: 'FunFood API v2.0 - JSON Server Style',
     version: '2.0.0',
+    environment: process.env.NODE_ENV || 'development',
     features: [
-      'Pagination: ?_page=1&_limit=10',
-      'Sorting: ?_sort=field&_order=asc|desc',
-      'Full-text search: ?q=search_term',
-      'Filtering: ?field=value',
-      'Operators: ?field_gte=value, ?field_lte=value, ?field_ne=value',
-      'Relationships: ?_embed=related or ?_expand=foreign_key'
+      'Authentication (JWT)',
+      'Role-based Access Control',
+      'GPS-based Restaurant Search',
+      'Dynamic Delivery Fee Calculation',
+      'Advanced Query Filtering (pagination, sorting, search)',
+      'Payment Processing (Cash, MoMo, ZaloPay, Card)',
+      'Notification System',
+      'Import/Export (Excel, CSV)',
+      'Data Analytics'
     ],
-    endpoints // Tự động load từ endpoints.js
+    documentation: {
+      full_docs: '/docs/API_ENDPOINTS.md',
+      postman_collection: '/docs/funfood-api.postman_collection.json',
+      status_page: '/api/health'
+    }
   });
 });
 
-// Health check
+// Health Check
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'OK',
     message: 'FunFood API is running',
+    version: '2.0.0',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
+    database: 'JSON File (Mock)',
+    features: {
+      authentication: true,
+      rbac: true,
+      gps: true,
+      payments: true,
+      notifications: true
+    }
   });
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error('❌ Error:', err.stack);
+// ==================== ERROR HANDLING ====================
 
-  res.status(err.status || 500).json({
-    success: false,
-    message: err.message || 'Internal Server Error',
-    error: process.env.NODE_ENV === 'development' ? {
-      stack: err.stack,
-      ...err
-    } : undefined
-  });
-});
-
-// 404 handler
+// 404 Handler
 app.use((req, res) => {
   res.status(404).json({
     success: false,
     message: 'Route not found',
     path: req.path,
-    method: req.method
+    method: req.method,
+    available_endpoints: '/api'
   });
 });
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error('❌ Error:', {
+    message: err.message,
+    stack: err.stack,
+    path: req.path,
+    method: req.method
+  });
+
+  const statusCode = err.status || err.statusCode || 500;
+  const response = {
+    success: false,
+    message: err.message || 'Internal Server Error',
+    error: process.env.NODE_ENV === 'development' ? {
+      type: err.name,
+      stack: err.stack
+    } : undefined
+  };
+
+  res.status(statusCode).json(response);
+});
+
+// ==================== SERVER START ====================
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
@@ -144,13 +177,22 @@ app.listen(PORT, () => {
   `);
 });
 
-// Graceful shutdown
+// ==================== GRACEFUL SHUTDOWN ====================
+
 process.on('SIGTERM', () => {
   console.log('👋 SIGTERM received, shutting down gracefully...');
-  process.exit(0);
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
 });
 
 process.on('SIGINT', () => {
   console.log('👋 SIGINT received, shutting down gracefully...');
-  process.exit(0);
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
 });
+
+module.exports = app;
