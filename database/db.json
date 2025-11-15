@@ -383,62 +383,9 @@
       "restaurantId": 1,
       "categoryId": 1,
       "available": true,
-      "discount": 0
-    },
-    {
-      "id": 2,
-      "name": "Cơm Tấm Sườn Nướng",
-      "description": "Cơm tấm với sườn nướng mật ong, thơm ngon",
-      "price": 35000,
-      "image": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=600",
-      "restaurantId": 1,
-      "categoryId": 1,
-      "available": true,
-      "discount": 10
-    },
-    {
-      "id": 3,
-      "name": "Cơm Tấm Bì Chả",
-      "description": "Cơm tấm với bì và chả trứng đặc biệt",
-      "price": 30000,
-      "image": "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=600",
-      "restaurantId": 1,
-      "categoryId": 1,
-      "available": true,
-      "discount": 0
-    },
-    {
-      "id": 4,
-      "name": "Phở Bò Tái",
-      "description": "Phở bò với thịt tái mềm, nước dùng trong ngọt",
-      "price": 55000,
-      "image": "https://images.unsplash.com/photo-1591814468924-caf88d1232e1?w=600",
-      "restaurantId": 2,
-      "categoryId": 2,
-      "available": true,
-      "discount": 0
-    },
-    {
-      "id": 5,
-      "name": "Phở Bò Chín",
-      "description": "Phở bò với thịt chín đậm đà",
-      "price": 50000,
-      "image": "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=600",
-      "restaurantId": 2,
-      "categoryId": 2,
-      "available": true,
-      "discount": 0
-    },
-    {
-      "id": 6,
-      "name": "Phở Gà",
-      "description": "Phở gà thơm ngon, thanh đạm",
-      "price": 45000,
-      "image": "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=600",
-      "restaurantId": 2,
-      "categoryId": 2,
-      "available": true,
-      "discount": 15
+      "discount": 0,
+      "rating": 4,
+      "totalReviews": 1
     },
     {
       "id": 7,
@@ -449,95 +396,9 @@
       "restaurantId": 3,
       "categoryId": 3,
       "available": true,
-      "discount": 15
-    },
-    {
-      "id": 8,
-      "name": "Bánh Mì Xíu Mại",
-      "description": "Bánh mì với xíu mại sốt cà chua",
-      "price": 20000,
-      "image": "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600",
-      "restaurantId": 3,
-      "categoryId": 3,
-      "available": true,
-      "discount": 0
-    },
-    {
-      "id": 9,
-      "name": "Bánh Mì Pate",
-      "description": "Bánh mì pate truyền thống Sài Gòn",
-      "price": 15000,
-      "image": "https://images.unsplash.com/photo-1558030006-450675393462?w=600",
-      "restaurantId": 3,
-      "categoryId": 3,
-      "available": true,
-      "discount": 0
-    },
-    {
-      "id": 10,
-      "name": "Pizza Margherita",
-      "description": "Pizza phô mai mozzarella, sốt cà chua, húng quế tươi",
-      "price": 180000,
-      "image": "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=600",
-      "restaurantId": 4,
-      "categoryId": 4,
-      "available": true,
-      "discount": 20
-    },
-    {
-      "id": 11,
-      "name": "Pizza Pepperoni",
-      "description": "Pizza với xúc xích pepperoni nhập khẩu",
-      "price": 220000,
-      "image": "https://images.unsplash.com/photo-1628840042765-356cda07504e?w=600",
-      "restaurantId": 4,
-      "categoryId": 4,
-      "available": true,
-      "discount": 0
-    },
-    {
-      "id": 12,
-      "name": "Pizza Hải Sản",
-      "description": "Pizza với tôm, mực, nghêu tươi sống",
-      "price": 250000,
-      "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600",
-      "restaurantId": 4,
-      "categoryId": 4,
-      "available": true,
-      "discount": 10
-    },
-    {
-      "id": 13,
-      "name": "Classic Beef Burger",
-      "description": "Burger bò Úc 200g với phô mai cheddar, sốt đặc biệt",
-      "price": 89000,
-      "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600",
-      "restaurantId": 5,
-      "categoryId": 5,
-      "available": true,
-      "discount": 0
-    },
-    {
-      "id": 14,
-      "name": "Cheese Burger Deluxe",
-      "description": "Burger phô mai đặc biệt với 2 lớp thịt bò",
-      "price": 99000,
-      "image": "https://images.unsplash.com/photo-1550547660-d9450f859349?w=600",
-      "restaurantId": 5,
-      "categoryId": 5,
-      "available": true,
-      "discount": 15
-    },
-    {
-      "id": 15,
-      "name": "Chicken Burger",
-      "description": "Burger gà giòn rán với sốt mayonnaise",
-      "price": 79000,
-      "image": "https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=600",
-      "restaurantId": 5,
-      "categoryId": 5,
-      "available": true,
-      "discount": 0
+      "discount": 15,
+      "rating": 5,
+      "totalReviews": 1
     },
     {
       "id": 16,
@@ -548,51 +409,9 @@
       "restaurantId": 6,
       "categoryId": 6,
       "available": true,
-      "discount": 0
-    },
-    {
-      "id": 17,
-      "name": "Trà Đào Cam Sả",
-      "description": "Trà đào cam sả tươi mát, giải nhiệt",
-      "price": 40000,
-      "image": "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=600",
-      "restaurantId": 6,
-      "categoryId": 6,
-      "available": true,
-      "discount": 10
-    },
-    {
-      "id": 18,
-      "name": "Sinh Tố Bơ",
-      "description": "Sinh tố bơ thơm béo, bổ dưỡng",
-      "price": 35000,
-      "image": "https://images.unsplash.com/photo-1623065422902-30a2d299bbe4?w=600",
-      "restaurantId": 6,
-      "categoryId": 6,
-      "available": true,
-      "discount": 0
-    },
-    {
-      "id": 19,
-      "name": "Lẩu Tomyum Hải Sản",
-      "description": "Lẩu Thái chua cay với tôm, mực, cá tươi sống",
-      "price": 350000,
-      "image": "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=600",
-      "restaurantId": 7,
-      "categoryId": 8,
-      "available": true,
-      "discount": 0
-    },
-    {
-      "id": 20,
-      "name": "Lẩu Thái Gà",
-      "description": "Lẩu Thái với gà tươi, nấm các loại",
-      "price": 280000,
-      "image": "https://images.unsplash.com/photo-1606768666853-403c90a981ad?w=600",
-      "restaurantId": 7,
-      "categoryId": 8,
-      "available": false,
-      "discount": 5
+      "discount": 0,
+      "rating": 4,
+      "totalReviews": 1
     },
     {
       "id": 21,
@@ -603,7 +422,9 @@
       "restaurantId": 8,
       "categoryId": 9,
       "available": true,
-      "discount": 10
+      "discount": 10,
+      "rating": 5,
+      "totalReviews": 1
     },
     {
       "id": 22,
@@ -614,7 +435,9 @@
       "restaurantId": 8,
       "categoryId": 9,
       "available": true,
-      "discount": 0
+      "discount": 0,
+      "rating": 5,
+      "totalReviews": 1
     },
     {
       "id": 23,
@@ -625,7 +448,9 @@
       "restaurantId": 9,
       "categoryId": 10,
       "available": true,
-      "discount": 0
+      "discount": 0,
+      "rating": 5,
+      "totalReviews": 1
     },
     {
       "id": 24,
@@ -963,64 +788,117 @@
     {
       "id": 1,
       "userId": 2,
-      "restaurantId": 2,
+      "type": "restaurant",
+      "referenceId": 2,
       "createdAt": "2024-10-15T10:00:00Z"
     },
     {
       "id": 2,
       "userId": 2,
-      "restaurantId": 3,
+      "type": "restaurant",
+      "referenceId": 3,
       "createdAt": "2024-10-18T14:30:00Z"
     },
     {
       "id": 3,
       "userId": 2,
-      "restaurantId": 4,
+      "type": "restaurant",
+      "referenceId": 4,
       "createdAt": "2024-10-20T16:20:00Z"
     },
     {
       "id": 4,
-      "userId": 3,
-      "restaurantId": 1,
-      "createdAt": "2024-10-22T11:45:00Z"
+      "userId": 2,
+      "type": "product",
+      "referenceId": 10,
+      "createdAt": "2024-10-21T09:00:00Z"
     },
     {
       "id": 5,
-      "userId": 3,
-      "restaurantId": 6,
-      "createdAt": "2024-10-23T09:00:00Z"
+      "userId": 2,
+      "type": "product",
+      "referenceId": 13,
+      "createdAt": "2024-10-22T15:30:00Z"
     },
     {
       "id": 6,
-      "userId": 4,
-      "restaurantId": 8,
-      "createdAt": "2024-10-25T13:00:00Z"
+      "userId": 3,
+      "type": "restaurant",
+      "referenceId": 1,
+      "createdAt": "2024-10-22T11:45:00Z"
     },
     {
       "id": 7,
-      "userId": 5,
-      "restaurantId": 9,
-      "createdAt": "2024-10-26T10:50:00Z"
+      "userId": 3,
+      "type": "restaurant",
+      "referenceId": 6,
+      "createdAt": "2024-10-23T09:00:00Z"
     },
     {
       "id": 8,
-      "userId": 5,
-      "restaurantId": 11,
-      "createdAt": "2024-10-26T08:35:00Z"
+      "userId": 3,
+      "type": "product",
+      "referenceId": 4,
+      "createdAt": "2024-10-23T14:20:00Z"
     },
     {
       "id": 9,
+      "userId": 4,
+      "type": "restaurant",
+      "referenceId": 8,
+      "createdAt": "2024-10-25T13:00:00Z"
+    },
+    {
+      "id": 10,
+      "userId": 4,
+      "type": "product",
+      "referenceId": 21,
+      "createdAt": "2024-10-25T16:00:00Z"
+    },
+    {
+      "id": 11,
+      "userId": 5,
+      "type": "restaurant",
+      "referenceId": 9,
+      "createdAt": "2024-10-26T10:50:00Z"
+    },
+    {
+      "id": 12,
+      "userId": 5,
+      "type": "restaurant",
+      "referenceId": 11,
+      "createdAt": "2024-10-26T08:35:00Z"
+    },
+    {
+      "id": 13,
+      "userId": 5,
+      "type": "product",
+      "referenceId": 23,
+      "createdAt": "2024-10-26T11:15:00Z"
+    },
+    {
+      "id": 14,
       "userId": 2,
-      "restaurantId": 11,
+      "type": "restaurant",
+      "referenceId": 11,
       "createdAt": "2024-10-26T11:00:00Z"
+    },
+    {
+      "id": 15,
+      "userId": 2,
+      "type": "product",
+      "referenceId": 16,
+      "createdAt": "2024-10-26T12:00:00Z"
     }
   ],
   "reviews": [
     {
       "id": 1,
       "userId": 2,
+      "type": "restaurant",
       "restaurantId": 1,
-      "orderId": 1,
+      "productId": null,
+      "orderId": null,
       "rating": 5,
       "comment": "Cơm tấm ngon tuyệt vời! Sườn nướng thơm lừng, bì giòn tan. Sẽ quay lại ủng hộ.",
       "createdAt": "2024-10-20T14:00:00Z",
@@ -1029,17 +907,21 @@
     {
       "id": 2,
       "userId": 3,
+      "type": "product",
       "restaurantId": 3,
-      "orderId": null,
-      "rating": 4,
-      "comment": "Bánh mì ngon nhưng hơi đợi lâu. Giá cả phải chăng, nhân đầy đặn.",
+      "productId": 7,
+      "orderId": 3,
+      "rating": 5,
+      "comment": "Bánh mì thập cẩm tuyệt vời, nhân đầy đặn, giá cả phải chăng!",
       "createdAt": "2024-10-22T16:30:00Z",
       "updatedAt": "2024-10-22T16:30:00Z"
     },
     {
       "id": 3,
       "userId": 2,
+      "type": "restaurant",
       "restaurantId": 2,
+      "productId": null,
       "orderId": 2,
       "rating": 5,
       "comment": "Phở rất ngon, nước dùng trong ngọt. Thịt bò tươi. Giao hàng nhanh!",
@@ -1049,7 +931,9 @@
     {
       "id": 4,
       "userId": 3,
+      "type": "product",
       "restaurantId": 6,
+      "productId": 16,
       "orderId": null,
       "rating": 4,
       "comment": "Trà sữa ngon, trân châu dai. Nhưng hơi ngọt với mình.",
@@ -1059,22 +943,62 @@
     {
       "id": 5,
       "userId": 4,
+      "type": "product",
       "restaurantId": 8,
+      "productId": 21,
       "orderId": 5,
       "rating": 5,
-      "comment": "Đồ chay nhà hàng làm rất ngon, vị thanh đạm, vừa miệng. Lẩu nấm nhiều nấm tươi, rất hài lòng. Giao hàng cũng nhanh nữa.",
+      "comment": "Lẩu nấm chay rất ngon, vị thanh đạm, vừa miệng. Nấm tươi, tất cả đều tốt!",
       "createdAt": "2024-10-25T13:00:00Z",
       "updatedAt": "2024-10-25T13:00:00Z"
     },
     {
       "id": 6,
       "userId": 2,
+      "type": "product",
       "restaurantId": 1,
+      "productId": 1,
       "orderId": 1,
       "rating": 4,
-      "comment": "Lần này quay lại ăn thấy cơm hơi khô, nhưng sườn nướng vẫn ngon như ngày nào. Ship nhanh.",
+      "comment": "Cơm tấm sườn bì chả, lần này cơm hơi khô nhưng sườn vẫn ngon.",
       "createdAt": "2024-10-26T10:00:00Z",
       "updatedAt": "2024-10-26T10:00:00Z"
+    },
+    {
+      "id": 7,
+      "userId": 4,
+      "type": "product",
+      "restaurantId": 8,
+      "productId": 22,
+      "orderId": 5,
+      "rating": 5,
+      "comment": "Cơm chiên rau củ chay rất tươi, thơm ngon, giáo hàng nhanh!",
+      "createdAt": "2024-10-25T13:30:00Z",
+      "updatedAt": "2024-10-25T13:30:00Z"
+    },
+    {
+      "id": 8,
+      "userId": 5,
+      "type": "restaurant",
+      "restaurantId": 9,
+      "productId": null,
+      "orderId": 6,
+      "rating": 5,
+      "comment": "Hải sản tươi sống, giới hạn chất lượng, giao hàng chuyên nghiệp!",
+      "createdAt": "2024-10-26T10:45:00Z",
+      "updatedAt": "2024-10-26T10:45:00Z"
+    },
+    {
+      "id": 9,
+      "userId": 5,
+      "type": "product",
+      "restaurantId": 9,
+      "productId": 23,
+      "orderId": 6,
+      "rating": 5,
+      "comment": "Tôm hùm nướng phô mai tuyệt vời! Béo ngậy, siêu ngon!",
+      "createdAt": "2024-10-26T10:50:00Z",
+      "updatedAt": "2024-10-26T10:50:00Z"
     }
   ],
   "promotions": [
