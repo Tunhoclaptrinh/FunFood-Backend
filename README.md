@@ -1,12 +1,13 @@
-# 🍔 FunFood Backend API v2.0
+# 🍔 FunFood Backend API v2.1 - Complete Documentation
 
 [![Node.js](https://img.shields.io/badge/Node.js-18.x-green.svg)](https://nodejs.org/)
 [![Express](https://img.shields.io/badge/Express-4.18-blue.svg)](https://expressjs.com/)
 [![JWT](https://img.shields.io/badge/JWT-9.0-orange.svg)](https://jwt.io/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](#license)
 
-<!-- [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) -->
+Backend API hoàn chỉnh cho ứng dụng đặt đồ ăn FunFood. Được xây dựng với Node.js, Express, JWT Authentication và tích hợp đầy đủ tính năng JSON-Server style queries với GPS tracking, RBAC, Payment Gateway Integration và nhiều hơn nữa.
 
-Backend API hoàn chỉnh cho ứng dụng đặt đồ ăn FunFood. Được xây dựng với Node.js, Express, JWT Authentication và tích hợp đầy đủ tính năng JSON-Server style queries với GPS tracking.
+---
 
 ## 📋 Mục lục
 
@@ -14,12 +15,15 @@ Backend API hoàn chỉnh cho ứng dụng đặt đồ ăn FunFood. Được x�
 - [Công nghệ](#-công-nghệ)
 - [Cài đặt nhanh](#-cài-đặt-nhanh)
 - [Cấu trúc dự án](#-cấu-trúc-dự-án)
+- [Authentication & Authorization](#-authentication--authorization)
 - [API Endpoints](#-api-endpoints)
 - [Tính năng JSON-Server](#-tính-năng-json-server)
 - [GPS & Location Features](#-gps--location-features)
-- [Authentication](#-authentication)
-- [Testing](#-testing)
+- [Advanced Features](#-advanced-features)
+- [Error Handling](#-error-handling)
 - [Deployment](#-deployment)
+
+---
 
 ## ✨ Tính năng
 
@@ -27,32 +31,37 @@ Backend API hoàn chỉnh cho ứng dụng đặt đồ ăn FunFood. Được x�
 
 #### 🔐 Authentication & Authorization
 
-- Đăng ký, đăng nhập với JWT
-- Role-based access control (customer, admin)
-- Password hashing với bcrypt
-- Change password
-- Protected routes với middleware
-- Token expiration: 30 days
+- **JWT Token-based Authentication**: Đăng ký, đăng nhập với JWT token 30 ngày
+- **Role-Based Access Control (RBAC)**: 4 roles (Admin, Customer, Manager, Shipper)
+- **Password hashing**: bcrypt với salt rounds = 10
+- **Change password**: Đổi mật khẩu an toàn
+- **Protected routes**: Middleware bảo vệ routes
+- **Token expiration**: 30 ngày (configurable)
+- **Ownership Verification**: Kiểm tra quyền sở hữu resource
+- **Dynamic Permissions**: Phân quyền chi tiết per action
 
 #### 🏪 Quản lý nhà hàng
 
-- CRUD nhà hàng với phân quyền
+- **CRUD đầy đủ** với phân quyền
 - Lọc theo category, status, rating
 - Tìm kiếm full-text
 - **GPS coordinates** (latitude, longitude)
-- **Nearby search** - Tìm nhà hàng gần nhất
+- **Nearby search** - Tìm nhà hàng gần nhất (Haversine formula)
+- **Distance Calculation**: Tính khoảng cách tự động
 - Open/Close time tracking
 - Tự động cập nhật rating từ reviews
 - Phone contact information
+- Operating hours management
 
 #### 🍕 Quản lý sản phẩm
 
 - CRUD sản phẩm với images
 - Lọc theo restaurant, category, price range
-- Discount management (%)
+- **Discount management** (percentage-based)
 - Available/Unavailable status
 - Full-text search
 - Relationship với restaurant & category
+- **Bulk update availability**: Cập nhật hàng loạt
 
 #### 🛒 Giỏ hàng
 
@@ -62,39 +71,44 @@ Backend API hoàn chỉnh cho ứng dụng đặt đồ ăn FunFood. Được x�
 - Clear by restaurant
 - Group items by restaurant
 - Real-time total calculation
+- Enrich với product & restaurant info
 
 #### 📦 Đơn hàng
 
+- **6-Status Workflow**: pending → confirmed → preparing → delivering → delivered/cancelled
 - Tạo đơn với validation đầy đủ
-- 6 trạng thái: pending → confirmed → preparing → delivering → delivered / cancelled
 - **GPS tracking** (delivery location)
 - **Distance calculation** tự động
 - **Dynamic delivery fee** theo khoảng cách
 - Tự động áp dụng promotion
-- Payment methods: cash, card, momo, zalopay
+- **Payment methods**: Cash, Card, MoMo, ZaloPay
 - Order history với pagination
 - Cancel order (chỉ pending/confirmed)
+- **Reorder**: Đặt lại đơn cũ
+- **Rate order**: Đánh giá sau khi giao
 
 #### ❤️ Yêu thích
 
-- Add/Remove favorites
+- Favorite **Restaurants & Products** (unified)
 - **Toggle favorite** (add hoặc remove)
 - Check favorite status
 - Get favorite IDs only (lightweight)
-- List với restaurant details
+- List với restaurant/product details
+- **Trending favorites**: Top favorites theo loại
 
 #### ⭐ Đánh giá
 
-- Rating 1-5 sao
+- Rate **Restaurants & Products** (1-5 sao)
 - Comment/Review text
 - Link với order (optional)
-- Tự động update restaurant rating
-- Chống duplicate review
+- Tự động update restaurant/product rating
+- **Chống duplicate review** per type
 - Edit/Delete own reviews
+- **Review statistics**: Phân tích đánh giá
 
 #### 🎟️ Khuyến mãi
 
-- 3 loại discount:
+- **3 loại discount**:
   - **Percentage**: % giảm với max discount
   - **Fixed**: Số tiền cố định
   - **Delivery**: Free ship
@@ -103,6 +117,7 @@ Backend API hoàn chỉnh cho ứng dụng đặt đồ ăn FunFood. Được x�
 - Usage limits (total & per user)
 - Min order value requirement
 - Active/Inactive toggle
+- **Promotion validation**: Kiểm tra hợp lệ trước áp dụng
 
 #### 📍 Địa chỉ giao hàng
 
@@ -114,263 +129,55 @@ Backend API hoàn chỉnh cho ứng dụng đặt đồ ăn FunFood. Được x�
 - Delivery notes
 - Clear non-default addresses
 
-#### 🔔 Thông báo (NEW!)
+#### 🔔 Thông báo
 
 - Order status updates
 - Promotion announcements
 - Favorite restaurant updates
 - Read/Unread status
-- Mark as read
+- Mark as read (individual & bulk)
 - Clear all notifications
 - Push notification ready
 
-### 🚀 JSON-Server Style Features
+#### 💳 Payment Processing (NEW!)
 
-#### 📄 Pagination
+- **Multiple Methods**: Cash, Card, MoMo, ZaloPay
+- Payment status tracking
+- Refund system
+- Webhook callbacks (mock)
+- Payment history
+- **Payment validation**: Kiểm tra signature
 
-- `?_page=1&_limit=10`
-- Response headers: X-Total-Count, X-Total-Pages, Link
-- Navigation: first, prev, next, last
-- Default: page=1, limit=10
-- Max limit: 100
+#### 👨‍💼 Manager Dashboard (NEW!)
 
-#### 🔤 Sorting
+- Quản lý restaurant riêng
+- Menu management (CRUD products)
+- Order tracking & status update
+- Statistics & revenue
+- **Product availability toggle**
 
-- `?_sort=rating&_order=desc`
-- Multiple fields: `?_sort=price,name`
-- Order: asc (default) / desc
+#### 🚚 Shipper Operations (NEW!)
 
-#### 🔍 Full-text Search
+- View available orders
+- Accept order (assign to self)
+- Track deliveries
+- Update delivery status
+- Delivery statistics & earnings
+- **Auto-calculate earnings**: 80% delivery fee
 
-- `?q=pizza`
-- Search across all string fields
-- Case-insensitive
-- Partial match
+#### 📥 Import/Export (NEW!)
 
-#### 🎯 Advanced Filtering
+- **Supported Formats**: Excel (.xlsx), CSV
+- Batch import with validation
+- Export with relationships
+- Template generation
+- Schema reference
+- Error reporting
+- **Partial success handling**
 
-- Exact match: `?categoryId=1`
-- Greater/Equal: `?price_gte=50000`
-- Less/Equal: `?price_lte=100000`
-- Not equal: `?discount_ne=0`
-- Like: `?name_like=pizza`
-- In list: `?status_in=pending,confirmed`
+---
 
-#### 🔗 Relationships
-
-- **Embed**: `?_embed=products` (nhúng dữ liệu con)
-- **Expand**: `?_expand=restaurant` (mở rộng foreign key)
-- Multiple: `?_embed=products,reviews&_expand=category`
-
-### 🗺️ GPS & Location Features (NEW!)
-
-#### 📍 Restaurant GPS
-
-- Latitude & Longitude coordinates
-- **Nearby search** endpoint
-- Distance calculation (Haversine formula)
-- Radius filter (km)
-- Sort by distance
-
-#### 🚚 Delivery GPS
-
-- Save delivery location coordinates
-- **Calculate distance** restaurant → customer
-- **Dynamic delivery fee** based on distance
-- Estimated delivery time
-- Route tracking ready
-
-#### 💰 Smart Delivery Fee
-
-```javascript
-Distance ≤ 2km:  15,000đ (base fee)
-2km < d ≤ 5km:   15,000đ + (d-2) × 5,000đ/km
-Distance > 5km:  30,000đ + (d-5) × 7,000đ/km
-```
-
-## 🛠 Công nghệ
-
-- **Runtime**: Node.js 18.x
-- **Framework**: Express 4.18
-- **Authentication**: JWT (jsonwebtoken 9.0)
-- **Password**: bcryptjs 2.4
-- **Validation**: express-validator 7.0
-- **Database**: JSON file-based (development)
-- **CORS**: Enabled with exposed headers
-- **Environment**: dotenv
-
-## 🚀 Cài đặt nhanh
-
-### Prerequisites
-
-- Node.js 18.x hoặc cao hơn
-- npm hoặc yarn
-
-### Installation
-
-```bash
-# 1. Clone hoặc tạo project
-git clone <your-repo>
-cd funfood-backend
-
-# 2. Install dependencies
-npm install
-
-# 3. Tạo file .env
-cat > .env << EOF
-PORT=3000
-JWT_SECRET=your_super_secret_key_change_in_production
-JWT_EXPIRE=30d
-NODE_ENV=development
-EOF
-
-# 4. Seed database (tạo dữ liệu mẫu)
-npm run seed
-
-# 5. Start server
-npm run dev
-```
-
-**Server chạy tại:** http://localhost:3000
-
-### Quick Test
-
-```bash
-# Health check
-curl http://localhost:3000/api/health
-
-# API docs
-curl http://localhost:3000/api
-
-# Login
-curl -X POST http://localhost:3000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"user@funfood.com","password":"123456"}'
-```
-
-## 📁 Cấu trúc dự án
-
-```
-funfood-backend/
-├── config/
-│   └── database.js              # Enhanced database với JSON-Server features
-├── controllers/
-│   ├── auth.controller.js       # Authentication & JWT
-│   ├── user.controller.js       # User management + activity stats
-│   ├── category.controller.js   # Categories CRUD
-│   ├── restaurant.controller.js # Restaurants + GPS + nearby search
-│   ├── product.controller.js    # Products + advanced filtering
-│   ├── order.controller.js      # Orders + GPS tracking
-│   ├── cart.controller.js       # Cart + sync functionality
-│   ├── favorite.controller.js   # Favorites + toggle
-│   ├── review.controller.js     # Reviews + auto rating update
-│   ├── promotion.controller.js  # Promotions + validation
-│   ├── address.controller.js    # Addresses + GPS
-│   └── notification.controller.js # Notifications (NEW!)
-├── middleware/
-│   ├── auth.middleware.js       # JWT auth + role authorization
-│   └── query.middleware.js      # Query parser + response formatter
-├── routes/
-│   ├── auth.routes.js
-│   ├── user.routes.js
-│   ├── category.routes.js
-│   ├── restaurant.routes.js
-│   ├── product.routes.js
-│   ├── order.routes.js
-│   ├── cart.routes.js
-│   ├── favorite.routes.js
-│   ├── review.routes.js
-│   ├── promotion.routes.js
-│   ├── address.routes.js
-│   └── notification.routes.js    # NEW!
-├── utils/
-│   ├── helpers.js               # JWT, bcrypt, distance calculation
-│   └── seedData.js              # Database seeding script
-├── database/
-│   └── db.json                  # JSON database (auto-generated)
-├── .env                         # Environment variables
-├── package.json
-├── server.js                    # Entry point
-├── README.md
-├── API_ENDPOINTS.md
-└── MIGRATION.md
-```
-
-## 🔌 API Endpoints
-
-### Base URL
-
-```
-http://localhost:3000/api
-```
-
-### 📊 Summary
-
-| Module        | Public | Protected | Admin Only | Total  |
-| ------------- | ------ | --------- | ---------- | ------ |
-| Auth          | 2      | 3         | 0          | 5      |
-| Users         | 0      | 3         | 6          | 9      |
-| Categories    | 2      | 0         | 3          | 5      |
-| Restaurants   | 5      | 0         | 3          | 8      |
-| Products      | 3      | 0         | 3          | 6      |
-| Cart          | 0      | 7         | 0          | 7      |
-| Orders        | 0      | 5         | 1          | 6      |
-| Favorites     | 0      | 7         | 0          | 7      |
-| Reviews       | 1      | 4         | 1          | 6      |
-| Promotions    | 3      | 1         | 4          | 8      |
-| Addresses     | 0      | 8         | 0          | 8      |
-| Notifications | 0      | 5         | 0          | 5      |
-| **TOTAL**     | **16** | **43**    | **21**     | **80** |
-
-### Quick Reference
-
-#### Authentication (`/api/auth`)
-
-```bash
-POST   /register           # Đăng ký
-POST   /login              # Đăng nhập
-GET    /me                 # Get profile [Protected]
-POST   /logout             # Đăng xuất [Protected]
-PUT    /change-password    # Đổi mật khẩu [Protected]
-```
-
-#### Restaurants (`/api/restaurants`)
-
-```bash
-GET    /                   # List + filters + pagination
-GET    /nearby             # Tìm gần (GPS) [NEW!]
-GET    /search?q=...       # Search
-GET    /:id                # Details
-GET    /:id/products       # Menu
-POST   /                   # Create [Admin]
-PUT    /:id                # Update [Admin]
-DELETE /:id                # Delete [Admin]
-```
-
-#### Orders (`/api/orders`)
-
-```bash
-GET    /                   # My orders [Protected]
-GET    /all                # All orders [Admin]
-GET    /:id                # Order details [Protected]
-POST   /                   # Create [Protected]
-PATCH  /:id/status         # Update status [Protected]
-DELETE /:id                # Cancel [Protected]
-```
-
-#### Notifications (`/api/notifications`) [NEW!]
-
-```bash
-GET    /                   # List [Protected]
-PATCH  /:id/read           # Mark as read [Protected]
-PATCH  /read-all           # Mark all read [Protected]
-DELETE /:id                # Delete one [Protected]
-DELETE /                   # Clear all [Protected]
-```
-
-**📖 Full documentation:** [API_ENDPOINTS.md](API_ENDPOINTS.md)
-
-## 🎨 Tính năng JSON-Server
+## 🚀 Tính năng JSON-Server
 
 ### Complete Example
 
@@ -422,6 +229,63 @@ Link: <...>; rel="first", <...>; rel="last"
 | `_embed`     | `?_embed=products`    | Nhúng products                  |
 | `_expand`    | `?_expand=restaurant` | Mở rộng FK                      |
 
+### Pagination
+
+```bash
+# Trang 1, 10 items
+GET /api/restaurants?_page=1&_limit=10
+
+# Response Headers:
+X-Total-Count: 50
+X-Total-Pages: 5
+X-Current-Page: 1
+Link: <...>; rel="first", <...>; rel="next", <...>; rel="last"
+```
+
+### Sorting (Multiple Fields)
+
+```bash
+# Sắp xếp theo rating (desc), sau đó name (asc)
+GET /api/restaurants?_sort=rating,name&_order=desc,asc
+```
+
+### Full-Text Search
+
+```bash
+# Tìm "pizza" trong tất cả string fields
+GET /api/products?q=pizza
+
+# Case-insensitive, partial match
+```
+
+### Advanced Filtering
+
+```bash
+# Kết hợp nhiều operators
+GET /api/products?price_gte=50000&price_lte=100000&discount_ne=0&available=true
+
+# In list
+GET /api/orders?status_in=pending,confirmed,preparing
+
+# Like (contains)
+GET /api/restaurants?name_like=phở
+```
+
+### Relationships
+
+```bash
+# Embed: nhúng dữ liệu con
+GET /api/restaurants/1?_embed=products,reviews
+
+# Expand: mở rộng foreign key
+GET /api/products/1?_expand=restaurant,category
+
+# Kết hợp
+GET /api/restaurants?_embed=products&_expand=category
+```
+
+---
+
 ## 🗺️ GPS & Location Features
 
 ### 1. Nearby Restaurants
@@ -471,11 +335,16 @@ POST /api/orders
 # 3. Lưu GPS coordinates
 ```
 
-### 3. Distance Calculation
+### 3. Distance Calculation & Dynamic Delivery Fee
 
 ```javascript
 // Haversine Formula
 Distance = √[(Δlat)² + (Δlon)²] × Earth_Radius
+
+// Dynamic Delivery Fee:
+Distance ≤ 2km:     15,000đ (base fee)
+2km < d ≤ 5km:      15,000đ + (d-2) × 5,000đ/km
+Distance > 5km:     30,000đ + (d-5) × 7,000đ/km
 
 // Example:
 Restaurant: (10.7756, 106.7019)
@@ -484,43 +353,56 @@ Customer:   (10.7769, 106.7009)
 → Delivery Fee: 15,000đ (base fee)
 ```
 
-## 🔐 Authentication
+---
 
-### Flow
+## 🛠 Công nghệ
+
+| Công nghệ         | Version | Mục đích              |
+| ----------------- | ------- | --------------------- |
+| Node.js           | 18.x+   | Runtime               |
+| Express           | 4.18+   | Web Framework         |
+| JWT               | 9.0+    | Authentication        |
+| bcryptjs          | 2.4+    | Password hashing      |
+| XLSX              | 0.18+   | Excel import/export   |
+| json2csv          | 6.0+    | CSV export            |
+| CORS              | 2.8+    | Cross-origin requests |
+| dotenv            | 16.3+   | Environment variables |
+| express-validator | 7.0+    | Input validation      |
+| multer            | 2.0+    | File upload           |
+
+---
+
+## 🚀 Cài đặt nhanh
+
+### Prerequisites
+
+- Node.js 18.x hoặc cao hơn
+- npm hoặc yarn
+- Git
+
+### Installation
 
 ```bash
-# 1. Register
-POST /api/auth/register
-{
-  "email": "user@example.com",
-  "password": "123456",
-  "name": "John Doe",
-  "phone": "0912345678"
-}
-→ Response: { token: "..." }
+# 1. Clone repository
+git clone <your-repo-url>
+cd funfood-backend
 
-# 2. Login
-POST /api/auth/login
-{
-  "email": "user@example.com",
-  "password": "123456"
-}
-→ Response: { token: "..." }
+# 2. Install dependencies
+npm install
 
-# 3. Use Token
-GET /api/orders
-Authorization: Bearer eyJhbGc...
+# 3. Setup environment
+cp .env.develop .env
 
-# 4. Change Password
-PUT /api/auth/change-password
-Authorization: Bearer eyJhbGc...
-{
-  "currentPassword": "123456",
-  "newPassword": "newpass"
-}
+# 4. Seed database
+npm run seed
+
+# 5. Start development
+npm run dev
 ```
 
-### Test Accounts (after seed)
+**Server chạy tại:** `http://localhost:3000`
+
+### Test Accounts (sau khi seed)
 
 ```
 Admin:
@@ -534,123 +416,477 @@ Password: 123456
 Customer 2:
 Email: customer@funfood.com
 Password: 123456
+
+Shipper:
+Email: shipper@funfood.com
+Password: 123456
+
+Manager:
+Email: manager.chay@funfood.com
+Password: 123456
 ```
 
-## 🧪 Testing
-
-### Automated Test Flow
+### Quick Test
 
 ```bash
-#!/bin/bash
-# test.sh
+# Health check
+curl http://localhost:3000/api/health
 
-BASE_URL="http://localhost:3000/api"
+# API docs
+curl http://localhost:3000/api
 
-echo "1. Health Check"
-curl $BASE_URL/health
-
-echo "\n2. Login"
-TOKEN=$(curl -s -X POST $BASE_URL/auth/login \
+# Login
+curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"user@funfood.com","password":"123456"}' \
-  | jq -r '.data.token')
-
-echo "Token: $TOKEN"
-
-echo "\n3. Get Restaurants (paginated)"
-curl "$BASE_URL/restaurants?_page=1&_limit=5"
-
-echo "\n4. Nearby Restaurants"
-curl "$BASE_URL/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3"
-
-echo "\n5. Add to Cart"
-curl -X POST $BASE_URL/cart \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"productId":1,"quantity":2}'
-
-echo "\n6. Get Cart"
-curl $BASE_URL/cart \
-  -H "Authorization: Bearer $TOKEN"
-
-echo "\n7. Create Order"
-curl -X POST $BASE_URL/orders \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "restaurantId":1,
-    "items":[{"productId":1,"quantity":2}],
-    "deliveryAddress":"123 Test St",
-    "deliveryLatitude":10.7769,
-    "deliveryLongitude":106.7009,
-    "paymentMethod":"cash"
-  }'
-
-echo "\n8. Get My Orders"
-curl "$BASE_URL/orders?_page=1&_limit=10" \
-  -H "Authorization: Bearer $TOKEN"
-
-echo "\nDone!"
+  -d '{"email":"user@funfood.com","password":"123456"}'
 ```
 
-### Manual Testing
+---
+
+## 📁 Cấu trúc dự án
+
+```
+funfood-backend/
+├── config/
+│   ├── database.js              # Enhanced database + JSON-Server features
+│   └── endpoints.js             # API endpoints reference
+│
+├── controllers/                 # HTTP request handlers
+│   ├── auth.controller.js
+│   ├── user.controller.js
+│   ├── restaurant.controller.js
+│   ├── product.controller.js
+│   ├── order.controller.js
+│   ├── cart.controller.js
+│   ├── favorite.controller.js
+│   ├── review.controller.js
+│   ├── promotion.controller.js
+│   ├── address.controller.js
+│   ├── notification.controller.js
+│   ├── payment.controller.js
+│   ├── manager.controller.js
+│   ├── shipper.controller.js
+│   └── importExport.controller.js
+│
+├── middleware/                  # Express middleware
+│   ├── auth.middleware.js       # JWT + ownership check
+│   ├── query.middleware.js      # Query parser + formatter
+│   ├── rbac.middleware.js       # Role-based access control
+│   └── validation.middleware.js # Input validation rules
+│
+├── routes/                      # API route definitions
+│   ├── auth.routes.js
+│   ├── user.routes.js
+│   ├── restaurant.routes.js
+│   ├── product.routes.js
+│   ├── order.routes.js
+│   ├── cart.routes.js
+│   ├── favorite.routes.js
+│   ├── review.routes.js
+│   ├── promotion.routes.js
+│   ├── address.routes.js
+│   ├── notification.routes.js
+│   ├── payment.routes.js
+│   ├── manager.routes.js
+│   └── shipper.routes.js
+│
+├── services/                    # Business logic
+│   ├── auth.service.js
+│   ├── user.service.js
+│   ├── restaurant.service.js    # GPS features
+│   ├── product.service.js
+│   ├── order.service.js         # Order logic, validation
+│   ├── cart.service.js
+│   ├── favorite.service.js
+│   ├── review.service.js
+│   ├── promotion.service.js
+│   ├── address.service.js
+│   ├── notification.service.js
+│   ├── payment.service.js       # Payment gateway integration
+│   ├── shipper.service.js
+│   └── importExport.service.js
+│
+├── utils/                       # Utilities
+│   ├── BaseService.js           # Generic CRUD service
+│   ├── BaseController.js        # Generic HTTP controller
+│   ├── helpers.js               # JWT, crypto, GPS functions
+│   └── seedData.js              # Database seeding
+│
+├── database/
+│   └── db.json                  # JSON database (auto-generated)
+│
+├── .env                         # Environment config
+├── .env.develop                 # Development template
+├── .env.example                 # Full example
+├── .gitignore
+├── package.json
+└── server.js                    # Entry point
+```
+
+---
+
+## 🔐 Authentication & Authorization
+
+### JWT Authentication Flow
+
+```
+1. POST /api/auth/register
+   ├─ Validate email & password
+   ├─ Hash password
+   ├─ Create user
+   └─ Generate JWT token (30 days)
+
+2. POST /api/auth/login
+   ├─ Find user by email
+   ├─ Verify password
+   └─ Generate JWT token
+
+3. Authenticated Request
+   GET /api/auth/me
+   Header: Authorization: Bearer <token>
+   ├─ Verify token signature
+   ├─ Check expiration
+   └─ Get user from database
+```
+
+### RBAC - Role-Based Access Control
+
+| Role         | Module          | Permissions                                       |
+| ------------ | --------------- | ------------------------------------------------- |
+| **Admin**    | All             | create, read, update, delete, export, import      |
+| **Manager**  | Own Restaurant  | read, update products, confirm orders, view stats |
+| **Shipper**  | Assigned Orders | read, accept, update status, view earnings        |
+| **Customer** | Own Data        | create orders, read own data, update profile      |
+
+### Authorization Examples
+
+```javascript
+// Exact role check
+router.delete("/:id", authorize("admin"), controller.delete);
+
+// Permission-based
+router.post("/", checkPermission("orders", "create"), controller.create);
+
+// Ownership check
+router.get("/:id", checkOwnership("order"), controller.getById);
+```
+
+---
+
+## 📊 API Endpoints
+
+### Base URL
+
+```
+http://localhost:3000/api
+```
+
+### Summary
+
+| Module        | Public | Protected | Admin  | Total   |
+| ------------- | ------ | --------- | ------ | ------- |
+| Auth          | 2      | 3         | 0      | 5       |
+| Users         | 0      | 3         | 6      | 9       |
+| Categories    | 2      | 0         | 3      | 5       |
+| Restaurants   | 5      | 0         | 3      | 8       |
+| Products      | 3      | 0         | 3      | 6       |
+| Cart          | 0      | 7         | 0      | 7       |
+| Orders        | 0      | 5         | 4      | 9       |
+| Favorites     | 0      | 7         | 0      | 7       |
+| Reviews       | 1      | 4         | 1      | 6       |
+| Promotions    | 3      | 1         | 4      | 8       |
+| Addresses     | 0      | 8         | 0      | 8       |
+| Notifications | 0      | 5         | 0      | 5       |
+| Payment       | 0      | 2         | 2      | 4       |
+| Manager       | 0      | 5         | 0      | 5       |
+| Shipper       | 0      | 5         | 0      | 5       |
+| Import/Export | 0      | 0         | 9      | 9       |
+| **TOTAL**     | **16** | **55**    | **40** | **111** |
+
+### Quick Reference
+
+#### Authentication (`/api/auth`)
 
 ```bash
-# Test pagination headers
-curl -i "http://localhost:3000/api/restaurants?_page=1&_limit=5"
-
-# Check X-Total-Count header
-# Check Link header for navigation
-
-# Test filtering
-curl "http://localhost:3000/api/products?price_gte=50000&price_lte=100000&available=true"
-
-# Test sorting
-curl "http://localhost:3000/api/restaurants?_sort=rating&_order=desc"
-
-# Test full-text search
-curl "http://localhost:3000/api/products?q=pizza"
-
-# Test relationships
-curl "http://localhost:3000/api/restaurants/1?_embed=products,reviews"
+POST   /register              # Đăng ký (Public)
+POST   /login                 # Đăng nhập (Public)
+GET    /me                    # Get profile (Protected)
+POST   /logout                # Đăng xuất (Protected)
+PUT    /change-password       # Đổi password (Protected)
 ```
 
-## 📦 Deployment
+#### Restaurants (`/api/restaurants`)
 
-### Production Checklist
+```bash
+GET    /                      # List + filters (Public)
+GET    /nearby                # Nearby search GPS (Public)
+GET    /search?q=             # Full-text search (Public)
+GET    /:id                   # Details (Public)
+GET    /:id/products          # Menu (Public)
+POST   /                      # Create (Admin)
+PUT    /:id                   # Update (Admin)
+DELETE /:id                   # Delete (Admin)
 
-- [ ] Change `JWT_SECRET` to strong random string
-- [ ] Set `NODE_ENV=production`
-- [ ] Use real database (MongoDB/PostgreSQL)
-- [ ] Enable HTTPS
-- [ ] Setup rate limiting
-- [ ] Add logging (Winston/Morgan)
-- [ ] Setup monitoring (PM2/New Relic)
-- [ ] Configure CORS properly
-- [ ] Add compression middleware
+# Import/Export
+GET    /template              # Download template (Admin)
+GET    /schema                # Get schema (Admin)
+POST   /import                # Import Excel/CSV (Admin)
+GET    /export                # Export data (Admin)
+```
+
+#### Orders (`/api/orders`)
+
+```bash
+# Customer
+GET    /                      # My orders (Protected)
+POST   /                      # Create (Protected)
+GET    /:id                   # Details (Protected)
+PATCH  /:id/status            # Update status (Protected)
+DELETE /:id                   # Cancel (Protected)
+POST   /:id/reorder           # Reorder (Protected)
+POST   /:id/rate              # Rate (Protected)
+GET    /stats/summary         # My stats (Protected)
+
+# Manager
+GET    /manager/restaurant    # My restaurant (Manager)
+GET    /manager/orders        # Orders (Manager)
+PATCH  /manager/:id/status    # Update status (Manager)
+GET    /manager/stats         # Stats (Manager)
+
+# Shipper
+GET    /shipper/available     # Available (Shipper)
+POST   /shipper/:id/accept    # Accept (Shipper)
+GET    /shipper/deliveries    # My deliveries (Shipper)
+PATCH  /shipper/:id/status    # Update status (Shipper)
+GET    /shipper/stats         # Stats (Shipper)
+
+# Admin
+GET    /admin/all             # All orders (Admin)
+GET    /admin/stats           # Stats (Admin)
+PATCH  /admin/:id/status      # Force update (Admin)
+DELETE /admin/:id/permanent   # Permanent delete (Admin)
+```
+
+**📖 Full documentation:** [API_ENDPOINTS.md](docs/API_ENDPOINTS.md)
+
+---
+
+## 📦 Advanced Features
+
+### 1. Order Workflow & Validation
+
+```javascript
+Order Status Flow:
+pending → confirmed → preparing → delivering → delivered
+                   ↓
+                cancelled (anytime from pending/confirmed)
+
+Validation before create:
+✓ Items must exist & available
+✓ All items from same restaurant
+✓ Delivery address required
+✓ Restaurant must be open
+✓ Check pending payment orders
+```
+
+### 2. Promotion System
+
+```javascript
+// 3 Discount Types:
+1. Percentage:  discount = orderValue × (discountValue / 100)
+2. Fixed:       discount = discountValue
+3. Delivery:    discount = deliveryFee
+
+// Validation:
+- Check date range validity
+- Verify min order value
+- Check usage limits (global & per-user)
+- Prevent double usage
+```
+
+### 3. Import/Export Features
+
+#### Import (Excel/CSV)
+
+```bash
+POST /api/products/import
+Content-Type: multipart/form-data
+file: products.xlsx
+```
+
+**Features:**
+
+- Batch validation
+- Foreign key verification
+- Duplicate detection
+- Error reporting
+- Partial success handling
+
+#### Export
+
+```bash
+GET /api/restaurants/export?format=xlsx&includeRelations=true
+```
+
+**Options:**
+
+- Format: xlsx, csv
+- Include relationships
+- Select columns
+- Filters & pagination
+
+#### Schema Reference
+
+```bash
+GET /api/products/schema
+```
+
+**Response:**
+
+```json
+{
+  "name": {"type": "string", "required": true},
+  "price": {"type": "number", "required": true, "min": 0},
+  "restaurantId": {"type": "number", "required": true, "foreignKey": "restaurants"}
+}
+```
+
+### 4. Payment Integration
+
+```javascript
+Supported Methods:
+1. Cash (COD)
+2. Card (Stripe-ready)
+3. MoMo (Integration ready)
+4. ZaloPay (Integration ready)
+
+Flow:
+1. POST /api/payment/:orderId/create
+2. Process payment (external gateway or mock)
+3. Webhook callback validation
+4. Update order payment status
+5. Send notification
+```
+
+---
+
+## ⚠️ Error Handling
+
+### Error Response Format
+
+```json
+{
+  "success": false,
+  "message": "Error message",
+  "errors": [
+    {
+      "field": "email",
+      "message": "Invalid email format"
+    }
+  ]
+}
+```
+
+### HTTP Status Codes
+
+| Code | Meaning       | Example                  |
+| ---- | ------------- | ------------------------ |
+| 200  | OK            | Resource retrieved       |
+| 201  | Created       | Resource created         |
+| 400  | Bad Request   | Invalid input            |
+| 401  | Unauthorized  | Missing/invalid token    |
+| 403  | Forbidden     | Insufficient permissions |
+| 404  | Not Found     | Resource not found       |
+| 409  | Conflict      | Duplicate data           |
+| 422  | Unprocessable | Validation failed        |
+| 500  | Server Error  | Internal error           |
+
+---
+
+## 📦 Response Format
+
+### Success with Pagination
+
+```json
+{
+  "success": true,
+  "count": 10,
+  "data": [...],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 50,
+    "totalPages": 5,
+    "hasNext": true,
+    "hasPrev": false
+  }
+}
+```
+
+### Response Headers (for paginated requests)
+
+```
+X-Total-Count: 50
+X-Total-Pages: 5
+X-Current-Page: 1
+X-Per-Page: 10
+Link: <...>; rel="first", <...>; rel="prev", <...>; rel="next", <...>; rel="last"
+```
+
+---
+
+## 🚀 Deployment
+
+### Pre-deployment Checklist
+
+```
+Security:
+- [ ] Change JWT_SECRET to strong random string
+- [ ] Use HTTPS/TLS
+- [ ] Enable rate limiting
+- [ ] Add CORS whitelist
+- [ ] Input sanitization
+
+Database:
+- [ ] Migrate to real database (MongoDB/PostgreSQL)
 - [ ] Setup backup strategy
-- [ ] Use environment variables
-- [ ] Setup CI/CD pipeline
+- [ ] Create indexes
+- [ ] Test restore procedure
+
+Monitoring:
+- [ ] Setup logging (Winston)
+- [ ] Setup error tracking (Sentry)
+- [ ] Setup performance monitoring
+- [ ] Setup uptime monitoring
+
+Documentation:
+- [ ] API documentation complete
+- [ ] Deployment guide
+- [ ] Runbook for incidents
+```
 
 ### Deploy to Heroku
 
 ```bash
-# Install Heroku CLI
+# 1. Install Heroku CLI
+npm install -g heroku
+
+# 2. Login
 heroku login
 
-# Create app
+# 3. Create app
 heroku create funfood-api
 
-# Set environment
+# 4. Set environment
 heroku config:set JWT_SECRET=$(openssl rand -base64 32)
 heroku config:set NODE_ENV=production
 heroku config:set JWT_EXPIRE=30d
 
-# Deploy
+# 5. Deploy
 git push heroku main
 
-# Open
-heroku open
+# 6. View logs
+heroku logs --tail
 ```
 
 ### Deploy to VPS (Ubuntu)
@@ -660,52 +896,45 @@ heroku open
 curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
-# 2. Clone project
-git clone <your-repo>
-cd funfood-backend
+# 2. Setup PM2
+sudo npm install -g pm2
 
-# 3. Install dependencies
+# 3. Clone & install
+git clone <repo>
+cd funfood-backend
 npm install --production
 
-# 4. Setup PM2
-sudo npm install -g pm2
+# 4. Start with PM2
 pm2 start server.js --name funfood-api
 pm2 startup
 pm2 save
 
-# 5. Nginx reverse proxy
-sudo nano /etc/nginx/sites-available/funfood-api
-
-# Paste:
-server {
-    listen 80;
-    server_name your-domain.com;
-
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-
-# Enable site
-sudo ln -s /etc/nginx/sites-available/funfood-api /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl restart nginx
-
-# 6. SSL with Let's Encrypt
-sudo apt install certbot python3-certbot-nginx
-sudo certbot --nginx -d your-domain.com
+# 5. Setup Nginx (reverse proxy)
+sudo apt install nginx
+# Configure /etc/nginx/sites-available/funfood-api
+# Point to localhost:3000
 ```
+
+---
 
 ## 📚 Documentation
 
-- **[API_ENDPOINTS.md](API_ENDPOINTS.md)** - Complete API reference với tất cả 80 endpoints
-- **[MIGRATION.md](MIGRATION.md)** - Migration guide từ v1.0 → v2.0
-- **[QUICK_START.md](QUICK_START.md)** - Quick start guide
+- **[API_ENDPOINTS.md](docs/API_ENDPOINTS.md)** - Complete API reference với tất cả 111 endpoints
+- **[QUICK_START.md](docs/QUICK_START.md)** - Quick start guide
+- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System architecture
+- **[DEPLOYMENT.md](docs/DEPLOYMENT.md)** - Production deployment guide
+- **[MISSING_FEATURES.md](docs/MISSING_FEATURES.md)** - Future enhancements
+
+---
+
+## 📞 Support & Resources
+
+- **Documentation**: See `/docs` folder
+- **API Health**: `GET /api/health`
+- **API Explorer**: `GET /api`
+- **Endpoints Reference**: `GET /api/endpoints`
+
+---
 
 ## 🤝 Contributing
 
@@ -717,15 +946,13 @@ Contributions are welcome!
 4. Push to branch (`git push origin feature/AmazingFeature`)
 5. Open Pull Request
 
-<!-- ## 📄 License
+---
 
-This project is licensed under the MIT License. -->
+## 📄 License
 
-<!-- ## 👥 Support
+This project is licensed under the MIT License.
 
-- **Email**: support@funfood.com
-- **Issues**: [GitHub Issues](https://github.com/your-repo/issues)
-- **Docs**: [Full Documentation](https://docs.funfood.com) -->
+---
 
 ## 🙏 Acknowledgments
 
@@ -736,4 +963,4 @@ This project is licensed under the MIT License. -->
 
 ---
 
-**Made with ❤️ for FunFood App** | Version 2.0.0 | Last Updated: October 2024
+**Made with ❤️ for FunFood App** | Version 2.1.0 | Last Updated: November 2024
