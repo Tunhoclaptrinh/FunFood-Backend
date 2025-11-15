@@ -17,8 +17,8 @@ router.post('/orders/:id/accept', shipperController.acceptOrder);
 // Xem đơn đang giao của mình
 router.get('/orders/my-deliveries', shipperController.getMyDeliveries);
 
-// Cập nhật vị trí hiện tại (GPS tracking)
-router.patch('/location', shipperController.updateLocation);
+// Cập nhật vị trí hiện tại (GPS tracking) => hiện tại chưa có
+// router.patch('/location', shipperController.updateLocation);
 
 // Cập nhật trạng thái đơn (delivering, delivered)
 router.patch('/orders/:id/status', shipperController.updateOrderStatus);
