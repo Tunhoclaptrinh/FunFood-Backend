@@ -54,7 +54,7 @@ class BaseController {
    */
   create = async (req, res, next) => {
     try {
-      // Validate request (express-validator)
+      // 1️⃣ Express-validator errors
       const errors = this.validateRequest(req);
       if (errors) {
         return res.status(400).json({
@@ -63,6 +63,15 @@ class BaseController {
         });
       }
 
+      // 2️⃣ Schema validation (NEW)
+      const schemaValidation = this.service.validateBySchema(req.body);
+      if (!schemaValidation.success) {
+        return res.status(400).json({
+          success: false,
+          message: 'Validation failed',
+          errors: schemaValidation.errors
+        });
+      }
       const result = await this.service.create(req.body);
 
       if (!result.success) {
