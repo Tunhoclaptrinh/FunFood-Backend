@@ -1,170 +1,213 @@
 /**
- * Validation Middleware - Tập trung validation rules
- * Sử dụng với express-validator
+ * Validation Middleware - Auto-generated from Schemas
+ * Provides flexible validation methods
  */
-const { body } = require('express-validator');
 
-// ============= RESTAURANT VALIDATIONS =============
-const restaurantValidation = {
-  create: [
-    body('name').notEmpty().withMessage('Name is required'),
-    body('categoryId').isInt().withMessage('Category ID must be a number'),
-    body('address').notEmpty().withMessage('Address is required'),
-    body('deliveryFee').optional().isInt({ min: 0 }).withMessage('Delivery fee must be >= 0'),
-    body('latitude').optional().isFloat().withMessage('Invalid latitude'),
-    body('longitude').optional().isFloat().withMessage('Invalid longitude')
-  ],
-  update: [
-    body('name').optional().notEmpty().withMessage('Name cannot be empty'),
-    body('categoryId').optional().isInt().withMessage('Category ID must be a number'),
-    body('deliveryFee').optional().isInt({ min: 0 }).withMessage('Delivery fee must be >= 0')
-  ]
+const schemas = require('../schemas');
+
+/**
+ * Auto-validate request body theo schema
+ * Usage: router.post('/', validateSchema('product'), controller.create)
+ */
+exports.validateSchema = (entity) => {
+  return (req, res, next) => {
+    const schema = schemas[entity];
+    if (!schema) return next();
+
+    const errors = {};
+
+    for (const [field, rule] of Object.entries(schema)) {
+      const value = req.body[field];
+
+      // Required check
+      if (rule.required && (value === undefined || value === null || value === '')) {
+        errors[field] = `${field} is required`;
+        continue;
+      }
+
+      // Skip if optional and empty
+      if (!rule.required && (value === undefined || value === null)) {
+        continue;
+      }
+
+      // Type validation
+      let typeError = null;
+      switch (rule.type) {
+        case 'string':
+          if (typeof value !== 'string') typeError = `${field} must be a string`;
+          if (rule.minLength && value.length < rule.minLength) typeError = `${field} must be at least ${rule.minLength} characters`;
+          if (rule.maxLength && value.length > rule.maxLength) typeError = `${field} must be at most ${rule.maxLength} characters`;
+          break;
+        case 'number':
+          if (isNaN(Number(value))) typeError = `${field} must be a number`;
+          else {
+            const num = Number(value);
+            if (rule.min !== undefined && num < rule.min) typeError = `${field} must be >= ${rule.min}`;
+            if (rule.max !== undefined && num > rule.max) typeError = `${field} must be <= ${rule.max}`;
+          }
+          break;
+        case 'boolean':
+          const boolStr = String(value).toLowerCase();
+          if (!['true', 'false', '1', '0', 'yes', 'no'].includes(boolStr)) typeError = `${field} must be true/false`;
+          break;
+        case 'email':
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(value)) typeError = `${field} must be a valid email`;
+          break;
+        case 'date':
+          if (isNaN(new Date(value).getTime())) typeError = `${field} must be a valid date`;
+          break;
+        case 'enum':
+          if (!rule.enum.includes(value)) typeError = `${field} must be one of: ${rule.enum.join(', ')}`;
+          break;
+      }
+
+      if (typeError) {
+        errors[field] = typeError;
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        errors: Object.entries(errors).map(([field, message]) => ({
+          field,
+          message
+        }))
+      });
+    }
+
+    next();
+  };
 };
 
-// ============= PRODUCT VALIDATIONS =============
-const productValidation = {
-  create: [
-    body('name').notEmpty().withMessage('Name is required'),
-    body('restaurantId').isInt().withMessage('Restaurant ID must be a number'),
-    body('price').isInt({ min: 0 }).withMessage('Price must be >= 0'),
-    body('categoryId').optional().isInt().withMessage('Category ID must be a number'),
-    body('discount').optional().isInt({ min: 0, max: 100 }).withMessage('Discount must be 0-100'),
-    body('available').optional().isBoolean().withMessage('Available must be boolean')
-  ],
-  update: [
-    body('name').optional().notEmpty().withMessage('Name cannot be empty'),
-    body('price').optional().isInt({ min: 0 }).withMessage('Price must be >= 0'),
-    body('discount').optional().isInt({ min: 0, max: 100 }).withMessage('Discount must be 0-100')
-  ]
+/**
+ * Validate specific fields only
+ * Usage: router.put('/:id', validateFields('product', ['name', 'price']), controller.update)
+ */
+exports.validateFields = (entity, fields) => {
+  return (req, res, next) => {
+    const schema = schemas[entity];
+    if (!schema) return next();
+
+    const errors = {};
+    const fieldsToValidate = Array.isArray(fields) ? fields : [fields];
+
+    for (const field of fieldsToValidate) {
+      const value = req.body[field];
+      const rule = schema[field];
+
+      if (!rule) continue;
+
+      // Required check
+      if (rule.required && (value === undefined || value === null || value === '')) {
+        errors[field] = `${field} is required`;
+        continue;
+      }
+
+      // Type validation (simplified)
+      switch (rule.type) {
+        case 'string':
+          if (typeof value !== 'string') errors[field] = `${field} must be a string`;
+          break;
+        case 'number':
+          if (isNaN(Number(value))) errors[field] = `${field} must be a number`;
+          break;
+        case 'boolean':
+          if (typeof value !== 'boolean') errors[field] = `${field} must be true/false`;
+          break;
+        case 'email':
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(value)) errors[field] = `${field} must be a valid email`;
+          break;
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        errors: Object.entries(errors).map(([field, message]) => ({
+          field,
+          message
+        }))
+      });
+    }
+
+    next();
+  };
 };
 
-// ============= CATEGORY VALIDATIONS =============
-const categoryValidation = {
-  create: [
-    body('name').notEmpty().withMessage('Name is required'),
-    body('icon').optional().notEmpty().withMessage('Icon cannot be empty')
-  ],
-  update: [
-    body('name').optional().notEmpty().withMessage('Name cannot be empty')
-  ]
+/**
+ * Get schema documentation
+ * GET /api/schema/:entity
+ */
+exports.getSchemaDoc = (req, res) => {
+  const { entity } = req.params;
+  const schema = schemas[entity];
+
+  if (!schema) {
+    return res.status(404).json({
+      success: false,
+      message: `Schema not found for entity: ${entity}`
+    });
+  }
+
+  const doc = {
+    entity,
+    fields: {}
+  };
+
+  for (const [field, rule] of Object.entries(schema)) {
+    doc.fields[field] = {
+      type: rule.type,
+      required: rule.required || false,
+      description: rule.description || '',
+      constraints: {}
+    };
+
+    if (rule.min !== undefined) doc.fields[field].constraints.min = rule.min;
+    if (rule.max !== undefined) doc.fields[field].constraints.max = rule.max;
+    if (rule.minLength) doc.fields[field].constraints.minLength = rule.minLength;
+    if (rule.maxLength) doc.fields[field].constraints.maxLength = rule.maxLength;
+    if (rule.enum) doc.fields[field].constraints.enum = rule.enum;
+    if (rule.unique) doc.fields[field].constraints.unique = true;
+    if (rule.foreignKey) doc.fields[field].constraints.foreignKey = rule.foreignKey;
+  }
+
+  res.json({
+    success: true,
+    data: doc
+  });
 };
 
-// ============= ORDER VALIDATIONS =============
-const orderValidation = {
-  create: [
-    body('restaurantId').isInt().withMessage('Restaurant ID is required'),
-    body('items').isArray({ min: 1 }).withMessage('Order must have at least 1 item'),
-    body('items.*.productId').isInt().withMessage('Product ID must be a number'),
-    body('items.*.quantity').isInt({ min: 1 }).withMessage('Quantity must be >= 1'),
-    body('deliveryAddress').notEmpty().withMessage('Delivery address is required'),
-    body('deliveryLatitude').optional().isFloat().withMessage('Invalid latitude'),
-    body('deliveryLongitude').optional().isFloat().withMessage('Invalid longitude'),
-    body('paymentMethod').isIn(['cash', 'card', 'momo', 'zalopay']).withMessage('Invalid payment method')
-  ],
-  updateStatus: [
-    body('status').isIn(['pending', 'confirmed', 'preparing', 'delivering', 'delivered', 'cancelled'])
-      .withMessage('Invalid status')
-  ]
-};
+/**
+ * Get all schemas
+ * GET /api/schemas
+ */
+exports.getAllSchemas = (req, res) => {
+  const allSchemas = {};
 
-// ============= REVIEW VALIDATIONS =============
-const reviewValidation = {
-  create: [
-    body('type')
-      .isIn(['restaurant', 'product'])
-      .withMessage('Type must be "restaurant" or "product"'),
-    body('restaurantId')
-      .isInt()
-      .withMessage('Restaurant ID is required'),
-    body('productId')
-      .if((value, { req }) => req.body.type === 'product')
-      .isInt()
-      .withMessage('Product ID is required for product review'),
-    body('rating')
-      .isInt({ min: 1, max: 5 })
-      .withMessage('Rating must be between 1 and 5'),
-    body('comment')
-      .notEmpty()
-      .trim()
-      .isLength({ min: 5, max: 500 })
-      .withMessage('Comment must be between 5 and 500 characters'),
-    body('orderId')
-      .optional()
-      .isInt()
-      .withMessage('Order ID must be a number')
-  ],
+  for (const [entity, schema] of Object.entries(schemas)) {
+    const doc = {
+      entity,
+      fields: {}
+    };
 
-  update: [
-    body('rating')
-      .optional()
-      .isInt({ min: 1, max: 5 })
-      .withMessage('Rating must be between 1 and 5'),
-    body('comment')
-      .optional()
-      .trim()
-      .isLength({ min: 5, max: 500 })
-      .withMessage('Comment must be between 5 and 500 characters')
-  ]
-};
+    for (const [field, rule] of Object.entries(schema)) {
+      doc.fields[field] = {
+        type: rule.type,
+        required: rule.required || false,
+        description: rule.description || ''
+      };
+    }
 
-// ============= CART VALIDATIONS =============
-const cartValidation = {
-  add: [
-    body('productId').isInt().withMessage('Product ID is required'),
-    body('quantity').isInt({ min: 1 }).withMessage('Quantity must be >= 1')
-  ],
-  update: [
-    body('quantity').isInt({ min: 0 }).withMessage('Quantity must be >= 0')
-  ],
-  sync: [
-    body('items').isArray().withMessage('Items must be an array'),
-    body('items.*.productId').isInt().withMessage('Product ID must be a number'),
-    body('items.*.quantity').isInt({ min: 1 }).withMessage('Quantity must be >= 1')
-  ]
-};
+    allSchemas[entity] = doc;
+  }
 
-// ============= ADDRESS VALIDATIONS =============
-const addressValidation = {
-  create: [
-    body('label').notEmpty().withMessage('Label is required'),
-    body('address').notEmpty().withMessage('Address is required'),
-    body('recipientName').notEmpty().withMessage('Recipient name is required'),
-    body('recipientPhone').notEmpty().withMessage('Recipient phone is required'),
-    body('latitude').optional().isFloat().withMessage('Invalid latitude'),
-    body('longitude').optional().isFloat().withMessage('Invalid longitude'),
-    body('isDefault').optional().isBoolean().withMessage('isDefault must be boolean')
-  ],
-  update: [
-    body('label').optional().notEmpty().withMessage('Label cannot be empty'),
-    body('address').optional().notEmpty().withMessage('Address cannot be empty')
-  ]
-};
-
-// ============= PROMOTION VALIDATIONS =============
-const promotionValidation = {
-  create: [
-    body('code').notEmpty().withMessage('Code is required'),
-    body('discountType').isIn(['percentage', 'fixed', 'delivery']).withMessage('Invalid discount type'),
-    body('discountValue').isInt({ min: 0 }).withMessage('Discount value must be >= 0'),
-    body('minOrderValue').optional().isInt({ min: 0 }).withMessage('Min order value must be >= 0'),
-    body('maxDiscount').optional().isInt({ min: 0 }).withMessage('Max discount must be >= 0'),
-    body('validFrom').isISO8601().withMessage('Invalid validFrom date'),
-    body('validTo').isISO8601().withMessage('Invalid validTo date')
-  ],
-  validate: [
-    body('code').notEmpty().withMessage('Code is required'),
-    body('orderValue').isInt({ min: 0 }).withMessage('Order value must be >= 0')
-  ]
-};
-
-// ============= EXPORTS =============
-module.exports = {
-  restaurant: restaurantValidation,
-  product: productValidation,
-  category: categoryValidation,
-  order: orderValidation,
-  review: reviewValidation,
-  cart: cartValidation,
-  address: addressValidation,
-  promotion: promotionValidation
+  res.json({
+    success: true,
+    data: allSchemas
+  });
 };

@@ -1,26 +1,34 @@
 const express = require('express');
 const router = express.Router();
-const { body } = require('express-validator');
 const authController = require('../controllers/auth.controller');
 const { protect } = require('../middleware/auth.middleware');
+const { validateSchema, validateFields } = require('../middleware/validation.middleware');
 
-router.post('/register', [
-  body('email').isEmail().withMessage('Please provide valid email'),
-  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
-  body('name').notEmpty().withMessage('Name is required'),
-  body('phone').notEmpty().withMessage('Phone is required')
-], authController.register);
 
-router.post('/login', [
-  body('email').isEmail().withMessage('Please provide valid email'),
-  body('password').notEmpty().withMessage('Password is required')
-], authController.login);
 
+// Register - validate tất cả schema fields
+router.post('/register',
+  validateSchema('user'),
+  authController.register
+);
+
+// Login - custom validate email + password
+router.post('/login',
+  validateFields('user', ['email', 'password']),
+  authController.login
+);
+
+// Get me
 router.get('/me', protect, authController.getMe);
+
+// Logout
 router.post('/logout', protect, authController.logout);
-router.put('/change-password', protect, [
-  body('currentPassword').notEmpty().withMessage('Current password is required'),
-  body('newPassword').isLength({ min: 6 }).withMessage('New password must be at least 6 characters')
-], authController.changePassword);
+
+// Change password - custom validate
+router.put('/change-password',
+  protect,
+  validateFields('user', ['password']),
+  authController.changePassword
+);
 
 module.exports = router;

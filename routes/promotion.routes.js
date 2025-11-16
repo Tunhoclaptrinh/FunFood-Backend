@@ -2,11 +2,11 @@ const express = require('express');
 const router = express.Router();
 const promotionController = require('../controllers/promotion.controller');
 const { protect, authorize } = require('../middleware/auth.middleware');
-const validation = require('../middleware/validation.middleware');
 const importExportController = require('../controllers/importExport.controller');
+const { validateSchema, validateFields } = require('../middleware/validation.middleware');
 
-// ==================== IMPORT/EXPORT ROUTES (ADMIN ONLY) ====================
 
+// Import/Export
 router.get('/template', protect, authorize('admin'), (req, res, next) => {
   req.params.entity = 'promotions';
   importExportController.downloadTemplate(req, res, next);
@@ -17,7 +17,9 @@ router.get('/schema', protect, authorize('admin'), (req, res, next) => {
   importExportController.getSchema(req, res, next);
 });
 
-router.post('/import', protect, authorize('admin'),
+router.post('/import',
+  protect,
+  authorize('admin'),
   importExportController.getUploadMiddleware(),
   (req, res, next) => {
     req.params.entity = 'promotions';
@@ -25,12 +27,14 @@ router.post('/import', protect, authorize('admin'),
   }
 );
 
-router.get('/export', protect, authorize('admin'), (req, res, next) => {
-  req.params.entity = 'promotions';
-  importExportController.exportData(req, res, next);
-});
-
-// ==================== ORIGINAL CRUD ROUTES ====================
+router.get('/export',
+  protect,
+  authorize('admin'),
+  (req, res, next) => {
+    req.params.entity = 'promotions';
+    importExportController.exportData(req, res, next);
+  }
+);
 
 // Public routes
 router.get('/', promotionController.getAll);
@@ -38,11 +42,27 @@ router.get('/active', promotionController.getActivePromotions);
 router.get('/code/:code', promotionController.getByCode);
 
 // Protected routes
-router.post('/validate', protect, validation.promotion.validate, promotionController.validatePromotion);
+router.post('/validate',
+  protect,
+  validateFields('promotion', ['code', 'orderValue']),
+  promotionController.validatePromotion
+);
 
 // Admin routes
-router.post('/', protect, authorize('admin'), validation.promotion.create, promotionController.create);
-router.put('/:id', protect, authorize('admin'), promotionController.update);
+router.post('/',
+  protect,
+  authorize('admin'),
+  validateSchema('promotion'),
+  promotionController.create
+);
+
+router.put('/:id',
+  protect,
+  authorize('admin'),
+  validateSchema('promotion'),
+  promotionController.update
+);
+
 router.patch('/:id/toggle', protect, authorize('admin'), promotionController.toggleActive);
 router.delete('/:id', protect, authorize('admin'), promotionController.delete);
 

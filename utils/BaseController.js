@@ -54,15 +54,6 @@ class BaseController {
    */
   create = async (req, res, next) => {
     try {
-      // Validate request (express-validator)
-      const errors = this.validateRequest(req);
-      if (errors) {
-        return res.status(400).json({
-          success: false,
-          errors
-        });
-      }
-
       const result = await this.service.create(req.body);
 
       if (!result.success) {
@@ -85,22 +76,50 @@ class BaseController {
   /**
    * PUT - Update
    */
+  // update = async (req, res, next) => {
+  //   try {
+  //     const errors = this.validateRequest(req);
+  //     if (errors) {
+  //       return res.status(400).json({
+  //         success: false,
+  //         errors
+  //       });
+  //     }
+
+  //     const result = await this.service.update(req.params.id, req.body);
+
+  //     if (!result.success) {
+  //       return res.status(result.statusCode || 400).json({
+  //         success: false,
+  //         message: result.message
+  //       });
+  //     }
+
+  //     res.json({
+  //       success: true,
+  //       message: result.message,
+  //       data: result.data
+  //     });
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // };
+
+  /**
+   * PUT - Update
+   * Validation flow:
+   * 1. Middleware validateFields() - CHỈ validate fields gửi lên
+   * 2. Service.update() - Business validation
+   */
   update = async (req, res, next) => {
     try {
-      const errors = this.validateRequest(req);
-      if (errors) {
-        return res.status(400).json({
-          success: false,
-          errors
-        });
-      }
-
       const result = await this.service.update(req.params.id, req.body);
 
       if (!result.success) {
         return res.status(result.statusCode || 400).json({
           success: false,
-          message: result.message
+          message: result.message,
+          errors: result.errors
         });
       }
 

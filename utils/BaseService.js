@@ -1,12 +1,190 @@
 /**
- * Base Service - Enhanced with Import/Export Support
- * All services extend this class and inherit CRUD + Import/Export
+ * Base Service - Enhanced with Schema Integration
+ * All services extend this class and inherit CRUD + Import/Export + Schema-based Validation
  */
 const db = require('../config/database');
+const schemas = require('../schemas');
 
 class BaseService {
   constructor(collectionName) {
     this.collection = collectionName;
+    this.schema = schemas[collectionName] || null;
+  }
+
+  // ==================== SCHEMA METHODS ====================
+
+  /**
+   * Get schema for this entity
+   */
+  getSchema() {
+    return this.schema;
+  }
+
+  /**
+   * Get schema fields
+   */
+  getSchemaFields() {
+    if (!this.schema) return [];
+    return Object.keys(this.schema);
+  }
+
+  /**
+   * Get required fields từ schema
+   */
+  getRequiredFields() {
+    if (!this.schema) return [];
+    return Object.entries(this.schema)
+      .filter(([_, rule]) => rule.required)
+      .map(([field, _]) => field);
+  }
+
+  /**
+   * Validate type theo schema
+   */
+  validateType(field, value, rule) {
+    switch (rule.type) {
+      case 'string':
+        return typeof value !== 'string' ? `${field} must be a string` : null;
+      case 'number':
+        return isNaN(Number(value)) ? `${field} must be a number` : null;
+      case 'boolean':
+        return typeof value !== 'boolean' &&
+          !['true', 'false', '1', '0'].includes(String(value).toLowerCase())
+          ? `${field} must be true/false` : null;
+      case 'email':
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return !emailRegex.test(value) ? `${field} must be a valid email` : null;
+      case 'date':
+        return isNaN(new Date(value).getTime()) ? `${field} must be a valid date` : null;
+      case 'enum':
+        return !rule.enum.includes(value) ? `${field} must be one of: ${rule.enum.join(', ')}` : null;
+      default:
+        return null;
+    }
+  }
+
+  /**
+   * Convert value theo schema type
+   */
+  convertValue(field, value, rule) {
+    if (value === undefined || value === null) {
+      return rule.default !== undefined ? rule.default : null;
+    }
+
+    switch (rule.type) {
+      case 'number':
+        return Number(value);
+      case 'boolean':
+        const boolStr = String(value).toLowerCase();
+        return ['true', '1', 'yes'].includes(boolStr);
+      case 'date':
+        return new Date(value).toISOString();
+      case 'email':
+        return String(value).toLowerCase();
+      case 'enum':
+        return String(value).toUpperCase ? String(value).toUpperCase() : String(value);
+      default:
+        return value;
+    }
+  }
+
+  /**
+   * Transform object theo schema types
+   */
+  transformBySchema(data) {
+    if (!this.schema) return data;
+
+    const transformed = {};
+    for (const [field, rule] of Object.entries(this.schema)) {
+      if (field in data) {
+        transformed[field] = this.convertValue(field, data[field], rule);
+      }
+    }
+    return transformed;
+  }
+
+  /**
+   * Validate data theo schema
+   */
+  validateBySchema(data) {
+    if (!this.schema) return { success: true };
+
+    const errors = {};
+
+    for (const [field, rule] of Object.entries(this.schema)) {
+      const value = data[field];
+
+      // Required check
+      if (rule.required && (value === undefined || value === null || value === '')) {
+        errors[field] = `${field} is required`;
+        continue;
+      }
+
+      // Skip if optional and empty
+      if (!rule.required && (value === undefined || value === null)) {
+        continue;
+      }
+
+      // Type validation
+      const typeError = this.validateType(field, value, rule);
+      if (typeError) {
+        errors[field] = typeError;
+        continue;
+      }
+
+      // Range validation
+      if (rule.min !== undefined && Number(value) < rule.min) {
+        errors[field] = `${field} must be >= ${rule.min}`;
+      }
+      if (rule.max !== undefined && Number(value) > rule.max) {
+        errors[field] = `${field} must be <= ${rule.max}`;
+      }
+
+      // Length validation
+      if (rule.minLength && value.length < rule.minLength) {
+        errors[field] = `${field} must be at least ${rule.minLength} characters`;
+      }
+      if (rule.maxLength && value.length > rule.maxLength) {
+        errors[field] = `${field} must be at most ${rule.maxLength} characters`;
+      }
+
+      // Enum validation
+      if (rule.enum && !rule.enum.includes(value)) {
+        errors[field] = `${field} must be one of: ${rule.enum.join(', ')}`;
+      }
+
+      // Unique validation
+      if (rule.unique) {
+        const existing = db.findOne(this.collection, { [field]: value });
+        if (existing) {
+          errors[field] = `${field} '${value}' already exists`;
+        }
+      }
+
+      // Foreign key validation
+      if (rule.foreignKey) {
+        const relatedEntity = db.findById(rule.foreignKey, value);
+        if (!relatedEntity) {
+          errors[field] = `${field} references non-existent ${rule.foreignKey} (ID: ${value})`;
+        }
+      }
+    }
+
+    // ✅ NEW: Custom validation
+    if (rule.custom && typeof rule.custom === 'function') {
+      try {
+        const customError = rule.custom(value, data);  // Pass all data for cross-field
+        if (customError) {
+          errors[field] = customError;
+        }
+      } catch (err) {
+        errors[field] = `Custom validation failed: ${err.message}`;
+      }
+    }
+
+    return Object.keys(errors).length === 0
+      ? { success: true }
+      : { success: false, errors };
   }
 
   // ==================== CRUD METHODS ====================
@@ -69,18 +247,29 @@ class BaseService {
 
   async create(data) {
     try {
-      // Validate before create (có thể override)
-      const validation = await this.validateCreate(data);
-      if (!validation.success) {
-        return validation;
+      // Schema validation
+      const schemaValidation = this.validateBySchema(data);
+      if (!schemaValidation.success) {
+        return {
+          success: false,
+          message: 'Validation failed',
+          statusCode: 400,
+          errors: schemaValidation.errors
+        };
       }
 
-      // Transform data before save (có thể override)
+      // Custom validation (có thể override)
+      const customValidation = await this.validateCreate(data);
+      if (!customValidation.success) {
+        return customValidation;
+      }
+
+      // Transform data before save
       const transformedData = await this.beforeCreate(data);
 
       const item = db.create(this.collection, transformedData);
 
-      // Hook after create (có thể override)
+      // Hook after create
       await this.afterCreate(item);
 
       return {
@@ -101,10 +290,21 @@ class BaseService {
         return existCheck;
       }
 
-      // Validate before update
-      const validation = await this.validateUpdate(id, data);
-      if (!validation.success) {
-        return validation;
+      // Schema validation
+      const schemaValidation = this.validateBySchema(data);
+      if (!schemaValidation.success) {
+        return {
+          success: false,
+          message: 'Validation failed',
+          statusCode: 400,
+          errors: schemaValidation.errors
+        };
+      }
+
+      // Custom validation
+      const customValidation = await this.validateUpdate(id, data);
+      if (!customValidation.success) {
+        return customValidation;
       }
 
       // Transform data
@@ -133,10 +333,10 @@ class BaseService {
         return existCheck;
       }
 
-      // Validate before delete
-      const validation = await this.validateDelete(id);
-      if (!validation.success) {
-        return validation;
+      // Custom validation
+      const customValidation = await this.validateDelete(id);
+      if (!customValidation.success) {
+        return customValidation;
       }
 
       // Hook before delete
@@ -175,101 +375,60 @@ class BaseService {
   // ==================== IMPORT/EXPORT METHODS ====================
 
   /**
-   * Get schema for this entity - MUST be overridden in child class
-   */
-  getSchema() {
-    throw new Error(`getSchema() must be implemented in ${this.collection} service`);
-  }
-
-  /**
-   * Get import/export fields mapping
-   */
-  getImportExportFields() {
-    const schema = this.getSchema();
-    return Object.keys(schema);
-  }
-
-  /**
    * Validate import data
    */
   async validateImportData(data, rowIndex) {
-    const schema = this.getSchema();
+    if (!this.schema) return [];
+
     const errors = [];
 
-    for (const [field, rules] of Object.entries(schema)) {
+    for (const [field, rule] of Object.entries(this.schema)) {
       const value = data[field];
 
       // Required check
-      if (rules.required && (value === undefined || value === null || value === '')) {
+      if (rule.required && (value === undefined || value === null || value === '')) {
         errors.push(`${field} is required`);
         continue;
       }
 
       // Skip if optional and empty
-      if (!rules.required && (value === undefined || value === null || value === '')) {
+      if (!rule.required && (value === undefined || value === null)) {
         continue;
       }
 
       // Type validation
-      switch (rules.type) {
-        case 'string':
-          if (typeof value !== 'string') {
-            errors.push(`${field} must be a string`);
-          }
-          break;
+      const typeError = this.validateType(field, value, rule);
+      if (typeError) {
+        errors.push(typeError);
+        continue;
+      }
 
-        case 'number':
-          if (isNaN(Number(value))) {
-            errors.push(`${field} must be a number`);
-          } else {
-            const num = Number(value);
-            if (rules.min !== undefined && num < rules.min) {
-              errors.push(`${field} must be >= ${rules.min}`);
-            }
-            if (rules.max !== undefined && num > rules.max) {
-              errors.push(`${field} must be <= ${rules.max}`);
-            }
-          }
-          break;
+      // Range validation
+      if (rule.min !== undefined && Number(value) < rule.min) {
+        errors.push(`${field} must be >= ${rule.min}`);
+      }
+      if (rule.max !== undefined && Number(value) > rule.max) {
+        errors.push(`${field} must be <= ${rule.max}`);
+      }
 
-        case 'boolean':
-          const boolValue = String(value).toLowerCase();
-          if (!['true', 'false', '1', '0', 'yes', 'no'].includes(boolValue)) {
-            errors.push(`${field} must be true/false`);
-          }
-          break;
-
-        case 'email':
-          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-          if (!emailRegex.test(value)) {
-            errors.push(`${field} must be a valid email`);
-          }
-          break;
-
-        case 'date':
-          const date = new Date(value);
-          if (isNaN(date.getTime())) {
-            errors.push(`${field} must be a valid date`);
-          }
-          break;
-
-        case 'enum':
-          if (!rules.values.includes(value)) {
-            errors.push(`${field} must be one of: ${rules.values.join(', ')}`);
-          }
-          break;
+      // Length validation
+      if (rule.minLength && value.length < rule.minLength) {
+        errors.push(`${field} must be at least ${rule.minLength} characters`);
+      }
+      if (rule.maxLength && value.length > rule.maxLength) {
+        errors.push(`${field} must be at most ${rule.maxLength} characters`);
       }
 
       // Foreign key validation
-      if (rules.foreignKey) {
-        const relatedEntity = db.findById(rules.foreignKey, value);
+      if (rule.foreignKey) {
+        const relatedEntity = db.findById(rule.foreignKey, value);
         if (!relatedEntity) {
-          errors.push(`${field} references non-existent ${rules.foreignKey} (ID: ${value})`);
+          errors.push(`${field} references non-existent ${rule.foreignKey} (ID: ${value})`);
         }
       }
 
       // Unique validation
-      if (rules.unique) {
+      if (rule.unique) {
         const existing = db.findOne(this.collection, { [field]: value });
         if (existing) {
           errors.push(`${field} '${value}' already exists`);
@@ -284,34 +443,12 @@ class BaseService {
    * Transform import data
    */
   async transformImportData(data) {
-    const schema = this.getSchema();
+    if (!this.schema) return data;
+
     const transformed = {};
-
-    for (const [field, rules] of Object.entries(schema)) {
-      let value = data[field];
-
-      // Use default if not provided
-      if ((value === undefined || value === null || value === '') && rules.default !== undefined) {
-        value = rules.default;
-      }
-
-      // Type conversion
-      switch (rules.type) {
-        case 'number':
-          transformed[field] = value !== '' ? Number(value) : null;
-          break;
-
-        case 'boolean':
-          const boolStr = String(value).toLowerCase();
-          transformed[field] = ['true', '1', 'yes'].includes(boolStr);
-          break;
-
-        case 'date':
-          transformed[field] = new Date(value).toISOString();
-          break;
-
-        default:
-          transformed[field] = value;
+    for (const [field, rule] of Object.entries(this.schema)) {
+      if (field in data) {
+        transformed[field] = this.convertValue(field, data[field], rule);
       }
     }
 
@@ -323,7 +460,7 @@ class BaseService {
   }
 
   /**
-   * Import data - use this instead of external importExport service
+   * Import data from records
    */
   async importData(records) {
     const results = {
@@ -354,7 +491,7 @@ class BaseService {
         // Transform
         const transformed = await this.transformImportData(record);
 
-        // Additional validation from child class
+        // Additional validation
         const validation = await this.validateCreate(transformed);
         if (!validation.success) {
           results.failed++;
@@ -395,17 +532,14 @@ class BaseService {
     const result = await this.findAll(options);
     let data = result.data;
 
-    // Include relations if specified
-    if (options.includeRelations) {
-      const schema = this.getSchema();
-
+    if (options.includeRelations && this.schema) {
       data = data.map(item => {
         const enriched = { ...item };
 
         // Expand foreign keys
-        for (const [field, rules] of Object.entries(schema)) {
-          if (rules.foreignKey && item[field]) {
-            const related = db.findById(rules.foreignKey, item[field]);
+        for (const [field, rule] of Object.entries(this.schema)) {
+          if (rule.foreignKey && item[field]) {
+            const related = db.findById(rule.foreignKey, item[field]);
             if (related) {
               enriched[`${field}_name`] = related.name || related.email || related.code;
             }
@@ -441,8 +575,8 @@ class BaseService {
   }
 
   /**
- * Validate before update
- */
+  * Validate before update
+  */
   async validateUpdate(id, data) {
     return { success: true };
   }
@@ -461,14 +595,23 @@ class BaseService {
  * Transform data before create
  */
   async beforeCreate(data) {
-    return data;
+    const transformed = this.transformBySchema(data);
+    return {
+      ...transformed,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
   }
 
   /**
    * Transform data before update
    */
   async beforeUpdate(id, data) {
-    return data;
+    const transformed = this.transformBySchema(data);
+    return {
+      ...transformed,
+      updatedAt: new Date().toISOString()
+    };
   }
 
   async beforeDelete(id) {
@@ -476,7 +619,6 @@ class BaseService {
   }
 
   // ==================== POST-ACTION HOOKS ====================
-
 
 
   /**
@@ -494,8 +636,8 @@ class BaseService {
   }
 
   /**
- * Hook before delete
- */
+  * Hook before delete
+  */
   async beforeDelete(id) {
     // Do nothing by default
   }
@@ -513,7 +655,7 @@ class BaseService {
    * Get model name for messages
    */
   getModelName() {
-    return this.collection.slice(0, -1); // Remove 's' at the end
+    return this.collection.slice(0, -1);
   }
 }
 

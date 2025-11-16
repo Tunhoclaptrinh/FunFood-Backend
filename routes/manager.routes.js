@@ -2,25 +2,36 @@ const express = require('express');
 const router = express.Router();
 const managerController = require('../controllers/manager.controller');
 const { protect, authorize, checkOwnership } = require('../middleware/auth.middleware');
+const { validateSchema, validateFields } = require('../middleware/validation.middleware');
 
-// Tất cả routes đều require manager role
-router.use(protect, authorize('manager'));
+router.use(protect, authorize('manager')); // All routes need manager role
 
-// Xem thông tin restaurant của mình
 router.get('/restaurant', managerController.getMyRestaurant);
-
-// Quản lý menu
 router.get('/products', managerController.getProducts);
-router.post('/products', managerController.createProduct);
-router.put('/products/:id', managerController.updateProduct);
-router.patch('/products/:id/availability', managerController.toggleProductAvailability);
 
-// Quản lý đơn hàng
+router.post('/products',
+  validateSchema('product'),
+  managerController.createProduct
+);
+
+router.put('/products/:id',
+  validateSchema('product'),
+  managerController.updateProduct
+);
+
+router.patch('/products/:id/availability',
+  validateFields('product', ['available']),
+  managerController.toggleProductAvailability
+);
+
 router.get('/orders', managerController.getOrders);
 router.get('/orders/:id', checkOwnership('order'), managerController.getOrderDetail);
-router.patch('/orders/:id/status', checkOwnership('order'), managerController.updateOrderStatus);
+router.patch('/orders/:id/status',
+  checkOwnership('order'),
+  validateFields('order', ['status']),
+  managerController.updateOrderStatus
+);
 
-// Thống kê
 router.get('/stats', managerController.getStats);
 
 module.exports = router;
