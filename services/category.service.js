@@ -1,9 +1,17 @@
 const BaseService = require('../utils/BaseService');
 const db = require('../config/database');
+const categorySchema = require('../schemas/category.schema');
 
 class CategoryService extends BaseService {
   constructor() {
     super('categories');
+  }
+
+  /**
+   * Get schema for import/export
+   */
+  getSchema() {
+    return categorySchema;
   }
 
   // Chỉ cần validate delete

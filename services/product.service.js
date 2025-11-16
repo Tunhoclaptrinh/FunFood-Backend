@@ -1,5 +1,6 @@
 const BaseService = require('../utils/BaseService');
 const db = require('../config/database');
+const productSchema = require('../schemas/product.schema');
 
 /**
  * Product Service - Extend BaseService
@@ -8,6 +9,13 @@ class ProductService extends BaseService {
   constructor() {
     super('products');
   }
+
+  /**
+   * Get schema for import/export
+   */
+  getSchema() {
+    return productSchema;
+  } PromotionService
 
   async validateCreate(data) {
     // Check restaurant exists

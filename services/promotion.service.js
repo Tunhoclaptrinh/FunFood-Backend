@@ -1,9 +1,17 @@
 const BaseService = require('../utils/BaseService');
 const db = require('../config/database');
+const promotionSchema = require('../schemas/promotion.schema');
 
 class PromotionService extends BaseService {
   constructor() {
     super('promotions');
+  }
+
+  /**
+     * Get schema for import/export
+     */
+  getSchema() {
+    return promotionSchema;
   }
 
   async validateCreate(data) {
