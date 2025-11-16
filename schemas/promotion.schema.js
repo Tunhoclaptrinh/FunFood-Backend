@@ -5,7 +5,22 @@ module.exports = {
     unique: true,
     minLength: 3,
     maxLength: 20,
-    description: 'Promotion code'
+    description: 'Promotion code',
+    custom: async (value, data) => {
+      // Check if code follows pattern
+      const validPattern = /^[A-Z0-9]{4,20}$/;
+      if (!validPattern.test(value)) {
+        return 'Code must be 4-20 uppercase letters/numbers';
+      }
+
+      // Check blacklisted codes
+      const blacklist = ['TEST', 'ADMIN', 'DEBUG'];
+      if (blacklist.includes(value)) {
+        return 'This code is reserved';
+      }
+
+      return null;
+    }
   },
   description: {
     type: 'string',

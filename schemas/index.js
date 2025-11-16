@@ -14,5 +14,6 @@ module.exports = {
   cart: require('./cart.schema'),
   favorite: require('./favorite.schema'),
   review: require('./review.schema'),
-  notification: require('./notification.schema')
+  notification: require('./notification.schema'),
+  payment: require('./payment.schema')
 };

@@ -170,6 +170,18 @@ class BaseService {
       }
     }
 
+    // ✅ NEW: Custom validation
+    if (rule.custom && typeof rule.custom === 'function') {
+      try {
+        const customError = rule.custom(value, data);  // Pass all data for cross-field
+        if (customError) {
+          errors[field] = customError;
+        }
+      } catch (err) {
+        errors[field] = `Custom validation failed: ${err.message}`;
+      }
+    }
+
     return Object.keys(errors).length === 0
       ? { success: true }
       : { success: false, errors };

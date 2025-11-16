@@ -28,7 +28,15 @@ module.exports = {
     type: 'number',
     required: true,
     min: 0,
-    description: 'Total amount'
+    description: 'Total amount',
+    custom: (value, data) => {
+      // Check if total matches calculated subtotal + fees
+      const calculated = (data.subtotal || 0) + (data.deliveryFee || 0) - (data.discount || 0);
+      if (Math.abs(value - calculated) > 1) {  // Allow 1đ rounding error
+        return `Total mismatch. Expected ${calculated}, got ${value}`;
+      }
+      return null;
+    }
   },
   status: {
     type: 'enum',
