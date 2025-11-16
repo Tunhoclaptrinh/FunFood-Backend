@@ -1,10 +1,37 @@
 const BaseService = require('../utils/BaseService');
 const db = require('../config/database');
 const { sanitizeUser, hashPassword } = require('../utils/helpers');
+const userSchema = require('../schemas/user.schema');
 
 class UserService extends BaseService {
   constructor() {
     super('users');
+  }
+
+  /**
+   * Get schema for import/export
+   */
+  getSchema() {
+    return userSchema;
+  }
+
+  /**
+   * Transform import data - hash password
+   */
+  async transformImportData(data) {
+    const transformed = await super.transformImportData(data);
+
+    // Hash password if provided
+    if (transformed.password) {
+      transformed.password = await hashPassword(transformed.password);
+    }
+
+    // Generate avatar if not provided
+    if (!transformed.avatar && transformed.name) {
+      transformed.avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(transformed.name)}&background=random`;
+    }
+
+    return transformed;
   }
 
   async beforeCreate(data) {

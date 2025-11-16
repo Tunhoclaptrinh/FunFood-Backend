@@ -1,11 +1,19 @@
 const BaseService = require('../utils/BaseService');
 const db = require('../config/database');
 const { calculateDistance } = require('../utils/helpers');
+const restaurantSchema = require('../schemas/restaurant.schema');
 
 
 class RestaurantService extends BaseService {
   constructor() {
     super('restaurants');  // Collection name
+  }
+
+  /**
+   * Get schema for import/export
+   */
+  getSchema() {
+    return restaurantSchema;
   }
 
   /**
