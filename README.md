@@ -1,12 +1,10 @@
-# 🍔 FunFood Backend API v2.1 - Complete Documentation
+# 🍔 FunFood Backend API v2.2 - Complete Documentation
 
 [![Node.js](https://img.shields.io/badge/Node.js-18.x-green.svg)](https://nodejs.org/)
 [![Express](https://img.shields.io/badge/Express-4.18-blue.svg)](https://expressjs.com/)
 [![JWT](https://img.shields.io/badge/JWT-9.0-orange.svg)](https://jwt.io/)
 
-<!-- [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](#license) -->
-
-Backend API hoàn chỉnh cho ứng dụng đặt đồ ăn FunFood. Được xây dựng với Node.js, Express, JWT Authentication và tích hợp đầy đủ tính năng JSON-Server style queries với GPS tracking, RBAC, Payment Gateway Integration và nhiều hơn nữa.
+Backend API hoàn chỉnh cho ứng dụng đặt đồ ăn FunFood. Được xây dựng với Node.js, Express, JWT Authentication và tích hợp đầy đủ tính năng JSON-Server style queries với GPS tracking, RBAC, Payment Gateway Integration, Schema-based Validation và nhiều hơn nữa.
 
 ---
 
@@ -19,6 +17,7 @@ Backend API hoàn chỉnh cho ứng dụng đặt đồ ăn FunFood. Được x�
 - [Authentication & Authorization](#-authentication--authorization)
 - [API Endpoints](#-api-endpoints)
 - [Tính năng JSON-Server](#-tính-năng-json-server)
+- [Schema Validation System](#-schema-validation-system)
 - [GPS & Location Features](#-gps--location-features)
 - [Advanced Features](#-advanced-features)
 - [Error Handling](#-error-handling)
@@ -37,9 +36,19 @@ Backend API hoàn chỉnh cho ứng dụng đặt đồ ăn FunFood. Được x�
 - **Password hashing**: bcrypt với salt rounds = 10
 - **Change password**: Đổi mật khẩu an toàn
 - **Protected routes**: Middleware bảo vệ routes
-- **Token expiration**: 30 ngày (configurable)
 - **Ownership Verification**: Kiểm tra quyền sở hữu resource
 - **Dynamic Permissions**: Phân quyền chi tiết per action
+- **Custom Validation**: Cross-field validation với custom functions
+
+#### 📋 Schema Validation System (NEW!)
+
+- **Centralized Schema Definitions**: Schema cho tất cả entities
+- **Auto Type Conversion**: Tự động chuyển đổi kiểu dữ liệu
+- **Foreign Key Validation**: Kiểm tra tính hợp lệ của FK
+- **Custom Validation Functions**: Validation logic tùy chỉnh
+- **Unique Constraint Checks**: Kiểm tra unique fields
+- **Cross-field Validation**: Validation phụ thuộc nhiều fields
+- **Import/Export Integration**: Validation cho batch operations
 
 #### 🏪 Quản lý nhà hàng
 
@@ -51,8 +60,7 @@ Backend API hoàn chỉnh cho ứng dụng đặt đồ ăn FunFood. Được x�
 - **Distance Calculation**: Tính khoảng cách tự động
 - Open/Close time tracking
 - Tự động cập nhật rating từ reviews
-- Phone contact information
-- Operating hours management
+- Manager assignment system
 
 #### 🍕 Quản lý sản phẩm
 
@@ -63,6 +71,7 @@ Backend API hoàn chỉnh cho ứng dụng đặt đồ ăn FunFood. Được x�
 - Full-text search
 - Relationship với restaurant & category
 - **Bulk update availability**: Cập nhật hàng loạt
+- Schema-based validation
 
 #### 🛒 Giỏ hàng
 
@@ -87,25 +96,28 @@ Backend API hoàn chỉnh cho ứng dụng đặt đồ ăn FunFood. Được x�
 - Cancel order (chỉ pending/confirmed)
 - **Reorder**: Đặt lại đơn cũ
 - **Rate order**: Đánh giá sau khi giao
+- Workflow validation per role
 
-#### ❤️ Yêu thích
+#### ❤️ Yêu thích (Unified)
 
-- Favorite **Restaurants & Products** (unified)
+- Favorite **Restaurants & Products** (unified API)
 - **Toggle favorite** (add hoặc remove)
 - Check favorite status
 - Get favorite IDs only (lightweight)
 - List với restaurant/product details
 - **Trending favorites**: Top favorites theo loại
+- Statistics & analytics
 
-#### ⭐ Đánh giá
+#### ⭐ Đánh giá (Unified)
 
-- Rate **Restaurants & Products** (1-5 sao)
-- Comment/Review text
+- Rate **Restaurants & Products** (unified API)
+- Comment/Review text (1-5 sao)
 - Link với order (optional)
 - Tự động update restaurant/product rating
 - **Chống duplicate review** per type
 - Edit/Delete own reviews
 - **Review statistics**: Phân tích đánh giá
+- Cross-field validation
 
 #### 🎟️ Khuyến mãi
 
@@ -119,6 +131,7 @@ Backend API hoàn chỉnh cho ứng dụng đặt đồ ăn FunFood. Được x�
 - Min order value requirement
 - Active/Inactive toggle
 - **Promotion validation**: Kiểm tra hợp lệ trước áp dụng
+- Schema-based code validation
 
 #### 📍 Địa chỉ giao hàng
 
@@ -140,7 +153,7 @@ Backend API hoàn chỉnh cho ứng dụng đặt đồ ăn FunFood. Được x�
 - Clear all notifications
 - Push notification ready
 
-#### 💳 Payment Processing (NEW!)
+#### 💳 Payment Processing
 
 - **Multiple Methods**: Cash, Card, MoMo, ZaloPay
 - Payment status tracking
@@ -149,15 +162,16 @@ Backend API hoàn chỉnh cho ứng dụng đặt đồ ăn FunFood. Được x�
 - Payment history
 - **Payment validation**: Kiểm tra signature
 
-#### 👨‍💼 Manager Dashboard (NEW!)
+#### 👨‍💼 Manager Dashboard
 
 - Quản lý restaurant riêng
 - Menu management (CRUD products)
 - Order tracking & status update
 - Statistics & revenue
 - **Product availability toggle**
+- Manager assignment per restaurant
 
-#### 🚚 Shipper Operations (NEW!)
+#### 🚚 Shipper Operations
 
 - View available orders
 - Accept order (assign to self)
@@ -165,16 +179,18 @@ Backend API hoàn chỉnh cho ứng dụng đặt đồ ăn FunFood. Được x�
 - Update delivery status
 - Delivery statistics & earnings
 - **Auto-calculate earnings**: 80% delivery fee
+- Order assignment system
 
-#### 📥 Import/Export (NEW!)
+#### 📥 Import/Export (Enhanced)
 
 - **Supported Formats**: Excel (.xlsx), CSV
-- Batch import with validation
+- Batch import with schema validation
 - Export with relationships
-- Template generation
-- Schema reference
-- Error reporting
+- Template generation with schema
+- Schema reference documentation
+- Error reporting per row
 - **Partial success handling**
+- Auto type conversion
 
 ---
 
@@ -356,6 +372,135 @@ Customer:   (10.7769, 106.7009)
 
 ---
 
+## 🎯 Schema Validation System
+
+### Tổng quan
+
+Hệ thống validation tập trung dựa trên schema definitions cho tất cả entities. Schema được định nghĩa trong `schemas/` directory và được integrate vào `BaseService`.
+
+### Schema Structure
+
+```javascript
+// schemas/user.schema.js
+module.exports = {
+  name: {
+    type: "string",
+    required: true,
+    minLength: 2,
+    maxLength: 100,
+    description: "Full name of user",
+  },
+  email: {
+    type: "email",
+    required: true,
+    unique: true,
+    description: "Email address (must be unique)",
+    custom: (value, allData) => {
+      // Custom validation
+      if (value.endsWith("@competitor.com")) {
+        return "Cannot use competitor email";
+      }
+      // Cross-field validation
+      if (allData.role === "admin" && !value.endsWith("@funfood.com")) {
+        return "Admin must use company email";
+      }
+      return null; // Valid
+    },
+  },
+  phone: {
+    type: "string",
+    required: true,
+    minLength: 10,
+    maxLength: 11,
+    description: "Phone number",
+    custom: (value) => {
+      const vnPhoneRegex = /^(0|\+84)[0-9]{9}$/;
+      if (!vnPhoneRegex.test(value)) {
+        return "Invalid Vietnam phone number format";
+      }
+      return null;
+    },
+  },
+};
+```
+
+### Supported Validation Types
+
+- **Basic Types**: `string`, `number`, `boolean`, `date`, `email`, `enum`
+- **Constraints**: `required`, `unique`, `min`, `max`, `minLength`, `maxLength`
+- **Relations**: `foreignKey` - tự động validate FK references
+- **Custom Functions**: `custom` - validation logic tùy chỉnh với cross-field support
+
+### Auto Features
+
+```javascript
+// BaseService tự động:
+✓ Type conversion (string → number, "true" → boolean)
+✓ Foreign key validation
+✓ Unique constraint checks
+✓ Required field validation
+✓ Range & length validation
+✓ Custom validation execution
+✓ Error aggregation
+```
+
+### Usage in Services
+
+```javascript
+class UserService extends BaseService {
+  constructor() {
+    super("users"); // Tự động load schema
+  }
+
+  // BaseService tự động validate khi:
+  async create(data) {
+    // 1. Schema validation
+    // 2. Custom validateCreate() hook
+    // 3. Type conversion
+    // 4. beforeCreate() transform
+    // 5. Database save
+    // 6. afterCreate() hook
+  }
+
+  async update(id, data) {
+    // Tương tự với update
+  }
+}
+```
+
+### Import/Export Integration
+
+```javascript
+// Import với schema validation
+POST /api/users/import
+file: users.xlsx
+
+// Server validate từng row theo schema:
+✓ Required fields
+✓ Type conversion
+✓ Foreign key references
+✓ Unique constraints
+✓ Custom validations
+
+// Response với detailed errors
+{
+  "summary": {
+    "total": 48,
+    "success": 45,
+    "failed": 3
+  },
+  "errors": [
+    {
+      "row": 12,
+      "data": {"email": "invalid@"},
+      "errors": ["email must be a valid email"]
+    }
+  ]
+}
+```
+
+---
+
 ## 🛠 Công nghệ
 
 | Công nghệ         | Version | Mục đích              |
@@ -422,7 +567,7 @@ Shipper:
 Email: shipper@funfood.com
 Password: 123456
 
-Manager:
+Manager (Nhà Hàng Chay - ID: 8):
 Email: manager.chay@funfood.com
 Password: 123456
 ```
@@ -449,66 +594,42 @@ curl -X POST http://localhost:3000/api/auth/login \
 ```
 funfood-backend/
 ├── config/
-│   ├── database.js              # Enhanced database + JSON-Server features
+│   ├── database.js              # Enhanced DB + JSON-Server features
 │   └── endpoints.js             # API endpoints reference
 │
 ├── controllers/                 # HTTP request handlers
 │   ├── auth.controller.js
 │   ├── user.controller.js
-│   ├── restaurant.controller.js
-│   ├── product.controller.js
-│   ├── order.controller.js
-│   ├── cart.controller.js
-│   ├── favorite.controller.js
-│   ├── review.controller.js
-│   ├── promotion.controller.js
-│   ├── address.controller.js
-│   ├── notification.controller.js
-│   ├── payment.controller.js
-│   ├── manager.controller.js
-│   ├── shipper.controller.js
+│   ├── [... 15 controllers ...]
 │   └── importExport.controller.js
 │
 ├── middleware/                  # Express middleware
 │   ├── auth.middleware.js       # JWT + ownership check
 │   ├── query.middleware.js      # Query parser + formatter
 │   ├── rbac.middleware.js       # Role-based access control
-│   └── validation.middleware.js # Input validation rules
+│   └── validation.middleware.js # Schema-based validation
 │
 ├── routes/                      # API route definitions
 │   ├── auth.routes.js
-│   ├── user.routes.js
-│   ├── restaurant.routes.js
-│   ├── product.routes.js
-│   ├── order.routes.js
-│   ├── cart.routes.js
-│   ├── favorite.routes.js
-│   ├── review.routes.js
-│   ├── promotion.routes.js
-│   ├── address.routes.js
-│   ├── notification.routes.js
-│   ├── payment.routes.js
-│   ├── manager.routes.js
+│   ├── [... 15 route files ...]
 │   └── shipper.routes.js
 │
 ├── services/                    # Business logic
 │   ├── auth.service.js
-│   ├── user.service.js
-│   ├── restaurant.service.js    # GPS features
-│   ├── product.service.js
-│   ├── order.service.js         # Order logic, validation
-│   ├── cart.service.js
-│   ├── favorite.service.js
-│   ├── review.service.js
-│   ├── promotion.service.js
-│   ├── address.service.js
-│   ├── notification.service.js
-│   ├── payment.service.js       # Payment gateway integration
-│   ├── shipper.service.js
+│   ├── [... services ...]
 │   └── importExport.service.js
 │
+├── schemas/                     # 🆕 Schema definitions
+│   ├── index.js                 # Schema exports
+│   ├── user.schema.js
+│   ├── restaurant.schema.js
+│   ├── product.schema.js
+│   ├── order.schema.js
+│   ├── promotion.schema.js
+│   └── [... 12 schemas ...]
+│
 ├── utils/                       # Utilities
-│   ├── BaseService.js           # Generic CRUD service
+│   ├── BaseService.js           # Enhanced with schema validation
 │   ├── BaseController.js        # Generic HTTP controller
 │   ├── helpers.js               # JWT, crypto, GPS functions
 │   └── seedData.js              # Database seeding
@@ -532,7 +653,7 @@ funfood-backend/
 
 ```
 1. POST /api/auth/register
-   ├─ Validate email & password
+   ├─ Validate email & password (schema-based)
    ├─ Hash password
    ├─ Create user
    └─ Generate JWT token (30 days)
@@ -570,103 +691,33 @@ router.post("/", checkPermission("orders", "create"), controller.create);
 
 // Ownership check
 router.get("/:id", checkOwnership("order"), controller.getById);
+
+// Workflow validation
+router.patch("/:id/status", checkOwnership("order"), validateOrderStatusTransition, controller.updateStatus);
 ```
 
 ---
 
-## 📊 API Endpoints
-
-### Base URL
-
-```
-http://localhost:3000/api
-```
-
-### Summary
+## 📊 API Endpoints Summary
 
 | Module        | Public | Protected | Admin  | Total   |
 | ------------- | ------ | --------- | ------ | ------- |
 | Auth          | 2      | 3         | 0      | 5       |
-| Users         | 0      | 3         | 6      | 9       |
-| Categories    | 2      | 0         | 3      | 5       |
-| Restaurants   | 5      | 0         | 3      | 8       |
-| Products      | 3      | 0         | 3      | 6       |
+| Users         | 0      | 3         | 10     | 13      |
+| Categories    | 2      | 0         | 7      | 9       |
+| Restaurants   | 5      | 0         | 7      | 12      |
+| Products      | 3      | 0         | 7      | 10      |
 | Cart          | 0      | 7         | 0      | 7       |
-| Orders        | 0      | 5         | 4      | 9       |
-| Favorites     | 0      | 7         | 0      | 7       |
-| Reviews       | 1      | 4         | 1      | 6       |
-| Promotions    | 3      | 1         | 4      | 8       |
+| Orders        | 0      | 8         | 8      | 16      |
+| Favorites     | 0      | 11        | 0      | 11      |
+| Reviews       | 3      | 5         | 2      | 10      |
+| Promotions    | 3      | 1         | 8      | 12      |
 | Addresses     | 0      | 8         | 0      | 8       |
 | Notifications | 0      | 5         | 0      | 5       |
-| Payment       | 0      | 2         | 2      | 4       |
-| Manager       | 0      | 5         | 0      | 5       |
-| Shipper       | 0      | 5         | 0      | 5       |
-| Import/Export | 0      | 0         | 9      | 9       |
-| **TOTAL**     | **16** | **55**    | **40** | **111** |
-
-### Quick Reference
-
-#### Authentication (`/api/auth`)
-
-```bash
-POST   /register              # Đăng ký (Public)
-POST   /login                 # Đăng nhập (Public)
-GET    /me                    # Get profile (Protected)
-POST   /logout                # Đăng xuất (Protected)
-PUT    /change-password       # Đổi password (Protected)
-```
-
-#### Restaurants (`/api/restaurants`)
-
-```bash
-GET    /                      # List + filters (Public)
-GET    /nearby                # Nearby search GPS (Public)
-GET    /search?q=             # Full-text search (Public)
-GET    /:id                   # Details (Public)
-GET    /:id/products          # Menu (Public)
-POST   /                      # Create (Admin)
-PUT    /:id                   # Update (Admin)
-DELETE /:id                   # Delete (Admin)
-
-# Import/Export
-GET    /template              # Download template (Admin)
-GET    /schema                # Get schema (Admin)
-POST   /import                # Import Excel/CSV (Admin)
-GET    /export                # Export data (Admin)
-```
-
-#### Orders (`/api/orders`)
-
-```bash
-# Customer
-GET    /                      # My orders (Protected)
-POST   /                      # Create (Protected)
-GET    /:id                   # Details (Protected)
-PATCH  /:id/status            # Update status (Protected)
-DELETE /:id                   # Cancel (Protected)
-POST   /:id/reorder           # Reorder (Protected)
-POST   /:id/rate              # Rate (Protected)
-GET    /stats/summary         # My stats (Protected)
-
-# Manager
-GET    /manager/restaurant    # My restaurant (Manager)
-GET    /manager/orders        # Orders (Manager)
-PATCH  /manager/:id/status    # Update status (Manager)
-GET    /manager/stats         # Stats (Manager)
-
-# Shipper
-GET    /shipper/available     # Available (Shipper)
-POST   /shipper/:id/accept    # Accept (Shipper)
-GET    /shipper/deliveries    # My deliveries (Shipper)
-PATCH  /shipper/:id/status    # Update status (Shipper)
-GET    /shipper/stats         # Stats (Shipper)
-
-# Admin
-GET    /admin/all             # All orders (Admin)
-GET    /admin/stats           # Stats (Admin)
-PATCH  /admin/:id/status      # Force update (Admin)
-DELETE /admin/:id/permanent   # Permanent delete (Admin)
-```
+| Payment       | 2      | 2         | 2      | 6       |
+| Manager       | 0      | 8         | 0      | 8       |
+| Shipper       | 0      | 6         | 0      | 6       |
+| **TOTAL**     | **20** | **67**    | **51** | **138** |
 
 **📖 Full documentation:** [API_ENDPOINTS.md](docs/API_ENDPOINTS.md)
 
@@ -674,7 +725,20 @@ DELETE /admin/:id/permanent   # Permanent delete (Admin)
 
 ## 📦 Advanced Features
 
-### 1. Order Workflow & Validation
+### 1. Schema-Based Validation System
+
+```javascript
+✓ Centralized schema definitions
+✓ Auto type conversion
+✓ Foreign key validation
+✓ Unique constraint checks
+✓ Custom validation functions
+✓ Cross-field validation
+✓ Import/export integration
+✓ Detailed error reporting
+```
+
+### 2. Order Workflow & Validation
 
 ```javascript
 Order Status Flow:
@@ -683,90 +747,55 @@ pending → confirmed → preparing → delivering → delivered
                 cancelled (anytime from pending/confirmed)
 
 Validation before create:
-✓ Items must exist & available
+✓ Items must exist & available (schema validation)
 ✓ All items from same restaurant
 ✓ Delivery address required
 ✓ Restaurant must be open
 ✓ Check pending payment orders
+✓ GPS coordinates validated
 ```
 
-### 2. Promotion System
+### 3. Unified Favorites & Reviews
 
 ```javascript
-// 3 Discount Types:
-1. Percentage:  discount = orderValue × (discountValue / 100)
-2. Fixed:       discount = discountValue
-3. Delivery:    discount = deliveryFee
-
-// Validation:
-- Check date range validity
-- Verify min order value
-- Check usage limits (global & per-user)
-- Prevent double usage
+// Hỗ trợ cả Restaurant & Product trong cùng API
+GET /api/favorites/:type          // type = restaurant | product
+POST /api/favorites/:type/:id/toggle
+GET /api/reviews/type/:type
+POST /api/reviews                 // Tự động detect type
 ```
 
-### 3. Import/Export Features
-
-#### Import (Excel/CSV)
+### 4. Import/Export với Schema Validation
 
 ```bash
-POST /api/products/import
-Content-Type: multipart/form-data
-file: products.xlsx
-```
+# Download template với schema hints
+GET /api/products/template?format=xlsx
 
-**Features:**
-
-- Batch validation
-- Foreign key verification
-- Duplicate detection
-- Error reporting
-- Partial success handling
-
-#### Export
-
-```bash
-GET /api/restaurants/export?format=xlsx&includeRelations=true
-```
-
-**Options:**
-
-- Format: xlsx, csv
-- Include relationships
-- Select columns
-- Filters & pagination
-
-#### Schema Reference
-
-```bash
+# Get schema documentation
 GET /api/products/schema
-```
 
-**Response:**
+# Import với validation
+POST /api/products/import
+file: products.xlsx
 
-```json
+# Response với detailed errors
 {
-  "name": {"type": "string", "required": true},
-  "price": {"type": "number", "required": true, "min": 0},
-  "restaurantId": {"type": "number", "required": true, "foreignKey": "restaurants"}
+  "summary": {
+    "total": 48,
+    "success": 45,
+    "failed": 3
+  },
+  "errors": [
+    {
+      "row": 12,
+      "data": {"price": -10000},
+      "errors": ["price must be >= 0"]
+    }
+  ]
 }
-```
 
-### 4. Payment Integration
-
-```javascript
-Supported Methods:
-1. Cash (COD)
-2. Card (Stripe-ready)
-3. MoMo (Integration ready)
-4. ZaloPay (Integration ready)
-
-Flow:
-1. POST /api/payment/:orderId/create
-2. Process payment (external gateway or mock)
-3. Webhook callback validation
-4. Update order payment status
-5. Send notification
+# Export với relationships
+GET /api/products/export?format=xlsx&includeRelations=true
 ```
 
 ---
@@ -779,6 +808,7 @@ Flow:
 {
   "success": false,
   "message": "Error message",
+  "statusCode": 400,
   "errors": [
     {
       "field": "email",
@@ -824,7 +854,7 @@ Flow:
 }
 ```
 
-### Response Headers (for paginated requests)
+### Response Headers (paginated)
 
 ```
 X-Total-Count: 50
@@ -842,6 +872,8 @@ Link: <...>; rel="first", <...>; rel="prev", <...>; rel="next", <...>; rel="last
 
 ```
 Security:
+- [x] Schema-based validation implemented
+- [x] JWT authentication active
 - [ ] Change JWT_SECRET to strong random string
 - [ ] Use HTTPS/TLS
 - [ ] Enable rate limiting
@@ -861,59 +893,10 @@ Monitoring:
 - [ ] Setup uptime monitoring
 
 Documentation:
-- [ ] API documentation complete
+- [x] API documentation complete
+- [x] Schema documentation
 - [ ] Deployment guide
 - [ ] Runbook for incidents
-```
-
-### Deploy to Heroku
-
-```bash
-# 1. Install Heroku CLI
-npm install -g heroku
-
-# 2. Login
-heroku login
-
-# 3. Create app
-heroku create funfood-api
-
-# 4. Set environment
-heroku config:set JWT_SECRET=$(openssl rand -base64 32)
-heroku config:set NODE_ENV=production
-heroku config:set JWT_EXPIRE=30d
-
-# 5. Deploy
-git push heroku main
-
-# 6. View logs
-heroku logs --tail
-```
-
-### Deploy to VPS (Ubuntu)
-
-```bash
-# 1. Install Node.js
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt-get install -y nodejs
-
-# 2. Setup PM2
-sudo npm install -g pm2
-
-# 3. Clone & install
-git clone <repo>
-cd funfood-backend
-npm install --production
-
-# 4. Start with PM2
-pm2 start server.js --name funfood-api
-pm2 startup
-pm2 save
-
-# 5. Setup Nginx (reverse proxy)
-sudo apt install nginx
-# Configure /etc/nginx/sites-available/funfood-api
-# Point to localhost:3000
 ```
 
 ---
@@ -928,12 +911,44 @@ sudo apt install nginx
 
 ---
 
+## 🆕 What's New in v2.2
+
+### Schema Validation System
+
+- ✅ Centralized schema definitions trong `schemas/` directory
+- ✅ Auto type conversion & validation
+- ✅ Foreign key validation tự động
+- ✅ Custom validation functions với cross-field support
+- ✅ Integration với Import/Export
+
+### Enhanced Services
+
+- ✅ BaseService với schema validation built-in
+- ✅ Auto validation hooks trong CRUD operations
+- ✅ Improved error reporting với field-level details
+
+### Unified APIs
+
+- ✅ Favorites API support cả restaurant & product
+- ✅ Reviews API support cả restaurant & product
+- ✅ Consistent API patterns across modules
+
+### Improved Documentation
+
+- ✅ Complete schema documentation
+- ✅ Enhanced API endpoint docs
+- ✅ Architecture guide updates
+- ✅ Import/export workflow guide
+
+---
+
 ## 📞 Support & Resources
 
 - **Documentation**: See `/docs` folder
 - **API Health**: `GET /api/health`
 - **API Explorer**: `GET /api`
 - **Endpoints Reference**: `GET /api/endpoints`
+- **Schema Reference**: `GET /api/:entity/schema`
 
 ---
 
@@ -947,13 +962,7 @@ Contributions are welcome!
 4. Push to branch (`git push origin feature/AmazingFeature`)
 5. Open Pull Request
 
-<!-- ---
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
---- -->
+---
 
 ## 🙏 Acknowledgments
 
@@ -961,7 +970,8 @@ This project is licensed under the MIT License.
 - Built with [Express.js](https://expressjs.com/)
 - Authentication with [JWT](https://jwt.io/)
 - GPS calculations using Haversine formula
+- Validation inspired by JSON Schema standards
 
 ---
 
-**Made with ❤️ for FunFood App** | Version 2.1.0 | Last Updated: November 2024
+**Made with ❤️ for FunFood App** | Version 2.2.0 | Last Updated: November 2024

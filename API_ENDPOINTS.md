@@ -1,10 +1,10 @@
-# 📚 FunFood API Endpoints - Complete Reference v2.1
+# 📚 FunFood API Endpoints - Complete Reference v2.2
 
 ## 📊 Base Information
 
 **Base URL:** `http://localhost:3000/api`  
-**Version:** 2.1.0  
-**Total Endpoints:** 120+  
+**Version:** 2.2.0  
+**Total Endpoints:** 138+  
 **Authentication:** JWT Bearer Token  
 **Content-Type:** `application/json`
 
@@ -28,6 +28,7 @@
 14. [Manager](#14-manager)
 15. [Shipper](#15-shipper)
 16. [Import/Export](#16-importexport)
+17. [Schemas & Validation](#17-schemas--validation)
 
 ---
 
@@ -49,6 +50,13 @@
   "address": "123 Đường ABC"
 }
 ```
+
+**Validation Rules:**
+
+- `email`: Required, valid email format, unique, custom validation
+- `password`: Required, min 6 characters, must contain uppercase or number
+- `name`: Required, 2-100 characters
+- `phone`: Required, 10-11 characters, Vietnam phone format
 
 **Response:**
 
@@ -158,6 +166,8 @@
 **Cập nhật profile của mình**  
 **Access:** Protected
 
+**Validation:** Only validates fields sent (name, phone, address, avatar)
+
 ### PUT `/api/users/:id`
 
 **Cập nhật user bất kỳ (Admin)**  
@@ -182,7 +192,7 @@
 
 - `GET /api/users/template` - Download template (Admin)
 - `GET /api/users/schema` - Get schema (Admin)
-- `POST /api/users/import` - Import file (Admin)
+- `POST /api/users/import` - Import file with auto password hashing (Admin)
 - `GET /api/users/export` - Export data (Admin)
 
 ---
@@ -209,6 +219,13 @@
 **Tạo category (Admin)**  
 **Access:** Admin
 
+**Validation:**
+
+- `name`: Required, unique, 2-50 characters
+- `icon`: Optional, emoji
+- `image`: Optional, URL
+- `description`: Optional, max 500 characters
+
 ### PUT `/api/categories/:id`
 
 **Cập nhật category (Admin)**  
@@ -217,14 +234,8 @@
 ### DELETE `/api/categories/:id`
 
 **Xóa category (Admin)**  
-**Access:** Admin
-
-### Import/Export
-
-- `GET /api/categories/template` - Download template (Admin)
-- `GET /api/categories/schema` - Get schema (Admin)
-- `POST /api/categories/import` - Import file (Admin)
-- `GET /api/categories/export` - Export data (Admin)
+**Access:** Admin  
+**Validation:** Cannot delete if in use by restaurants/products
 
 ---
 
@@ -235,12 +246,6 @@
 **Lấy danh sách restaurants**  
 **Access:** Public  
 **Query:** `_page`, `_limit`, `categoryId`, `isOpen`, `rating_gte`, `q`, `_embed=products,reviews`, `_expand=category`
-
-**Example:**
-
-```bash
-GET /api/restaurants?isOpen=true&rating_gte=4.5&_embed=products&_page=1&_limit=10
-```
 
 ### GET `/api/restaurants/nearby`
 
@@ -296,24 +301,16 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 **Tạo restaurant (Admin)**  
 **Access:** Admin
 
-**Request:**
+**Validation:**
 
-```json
-{
-  "name": "Nhà Hàng Mới",
-  "description": "Mô tả",
-  "categoryId": 1,
-  "address": "123 ABC",
-  "latitude": 10.7756,
-  "longitude": 106.7019,
-  "phone": "0283123456",
-  "deliveryFee": 15000,
-  "deliveryTime": "20-30 phút",
-  "openTime": "08:00",
-  "closeTime": "22:00",
-  "image": "https://..."
-}
-```
+- `name`: Required, unique, 2-100 characters
+- `categoryId`: Required, must exist
+- `address`: Required, 10-200 characters
+- `latitude`, `longitude`: Optional, GPS coordinates
+- `phone`: Optional, 10-15 characters
+- `deliveryFee`: Optional, min 0, default 15000
+- `openTime`, `closeTime`: Optional, HH:mm format
+- `managerId`: Optional, foreign key to users
 
 ### PUT `/api/restaurants/:id`
 
@@ -323,14 +320,8 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 ### DELETE `/api/restaurants/:id`
 
 **Xóa restaurant (Admin)**  
-**Access:** Admin
-
-### Import/Export
-
-- `GET /api/restaurants/template` - Download template (Admin)
-- `GET /api/restaurants/schema` - Get schema (Admin)
-- `POST /api/restaurants/import` - Import file (Admin)
-- `GET /api/restaurants/export` - Export data (Admin)
+**Access:** Admin  
+**Validation:** Cannot delete if has products
 
 ---
 
@@ -362,6 +353,15 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 **Tạo product (Admin)**  
 **Access:** Admin
 
+**Validation:**
+
+- `name`: Required, 2-100 characters
+- `restaurantId`: Required, must exist
+- `categoryId`: Optional, must exist if provided
+- `price`: Required, min 0
+- `available`: Optional, boolean, default true
+- `discount`: Optional, 0-100, default 0
+
 ### PUT `/api/products/:id`
 
 **Cập nhật product (Admin)**  
@@ -380,18 +380,6 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
   "available": false
 }
 ```
-
-### DELETE `/api/products/:id`
-
-**Xóa product (Admin)**  
-**Access:** Admin
-
-### Import/Export
-
-- `GET /api/products/template` - Download template (Admin)
-- `GET /api/products/schema` - Get schema (Admin)
-- `POST /api/products/import` - Import file (Admin)
-- `GET /api/products/export` - Export data (Admin)
 
 ---
 
@@ -426,14 +414,10 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 **Thêm vào giỏ hàng**  
 **Access:** Protected
 
-**Request:**
+**Validation:**
 
-```json
-{
-  "productId": 1,
-  "quantity": 2
-}
-```
+- `productId`: Required, number, must exist
+- `quantity`: Required, min 1
 
 ### POST `/api/cart/sync`
 
@@ -456,6 +440,8 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 **Cập nhật số lượng**  
 **Access:** Protected
 
+**Validation:** `quantity` required
+
 ### DELETE `/api/cart/:id`
 
 **Xóa item khỏi giỏ**  
@@ -477,16 +463,20 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 
 ### Customer Endpoints
 
-#### GET `/api/orders`
-
-**Lấy đơn hàng của mình**  
-**Access:** Protected  
-**Query:** `status`, `status_in`, `total_gte`, `total_lte`, `createdAt_gte`
-
 #### POST `/api/orders`
 
 **Tạo đơn hàng**  
 **Access:** Protected
+
+**Validation:**
+
+- `restaurantId`: Required, number, must exist
+- `items`: Required, array with productId & quantity
+- `deliveryAddress`: Required, 10-200 characters
+- `deliveryLatitude`, `deliveryLongitude`: Optional, GPS coordinates
+- `paymentMethod`: Required, enum [cash, card, momo, zalopay]
+- `note`: Optional, max 500 characters
+- `promotionCode`: Optional, max 20 characters
 
 **Request:**
 
@@ -503,6 +493,21 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 }
 ```
 
+**Validations Applied:**
+
+1. Items must exist and be available
+2. All items from same restaurant
+3. Restaurant must be open
+4. Max 3 pending payment orders per user
+5. GPS-based delivery fee calculation
+6. Automatic promotion validation
+
+#### GET `/api/orders`
+
+**Lấy đơn hàng của mình**  
+**Access:** Protected  
+**Query:** `status`, `status_in`, `total_gte`, `total_lte`, `createdAt_gte`
+
 #### GET `/api/orders/:id`
 
 **Chi tiết đơn hàng**  
@@ -511,12 +516,18 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 #### PATCH `/api/orders/:id/status`
 
 **Cập nhật trạng thái đơn**  
-**Access:** Protected (with validation)
+**Access:** Protected (with RBAC validation)
+
+**Validation:**
+
+- `status`: Required, enum [pending, confirmed, preparing, delivering, delivered, cancelled]
+- Workflow validation per role (see RBAC section)
 
 #### DELETE `/api/orders/:id`
 
 **Hủy đơn hàng**  
-**Access:** Protected (Owner)
+**Access:** Protected (Owner)  
+**Validation:** Only pending/confirmed orders can be cancelled
 
 #### POST `/api/orders/:id/reorder`
 
@@ -527,6 +538,12 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 
 **Đánh giá đơn hàng**  
 **Access:** Protected
+
+**Validation:**
+
+- `rating`: Required, 1-5
+- `comment`: Required, 5-500 characters
+- Only delivered orders can be rated
 
 #### GET `/api/orders/stats/summary`
 
@@ -547,7 +564,7 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 
 #### PATCH `/api/orders/admin/:id/status`
 
-**Force update status**  
+**Force update status (bypass workflow)**  
 **Access:** Admin
 
 #### DELETE `/api/orders/admin/:id/permanent`
@@ -565,12 +582,8 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 #### PATCH `/api/orders/manager/:id/status`
 
 **Confirm/Prepare order**  
-**Access:** Manager
-
-#### GET `/api/orders/manager/stats`
-
-**Thống kê restaurant**  
-**Access:** Manager
+**Access:** Manager  
+**Allowed:** confirmed, preparing
 
 ### Shipper Endpoints
 
@@ -592,12 +605,8 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 #### PATCH `/api/orders/shipper/:id/status`
 
 **Update delivery status**  
-**Access:** Shipper
-
-#### GET `/api/orders/shipper/stats`
-
-**Thống kê shipper**  
-**Access:** Shipper
+**Access:** Shipper  
+**Allowed:** delivering, delivered
 
 ---
 
@@ -616,20 +625,12 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 **Access:** Protected  
 **Type:** `restaurant` | `product`
 
+**Validation:** type must be 'restaurant' or 'product'
+
 ### GET `/api/favorites/:type/ids`
 
 **Lấy danh sách IDs (lightweight)**  
 **Access:** Protected
-
-**Response:**
-
-```json
-{
-  "success": true,
-  "count": 5,
-  "data": [2, 3, 4, 7, 8]
-}
-```
 
 ### GET `/api/favorites/trending/:type`
 
@@ -651,6 +652,12 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 **Thêm vào favorites**  
 **Access:** Protected
 
+**Validation:**
+
+- type required (restaurant/product)
+- Item must exist
+- No duplicates
+
 ### POST `/api/favorites/:type/:id/toggle`
 
 **Toggle favorite (add/remove)**  
@@ -659,16 +666,6 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 ### DELETE `/api/favorites/:type/:id`
 
 **Xóa khỏi favorites**  
-**Access:** Protected
-
-### DELETE `/api/favorites/:type`
-
-**Xóa theo type**  
-**Access:** Protected
-
-### DELETE `/api/favorites`
-
-**Xóa tất cả favorites**  
 **Access:** Protected
 
 ---
@@ -702,6 +699,16 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 **Tạo review**  
 **Access:** Protected
 
+**Validation:**
+
+- `type`: Required, enum [restaurant, product]
+- `restaurantId`: Required, must exist
+- `productId`: Required if type=product, must exist and belong to restaurant
+- `rating`: Required, 1-5
+- `comment`: Required, 5-500 characters
+- `orderId`: Optional, link to order
+- No duplicate reviews per type+target
+
 **Request:**
 
 ```json
@@ -714,6 +721,11 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
   "orderId": 5
 }
 ```
+
+**Auto-updates after create:**
+
+- Restaurant/Product rating recalculated
+- Notification sent to user
 
 #### GET `/api/reviews/user/me`
 
@@ -735,17 +747,16 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 **Cập nhật review**  
 **Access:** Protected (Owner)
 
+**Validation:** Same as create
+
 #### DELETE `/api/reviews/:id`
 
 **Xóa review**  
 **Access:** Protected (Owner or Admin)
 
-### Admin Endpoints
+**Auto-updates after delete:**
 
-#### GET `/api/reviews`
-
-**Lấy tất cả reviews**  
-**Access:** Admin
+- Restaurant/Product rating recalculated
 
 ---
 
@@ -770,6 +781,12 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 
 **Validate mã khuyến mãi**  
 **Access:** Protected
+
+**Validation:**
+
+- `code`: Required
+- `orderValue`: Required, number
+- `deliveryFee`: Optional, number
 
 **Request:**
 
@@ -803,6 +820,17 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 **Tạo promotion (Admin)**  
 **Access:** Admin
 
+**Validation:**
+
+- `code`: Required, unique, 4-20 uppercase alphanumeric, custom validation
+- `description`: Required, max 500 characters
+- `discountType`: Required, enum [percentage, fixed, delivery]
+- `discountValue`: Required, min 0
+- `minOrderValue`: Optional, min 0, default 0
+- `maxDiscount`: Optional, min 0
+- `validFrom`, `validTo`: Required, date, validFrom < validTo
+- `usageLimit`, `perUserLimit`: Optional, min 0
+
 ### PUT `/api/promotions/:id`
 
 **Cập nhật promotion (Admin)**  
@@ -812,18 +840,6 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 
 **Bật/tắt promotion (Admin)**  
 **Access:** Admin
-
-### DELETE `/api/promotions/:id`
-
-**Xóa promotion (Admin)**  
-**Access:** Admin
-
-### Import/Export
-
-- `GET /api/promotions/template` - Download template (Admin)
-- `GET /api/promotions/schema` - Get schema (Admin)
-- `POST /api/promotions/import` - Import file (Admin)
-- `GET /api/promotions/export` - Export data (Admin)
 
 ---
 
@@ -849,20 +865,19 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 **Tạo địa chỉ mới**  
 **Access:** Protected
 
-**Request:**
+**Validation:**
 
-```json
-{
-  "label": "Công ty",
-  "address": "100 Đường ABC",
-  "recipientName": "Nguyễn Văn A",
-  "recipientPhone": "0912345678",
-  "latitude": 10.7756,
-  "longitude": 106.7019,
-  "note": "Tầng 5",
-  "isDefault": false
-}
-```
+- `label`: Required, 1-50 characters
+- `address`: Required, 10-200 characters
+- `recipientName`: Required, 2-100 characters
+- `recipientPhone`: Required, 10-11 characters
+- `latitude`, `longitude`: Optional, GPS coordinates
+- `note`: Optional, max 500 characters
+- `isDefault`: Optional, boolean, default false
+
+**Auto-behavior:**
+
+- If isDefault=true, unsets other defaults
 
 ### PUT `/api/addresses/:id`
 
@@ -872,16 +887,6 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 ### PATCH `/api/addresses/:id/default`
 
 **Đặt làm địa chỉ mặc định**  
-**Access:** Protected
-
-### DELETE `/api/addresses/:id`
-
-**Xóa địa chỉ**  
-**Access:** Protected
-
-### DELETE `/api/addresses`
-
-**Xóa tất cả địa chỉ (trừ default)**  
 **Access:** Protected
 
 ---
@@ -933,6 +938,11 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 **Tạo payment cho order**  
 **Access:** Protected
 
+**Validation:**
+
+- `paymentMethod`: Required, enum [cash, card, momo, zalopay]
+- `cardNumber`, `cardHolder`, `expiryDate`, `cvv`: Required if method=card
+
 **Request:**
 
 ```json
@@ -944,6 +954,13 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
   "cvv": "123"
 }
 ```
+
+**Payment Methods:**
+
+- **Cash (COD)**: No additional validation
+- **Card**: Validates card number format (13-19 digits)
+- **MoMo**: Generates payment URL with signature
+- **ZaloPay**: Generates payment URL with MAC
 
 ### GET `/api/payment/:orderId/status`
 
@@ -965,10 +982,14 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 **MoMo webhook callback**  
 **Access:** Public (webhook)
 
+**Validates:** Signature verification
+
 ### POST `/api/payment/zalopay/callback`
 
 **ZaloPay webhook callback**  
 **Access:** Public (webhook)
+
+**Validates:** MAC verification
 
 ---
 
@@ -989,15 +1010,24 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 **Tạo product mới**  
 **Access:** Manager
 
+**Validation:** Same as admin product creation, auto-assigns restaurantId
+
 ### PUT `/api/manager/products/:id`
 
 **Cập nhật product**  
 **Access:** Manager
 
+**Validation:** Must own the product's restaurant
+
 ### PATCH `/api/manager/products/:id/availability`
 
 **Toggle product availability**  
 **Access:** Manager
+
+**Validation:**
+
+- `available`: Optional, boolean
+- Must own the product's restaurant
 
 ### GET `/api/manager/orders`
 
@@ -1009,10 +1039,17 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 **Chi tiết đơn hàng**  
 **Access:** Manager
 
+**Validation:** Must own the order's restaurant
+
 ### PATCH `/api/manager/orders/:id/status`
 
 **Cập nhật trạng thái đơn**  
 **Access:** Manager
+
+**Allowed transitions:**
+
+- pending → confirmed
+- confirmed → preparing
 
 ### GET `/api/manager/stats`
 
@@ -1028,10 +1065,18 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 **Xem đơn hàng available**  
 **Access:** Shipper
 
+**Filters:** status=preparing, shipperId=null
+
 ### POST `/api/shipper/orders/:id/accept`
 
 **Nhận đơn hàng**  
 **Access:** Shipper
+
+**Validations:**
+
+- Order must be in 'preparing' status
+- Order must not have shipper assigned
+- Auto-updates order status to 'delivering'
 
 ### GET `/api/shipper/orders/my-deliveries`
 
@@ -1043,6 +1088,16 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 **Cập nhật trạng thái giao hàng**  
 **Access:** Shipper
 
+**Validation:**
+
+- `status`: Required
+- Must own the order (shipperId match)
+
+**Allowed transitions:**
+
+- preparing → delivering (auto on accept)
+- delivering → delivered
+
 ### GET `/api/shipper/orders/history`
 
 **Xem lịch sử giao hàng**  
@@ -1053,21 +1108,12 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 **Thống kê shipper**  
 **Access:** Shipper
 
-**Response:**
+**Calculates:**
 
-```json
-{
-  "success": true,
-  "data": {
-    "total": 50,
-    "delivering": 2,
-    "delivered": 48,
-    "totalEarnings": 960000,
-    "avgDeliveryTime": 25,
-    "todayDeliveries": 5
-  }
-}
-```
+- Total/delivering/delivered orders
+- Total earnings (80% of delivery fees)
+- Average delivery time
+- Today's deliveries
 
 ---
 
@@ -1080,6 +1126,12 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 **Download import template**  
 **Access:** Admin  
 **Query:** `format=xlsx|csv`
+
+**Example:**
+
+```bash
+GET /api/products/template?format=xlsx
+```
 
 ### GET `/api/:entity/schema`
 
@@ -1094,9 +1146,9 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
   "data": {
     "entity": "products",
     "schema": {
-      "name": {"type": "string", "required": true},
+      "name": {"type": "string", "required": true, "minLength": 2, "maxLength": 100},
       "price": {"type": "number", "required": true, "min": 0},
-      "restaurantId": {"type": "number", "foreignKey": "restaurants"}
+      "restaurantId": {"type": "number", "required": true, "foreignKey": "restaurants"}
     }
   }
 }
@@ -1108,9 +1160,15 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 **Access:** Admin  
 **Content-Type:** `multipart/form-data`
 
+**Validation per row:**
+
+1. Schema validation (type, required, min/max, unique, foreign keys)
+2. Custom validation (if defined in schema)
+3. Data transformation (type conversion, defaults)
+
 **Request:**
 
-```
+```bash
 POST /api/products/import
 Content-Type: multipart/form-data
 file: products.xlsx
@@ -1128,6 +1186,7 @@ file: products.xlsx
       "success": 45,
       "failed": 3
     },
+    "inserted": [...],
     "errors": [
       {
         "row": 12,
@@ -1144,6 +1203,111 @@ file: products.xlsx
 **Export data to file**  
 **Access:** Admin  
 **Query:** `format=xlsx|csv`, `includeRelations=true`, `columns=name,price`
+
+**Example:**
+
+```bash
+GET /api/products/export?format=xlsx&includeRelations=true&columns=name,price,restaurantName
+```
+
+**Features:**
+
+- Exports all data or filtered results
+- Can include related entity names (foreign keys expanded)
+- Column selection
+- Pagination support
+
+---
+
+## 17. Schemas & Validation
+
+### Schema-Based Validation
+
+All entities use schema-based validation with automatic type conversion and custom rules.
+
+**Available Schemas:**
+
+- `user`, `category`, `restaurant`, `product`, `promotion`
+- `address`, `order`, `cart`, `favorite`, `review`
+- `notification`, `payment`
+
+### Validation Types
+
+**Basic Types:**
+
+```javascript
+{
+  type: "string" | "number" | "boolean" | "email" | "date" | "enum";
+}
+```
+
+**Constraints:**
+
+```javascript
+{
+  required: boolean,
+  unique: boolean,
+  min: number,         // for numbers
+  max: number,
+  minLength: number,   // for strings
+  maxLength: number,
+  enum: [],           // allowed values
+  default: any,
+  foreignKey: string  // reference to other entity
+}
+```
+
+**Custom Validation:**
+
+```javascript
+{
+  custom: (value, allData) => {
+    // Return error message or null
+    if (invalid) return "Error message";
+    return null;
+  };
+}
+```
+
+### Example: Product Schema
+
+```javascript
+{
+  name: {
+    type: 'string',
+    required: true,
+    minLength: 2,
+    maxLength: 100
+  },
+  price: {
+    type: 'number',
+    required: true,
+    min: 0
+  },
+  restaurantId: {
+    type: 'number',
+    required: true,
+    foreignKey: 'restaurants'
+  },
+  discount: {
+    type: 'number',
+    required: false,
+    min: 0,
+    max: 100,
+    default: 0
+  }
+}
+```
+
+### GET `/api/schemas`
+
+**Get all available schemas**  
+**Access:** Admin
+
+### GET `/api/schema/:entity`
+
+**Get specific entity schema**  
+**Access:** Admin
 
 ---
 
@@ -1229,82 +1393,110 @@ file: products.xlsx
 }
 ```
 
+### Validation Error
+
+```json
+{
+  "success": false,
+  "message": "Validation failed",
+  "statusCode": 400,
+  "errors": {
+    "email": "Invalid email format",
+    "password": "Password must contain uppercase or number"
+  }
+}
+```
+
 ---
 
 ## ⚠️ Error Codes
 
-| Code | Message       | Description           |
-| ---- | ------------- | --------------------- |
-| 200  | OK            | Success               |
-| 201  | Created       | Resource created      |
-| 400  | Bad Request   | Invalid input         |
-| 401  | Unauthorized  | Missing/invalid token |
-| 403  | Forbidden     | No permission         |
-| 404  | Not Found     | Resource not found    |
-| 409  | Conflict      | Duplicate data        |
-| 422  | Unprocessable | Validation failed     |
-| 500  | Server Error  | Internal error        |
+| Code | Message           | Description              |
+| ---- | ----------------- | ------------------------ |
+| 200  | OK                | Success                  |
+| 201  | Created           | Resource created         |
+| 207  | Multi-Status      | Partial success (import) |
+| 400  | Bad Request       | Invalid input            |
+| 401  | Unauthorized      | Missing/invalid token    |
+| 403  | Forbidden         | No permission            |
+| 404  | Not Found         | Resource not found       |
+| 409  | Conflict          | Duplicate data           |
+| 422  | Unprocessable     | Validation failed        |
+| 429  | Too Many Requests | Rate limit exceeded      |
+| 500  | Server Error      | Internal error           |
 
 ---
 
-## 📞 Quick Examples
+## 🔐 RBAC - Role-Based Access Control
 
-### Authentication Flow
+### Roles
 
-```bash
-# 1. Register
-POST /api/auth/register
+1. **admin** - Full access to all resources
+2. **manager** - Manage own restaurant and products
+3. **shipper** - Accept and deliver orders
+4. **customer** - Place orders, manage favorites, reviews
 
-# 2. Login
-POST /api/auth/login
-# Get token
+### Permissions Matrix
 
-# 3. Use token
-GET /api/auth/me
-Header: Authorization: Bearer {token}
-```
+#### Orders
 
-### Create Order Flow
+| Action        | Admin    | Manager              | Shipper       | Customer                    |
+| ------------- | -------- | -------------------- | ------------- | --------------------------- |
+| Create        | ✅       | ❌                   | ❌            | ✅ (own)                    |
+| Read          | ✅ (all) | ✅ (own restaurant)  | ✅ (assigned) | ✅ (own)                    |
+| Update Status | ✅ (any) | ✅ (confirm/prepare) | ✅ (deliver)  | ❌                          |
+| Cancel        | ✅       | ❌                   | ❌            | ✅ (pending/confirmed only) |
+| Delete        | ✅       | ❌                   | ❌            | ❌                          |
 
-```bash
-# 1. Get restaurants
-GET /api/restaurants?isOpen=true
+#### Products
 
-# 2. Get menu
-GET /api/restaurants/1/products
+| Action | Admin | Manager             | Shipper | Customer |
+| ------ | ----- | ------------------- | ------- | -------- |
+| Create | ✅    | ✅ (own restaurant) | ❌      | ❌       |
+| Read   | ✅    | ✅                  | ✅      | ✅       |
+| Update | ✅    | ✅ (own restaurant) | ❌      | ❌       |
+| Delete | ✅    | ✅ (own restaurant) | ❌      | ❌       |
 
-# 3. Add to cart
-POST /api/cart
-{"productId": 1, "quantity": 2}
+#### Reviews
 
-# 4. Create order
-POST /api/orders
-{
-  "restaurantId": 1,
-  "items": [{"productId": 1, "quantity": 2}],
-  "deliveryAddress": "...",
-  "paymentMethod": "cash"
-}
+| Action | Admin | Manager | Shipper | Customer |
+| ------ | ----- | ------- | ------- | -------- |
+| Create | ❌    | ❌      | ❌      | ✅       |
+| Read   | ✅    | ✅      | ✅      | ✅       |
+| Update | ❌    | ❌      | ❌      | ✅ (own) |
+| Delete | ✅    | ❌      | ❌      | ✅ (own) |
 
-# 5. Track order
-GET /api/orders/1
-```
+### Order Status Workflow
 
-### Import/Export Flow
+**Customer:**
 
-```bash
-# 1. Get schema
-GET /api/products/schema
+- Can only cancel (pending/confirmed → cancelled)
 
-# 2. Download template
-GET /api/products/template?format=xlsx
+**Manager:**
 
-# 3. Upload file
-POST /api/products/import
-file: products.xlsx
+- pending → confirmed
+- confirmed → preparing
 
-# 4. Export data
-GET /api/products/export?format=xlsx&includeRelations=true
+**Shipper:**
+
+- preparing → delivering (on accept)
+- delivering → delivered
+
+**Admin:**
+
+- Any status → Any status (bypass workflow)
+
+### Middleware Usage
+
+```javascript
+// Check permission for action
+checkPermission("orders", "create");
+
+// Check ownership of resource
+checkOwnership("order");
+
+// Validate status transition
+validateOrderStatusTransition();
 ```
 
 ---
@@ -1349,79 +1541,59 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&categoryId=1&_em
 
 ---
 
-## 🔐 Authentication Examples
+## 🔍 Complete Workflow Examples
 
-### Register & Login
+### 1. User Registration & Login
 
 ```bash
-# Register
-curl -X POST http://localhost:3000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "user@example.com",
-    "password": "123456",
-    "name": "Nguyễn Văn A",
-    "phone": "0912345678"
-  }'
+# Step 1: Register
+POST /api/auth/register
+{
+  "email": "newuser@funfood.com",
+  "password": "MyPass123",
+  "name": "Nguyễn Văn B",
+  "phone": "0909123456"
+}
 
-# Login
-curl -X POST http://localhost:3000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "user@example.com",
-    "password": "123456"
-  }'
+# Step 2: Login
+POST /api/auth/login
+{
+  "email": "newuser@funfood.com",
+  "password": "MyPass123"
+}
 
 # Response: Save token
 {
   "success": true,
   "data": {
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "user": {...}
   }
 }
+
+# Step 3: Use token in subsequent requests
+GET /api/auth/me
+Header: Authorization: Bearer YOUR_TOKEN
 ```
 
-### Use Token
-
-```bash
-# Get profile
-curl http://localhost:3000/api/auth/me \
-  -H "Authorization: Bearer YOUR_TOKEN"
-
-# Protected request
-curl -X POST http://localhost:3000/api/cart \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"productId": 1, "quantity": 2}'
-```
-
----
-
-## 🛒 Complete Order Flow Example
+### 2. Browse & Order Flow
 
 ```bash
 # Step 1: Browse restaurants
 GET /api/restaurants?isOpen=true&categoryId=1&_page=1&_limit=10
 
-# Step 2: Get restaurant details with menu
-GET /api/restaurants/2?_embed=products
+# Step 2: Get restaurant menu
+GET /api/restaurants/2/products?available=true
 
-# Step 3: Add items to cart
+# Step 3: Add to cart
 POST /api/cart
 {
   "productId": 4,
   "quantity": 1
 }
 
-POST /api/cart
-{
-  "productId": 5,
-  "quantity": 2
-}
-
 # Step 4: View cart
 GET /api/cart
-# Response shows grouped items, totals
 
 # Step 5: Get delivery address
 GET /api/addresses/default
@@ -1438,19 +1610,15 @@ POST /api/promotions/validate
 POST /api/orders
 {
   "restaurantId": 2,
-  "items": [
-    {"productId": 4, "quantity": 1},
-    {"productId": 5, "quantity": 2}
-  ],
+  "items": [{"productId": 4, "quantity": 1}],
   "deliveryAddress": "123 ABC",
   "deliveryLatitude": 10.7756,
   "deliveryLongitude": 106.7019,
   "paymentMethod": "momo",
-  "promotionCode": "FUNFOOD10",
-  "note": "Không hành"
+  "promotionCode": "FUNFOOD10"
 }
 
-# Step 8: Payment (if needed)
+# Step 8: Payment (if online)
 POST /api/payment/5/create
 {
   "paymentMethod": "momo"
@@ -1467,115 +1635,98 @@ POST /api/orders/5/rate
 }
 ```
 
----
-
-## 👨‍💼 Manager Workflow Example
+### 3. Manager Restaurant Workflow
 
 ```bash
-# Step 1: Login as manager
+# Login as manager
 POST /api/auth/login
 {
   "email": "manager.chay@funfood.com",
   "password": "123456"
 }
 
-# Step 2: View restaurant info
+# View restaurant info
 GET /api/manager/restaurant
 
-# Step 3: View menu
+# View menu
 GET /api/manager/products
 
-# Step 4: Add new product
+# Add new product
 POST /api/manager/products
 {
   "name": "Gỏi Cuốn Chay",
-  "description": "Gỏi cuốn chay với rau sống và bún",
+  "description": "Gỏi cuốn với rau sống",
   "price": 35000,
-  "image": "https://...",
   "available": true,
   "discount": 0
 }
 
-# Step 5: View pending orders
+# View pending orders
 GET /api/manager/orders?status=pending
 
-# Step 6: Confirm order
+# Confirm order
 PATCH /api/manager/orders/8/status
 {
   "status": "confirmed"
 }
 
-# Step 7: Mark as preparing
+# Mark as preparing
 PATCH /api/manager/orders/8/status
 {
   "status": "preparing"
 }
 
-# Step 8: View statistics
+# View stats
 GET /api/manager/stats
 ```
 
----
-
-## 🚚 Shipper Workflow Example
+### 4. Shipper Delivery Workflow
 
 ```bash
-# Step 1: Login as shipper
+# Login as shipper
 POST /api/auth/login
 {
   "email": "shipper@funfood.com",
   "password": "123456"
 }
 
-# Step 2: View available orders
+# View available orders
 GET /api/shipper/orders/available
 
-# Step 3: Accept order
+# Accept order
 POST /api/shipper/orders/8/accept
 
-# Step 4: View my deliveries
+# View my deliveries
 GET /api/shipper/orders/my-deliveries
 
-# Step 5: Update to delivering
-PATCH /api/shipper/orders/8/status
-{
-  "status": "delivering"
-}
+# Update to delivering (auto on accept)
+# Order status already changed to 'delivering'
 
-# Step 6: Mark as delivered
+# Mark as delivered
 PATCH /api/shipper/orders/8/status
 {
   "status": "delivered"
 }
 
-# Step 7: View stats
+# View stats
 GET /api/shipper/stats
-
-# Response shows earnings, deliveries count, avg time
 ```
 
----
-
-## 📥 Import/Export Workflow Example
+### 5. Import/Export Workflow
 
 ```bash
 # Step 1: Get entity schema
 GET /api/products/schema
 
-# Response shows required fields, types, validation rules
-
 # Step 2: Download template
 GET /api/products/template?format=xlsx
 
-# Step 3: Fill in data in Excel
-# name, price, restaurantId, categoryId, discount, available, image...
+# Step 3: Fill in Excel and upload
+POST /api/products/import
+Content-Type: multipart/form-data
+file: products.xlsx
 
-# Step 4: Upload file
-curl -X POST http://localhost:3000/api/products/import \
-  -H "Authorization: Bearer YOUR_ADMIN_TOKEN" \
-  -F "file=@products.xlsx"
-
-# Response shows:
+# Response shows success/failed rows
 {
   "success": true,
   "message": "Import completed: 45 succeeded, 3 failed",
@@ -1585,72 +1736,12 @@ curl -X POST http://localhost:3000/api/products/import \
       "success": 45,
       "failed": 3
     },
-    "errors": [
-      {
-        "row": 12,
-        "data": {"name": "Pizza", "price": -10000},
-        "errors": ["Price must be >= 0"]
-      }
-    ]
+    "errors": [...]
   }
 }
 
-# Step 5: Export data
-GET /api/products/export?format=xlsx&includeRelations=true&columns=name,price,restaurantName
-
-# Downloads Excel file with all products
-```
-
----
-
-## 🔍 Search & Filter Patterns
-
-### Restaurant Search
-
-```bash
-# By name
-GET /api/restaurants/search?q=phở
-
-# By location + category
-GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&categoryId=2
-
-# Open now, high rating
-GET /api/restaurants?isOpen=true&rating_gte=4.5&_sort=rating&_order=desc
-
-# With menu embedded
-GET /api/restaurants?_embed=products&_page=1
-```
-
-### Product Search
-
-```bash
-# By name
-GET /api/products/search?q=pizza
-
-# By price range
-GET /api/products?price_gte=50000&price_lte=150000
-
-# On sale only
-GET /api/products/discounted?_sort=discount&_order=desc
-
-# Available only from restaurant
-GET /api/restaurants/1/products?available=true
-```
-
-### Order Search
-
-```bash
-# My recent orders
-GET /api/orders?_sort=createdAt&_order=desc&_limit=10
-
-# Orders in date range
-GET /api/orders?createdAt_gte=2024-10-01&createdAt_lte=2024-10-31
-
-# By status
-GET /api/orders?status_in=pending,confirmed,preparing
-
-# High value orders
-GET /api/orders?total_gte=200000
+# Step 4: Export data
+GET /api/products/export?format=xlsx&includeRelations=true
 ```
 
 ---
@@ -1698,17 +1789,6 @@ X-RateLimit-Remaining: 95
 X-RateLimit-Reset: 2024-10-26T12:00:00Z
 ```
 
-### Exceeded Response
-
-```json
-{
-  "success": false,
-  "message": "Rate limit exceeded",
-  "limit": 100,
-  "resetTime": "2024-10-26T12:00:00Z"
-}
-```
-
 ---
 
 ## 🎯 Best Practices
@@ -1716,10 +1796,10 @@ X-RateLimit-Reset: 2024-10-26T12:00:00Z
 ### 1. Always Use Pagination
 
 ```bash
-# ❌ Bad - might return thousands of items
+# ❌ Bad
 GET /api/products
 
-# ✅ Good - controlled data size
+# ✅ Good
 GET /api/products?_page=1&_limit=20
 ```
 
@@ -1731,10 +1811,26 @@ GET /api/cart
 
 # ✅ Good
 GET /api/cart
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Authorization: Bearer YOUR_TOKEN
 ```
 
-### 3. Handle Errors Gracefully
+### 3. Validate Before Sending
+
+```javascript
+// Client-side validation
+const orderData = {
+  restaurantId: 1,
+  items: items.length > 0 ? items : null,
+  deliveryAddress: address || null,
+};
+
+if (!orderData.items) {
+  alert("Cart is empty");
+  return;
+}
+```
+
+### 4. Handle Errors Gracefully
 
 ```javascript
 try {
@@ -1750,186 +1846,38 @@ try {
   const result = await response.json();
 
   if (!result.success) {
-    // Handle error
-    console.error(result.message);
+    // Show validation errors
+    if (result.errors) {
+      Object.values(result.errors).forEach((error) => console.error(error));
+    }
   }
 } catch (error) {
   console.error("Network error:", error);
 }
 ```
 
-### 4. Use Appropriate HTTP Methods
-
-```bash
-# ✅ Correct
-GET /api/products          # Read
-POST /api/products         # Create
-PUT /api/products/1        # Full update
-PATCH /api/products/1      # Partial update
-DELETE /api/products/1     # Delete
-
-# ❌ Wrong
-POST /api/products/get     # Should be GET
-GET /api/products/delete/1 # Should be DELETE
-```
-
-### 5. Validate Before Sending
-
-```javascript
-// ✅ Good - validate on client
-const orderData = {
-  restaurantId: 1,
-  items: items.length > 0 ? items : null,
-  deliveryAddress: address || null,
-};
-
-if (!orderData.items) {
-  alert("Cart is empty");
-  return;
-}
-
-// Then send
-await createOrder(orderData);
-```
-
----
-
-## 📚 Additional Resources
-
-### Health Check
-
-```bash
-GET /api/health
-
-Response:
-{
-  "status": "OK",
-  "version": "2.1.0",
-  "timestamp": "2024-10-26T10:00:00Z",
-  "uptime": 3600.5,
-  "database": "JSON File (Mock)"
-}
-```
-
-### API Documentation
-
-```bash
-GET /api
-
-Response:
-{
-  "message": "FunFood API v2.1",
-  "version": "2.1.0",
-  "documentation": {
-    "full_docs": "/docs/API_ENDPOINTS.md",
-    "status_page": "/api/health",
-    "endpoints": "/api/endpoints"
-  }
-}
-```
-
-### Endpoints Reference
-
-```bash
-GET /api/endpoints
-
-Returns complete endpoints configuration with examples
-```
-
----
-
-## 🐛 Common Issues & Solutions
-
-### 1. 401 Unauthorized
-
-```
-Problem: Token missing or expired
-Solution:
-- Check if token is included in Authorization header
-- Re-login to get new token
-- Format: "Bearer {token}"
-```
-
-### 2. 403 Forbidden
-
-```
-Problem: Insufficient permissions
-Solution:
-- Check user role
-- Verify route permissions in RBAC
-- Admin routes require admin role
-```
-
-### 3. 404 Not Found
-
-```
-Problem: Resource doesn't exist
-Solution:
-- Verify ID is correct
-- Check if resource was deleted
-- Use search to find valid IDs
-```
-
-### 4. 422 Validation Error
-
-```
-Problem: Invalid data format
-Solution:
-- Check required fields
-- Verify data types (number, string, boolean)
-- Follow schema validation rules
-```
-
-### 5. 429 Rate Limit
-
-```
-Problem: Too many requests
-Solution:
-- Implement request throttling on client
-- Wait for rate limit reset time
-- Use pagination to reduce request count
-```
-
 ---
 
 ## 💡 Tips & Tricks
 
-### 1. Save Token Properly
-
-```javascript
-// After login
-localStorage.setItem('token', response.data.token);
-
-// Use in requests
-const token = localStorage.getItem('token');
-headers: {
-  'Authorization': `Bearer ${token}`
-}
-
-// Clear on logout
-localStorage.removeItem('token');
-```
-
-### 2. Batch Operations
+### 1. Batch Operations
 
 ```bash
 # Instead of multiple requests
 POST /api/cart (productId: 1)
 POST /api/cart (productId: 2)
-POST /api/cart (productId: 3)
 
 # Use sync endpoint
 POST /api/cart/sync
 {
   "items": [
     {"productId": 1, "quantity": 1},
-    {"productId": 2, "quantity": 2},
-    {"productId": 3, "quantity": 1}
+    {"productId": 2, "quantity": 2}
   ]
 }
 ```
 
-### 3. Optimize Queries
+### 2. Optimize Queries
 
 ```bash
 # ❌ Multiple requests
@@ -1937,53 +1885,36 @@ GET /api/restaurants/1
 GET /api/products?restaurantId=1
 GET /api/reviews/restaurant/1
 
-# ✅ Single request with embed
+# ✅ Single request
 GET /api/restaurants/1?_embed=products,reviews
 ```
 
-### 4. Handle Pagination
+### 3. Schema Validation
 
-```javascript
-// Load more pattern
-const loadMore = async (page) => {
-  const response = await fetch(`/api/products?_page=${page}&_limit=20`);
-  const data = await response.json();
+```bash
+# Before importing, always check schema
+GET /api/products/schema
 
-  // Check if has more
-  if (data.pagination.hasNext) {
-    // Show "Load More" button
-  }
-};
-```
-
-### 5. Real-time Updates
-
-```javascript
-// Poll for order updates
-const pollOrderStatus = (orderId) => {
-  const interval = setInterval(async () => {
-    const order = await getOrder(orderId);
-
-    if (order.status === "delivered") {
-      clearInterval(interval);
-      // Show success message
-    }
-  }, 30000); // Every 30 seconds
-};
+# This shows you:
+# - Required fields
+# - Data types
+# - Constraints (min/max, unique, etc.)
+# - Foreign keys
 ```
 
 ---
 
-## 📞 Support & Contact (FAKE!!!)
+## 📞 Support & Resources
 
-**Documentation:** https://docs.funfood.com  
-**API Status:** https://status.funfood.com  
-**Support Email:** api@funfood.com  
-**GitHub Issues:** https://github.com/funfood/backend/issues
+**Documentation:** See `/docs` folder  
+**API Health:** `GET /api/health`  
+**API Explorer:** `GET /api`  
+**Endpoints Reference:** `GET /api/endpoints`  
+**Schemas:** `GET /api/schemas`
 
 ---
 
-**Version:** 2.1.0  
+**Version:** 2.2.0  
 **Last Updated:** November 2024  
-**Total Endpoints:** 120+  
+**Total Endpoints:** 125+  
 **Status:** Production Ready ✅
