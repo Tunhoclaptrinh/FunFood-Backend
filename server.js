@@ -1,13 +1,25 @@
 const express = require('express');
 const cors = require('cors');
+const os = require('os');
 require('dotenv').config();
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// ==================== MIDDLEWARE ====================
+
+// CORS - Allow all origins for local network access
+app.use(cors({
+  origin: '*',  // Allow all origins in local network
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+const apiLogger = require('./middleware/logger.middleware');
+app.use(apiLogger);
+
 
 const { parseQuery, formatResponse, validateQuery, logQuery } = require('./middleware/query.middleware');
 
@@ -103,7 +115,6 @@ app.get('/api', (req, res) => {
       postman_collection: '/docs/funfood-api.postman_collection.json',
       status_page: '/api/health',
       endpoints: '/api/endpoints',
-
     }
   });
 });
@@ -115,7 +126,6 @@ app.get('/api/endpoints', (req, res) => {
     }
   });
 });
-
 
 // Health Check
 app.get('/api/health', (req, res) => {
@@ -172,20 +182,78 @@ app.use((err, req, res, next) => {
   res.status(statusCode).json(response);
 });
 
+// ==================== HELPER FUNCTIONS ====================
+
+/**
+ * Get local network IP address
+ */
+function getLocalIPAddress() {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      // Skip internal (localhost) and non-IPv4 addresses
+      if (iface.family === 'IPv4' && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return 'localhost';
+}
+
+/**
+ * Display network access information
+ */
+function line(text = '', char = '═') {
+  const width = 70;
+  if (!text) return `╠${char.repeat(width)}╣`;
+  const space = width - text.length;
+  return `║ ${text}${' '.repeat(space - 1)}║`;
+}
+
+function displayNetworkInfo(port) {
+  const localIP = getLocalIPAddress();
+
+  console.log('\n' + line('', '═'));
+  console.log(line('🚀  FunFood Server Started!'));
+  console.log(line('', '═'));
+
+  console.log(line(`🌍  Environment: ${process.env.NODE_ENV || 'development'}`));
+  console.log(line('', '═'));
+
+  console.log(line('📍 Local Access URLs:'));
+  console.log(line(`• http://localhost:${port}`));
+  console.log(line(`• http://127.0.0.1:${port}`));
+  console.log(line('', '═'));
+
+  console.log(line('📱 Network Access URLs (Same WiFi):'));
+  console.log(line(`• http://${localIP}:${port}`));
+  console.log(line('', '═'));
+
+  console.log(line('📊 API Documentation:'));
+  console.log(line(`• http://localhost:${port}/api`));
+  console.log(line(`• http://${localIP}:${port}/api`));
+  console.log(line('', '═'));
+
+  console.log(line('❤️  Health Check:'));
+  console.log(line(`• http://localhost:${port}/api/health`));
+  console.log(line(`• http://${localIP}:${port}/api/health`));
+  console.log(line('', '═'));
+
+  console.log(line('💡 Tips:'));
+  console.log(line('• Use the Network URL to access from other devices'));
+  console.log(line('• Make sure devices are on the same WiFi network'));
+  console.log(line('• Check firewall settings if connection fails'));
+  console.log(line('', '═') + '\n');
+}
+
+
 // ==================== SERVER START ====================
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`
-╔══════════════════════════════════════════════════════════════════╗
-║   🚀 FunFood Server Started!                                     ║
-╠══════════════════════════════════════════════════════════════════╣
-║   📍 URL: http://localhost:${PORT}                                  ║
-║   🌍 Environment: ${process.env.NODE_ENV || 'development'}                                    ║
-║   📊 API Docs: http://localhost:${PORT}/api                         ║
-║   ❤️  Health: http://localhost:${PORT}/api/health                    ║
-╚══════════════════════════════════════════════════════════════════╝
-  `);
+const HOST = '0.0.0.0'; // Listen on all network interfaces
+
+const server = app.listen(PORT, HOST, () => {
+  displayNetworkInfo(PORT);
 });
 
 // ==================== GRACEFUL SHUTDOWN ====================
