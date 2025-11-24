@@ -43,6 +43,7 @@ const promotionRoutes = require('./routes/promotion.routes');
 const addressRoutes = require('./routes/address.routes');
 const notificationRoutes = require('./routes/notification.routes');
 const paymentRoutes = require('./routes/payment.routes');
+const uploadRoutes = require('./routes/upload.routes');
 
 // Optional routes
 let shipperRoutes, managerRoutes;
@@ -75,6 +76,7 @@ app.use('/api/promotions', promotionRoutes);
 app.use('/api/addresses', addressRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/upload', uploadRoutes);
 
 if (shipperRoutes) {
   app.use('/api/shipper', shipperRoutes);
@@ -108,6 +110,7 @@ app.get('/api', (req, res) => {
       'Payment Processing (Cash, MoMo, ZaloPay, Card)',
       'Notification System',
       'Import/Export (Excel, CSV)',
+      "File Upload (Images with processing)",
       'Data Analytics'
     ],
     documentation: {
