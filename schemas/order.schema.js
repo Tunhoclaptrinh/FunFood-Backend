@@ -84,5 +84,21 @@ module.exports = {
     required: false,
     maxLength: 20,
     description: 'Promotion code used'
+  },
+  items: {
+    type: 'array',
+    required: true,
+    description: 'Order items',
+    custom: (value) => {
+      if (!Array.isArray(value) || value.length === 0) {
+        return 'Items must be a non-empty array';
+      }
+      for (const item of value) {
+        if (!item.productId || !item.quantity) {
+          return 'Each item must have productId and quantity';
+        }
+      }
+      return null;
+    }
   }
 };

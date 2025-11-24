@@ -48,7 +48,8 @@ router.get('/:id/activity', protect, userController.getUserActivity);
 // Update profile - validate name, phone, address, avatar
 router.put('/profile',
   protect,
-  validateFields('user', ['name', 'phone', 'address', 'avatar']),
+  // Không validate - để service handle
+  // validateFields('user', ['name', 'phone', 'address', 'avatar']),
   userController.updateProfile
 );
 

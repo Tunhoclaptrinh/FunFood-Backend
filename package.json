@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "seed": "node utils/seedData.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "test:upload": "node tests/upload.test.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -17,6 +18,7 @@
     "json2csv": "^6.0.0-alpha.2",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
+    "sharp": "^0.34.5",
     "uuid": "^9.0.1",
     "xlsx": "^0.18.5"
   },

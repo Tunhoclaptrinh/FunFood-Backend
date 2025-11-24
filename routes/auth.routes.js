@@ -27,7 +27,18 @@ router.post('/logout', protect, authController.logout);
 // Change password - custom validate
 router.put('/change-password',
   protect,
-  validateFields('user', ['password']),
+  // validateFields('user', ['password']),
+  [
+    body('currentPassword').notEmpty().withMessage('Current password is required'),
+    body('newPassword')
+      .isLength({ min: 6 }).withMessage('New password must be at least 6 characters')
+      .custom((value) => {
+        if (!/[A-Z]/.test(value) && !/[0-9]/.test(value)) {
+          throw new Error('Password must contain uppercase or number');
+        }
+        return true;
+      })
+  ],
   authController.changePassword
 );
 
