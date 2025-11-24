@@ -3,7 +3,7 @@ const router = express.Router();
 const authController = require('../controllers/auth.controller');
 const { protect } = require('../middleware/auth.middleware');
 const { validateSchema, validateFields } = require('../middleware/validation.middleware');
-
+const { body } = require('express-validator');
 
 
 // Register - validate tất cả schema fields
