@@ -206,48 +206,83 @@ function getLocalIPAddress() {
 /**
  * Display network access information
  */
-function line(text = '', char = '═') {
+// --- Measure unicode string width safely (emoji, CJK, etc) ---
+function stringWidth(str) {
+  // Detect emoji / wide char
+  const ansiRegex = /\u001b\[.*?m/g; // strip ANSI color codes
+  const cleanStr = str.replace(ansiRegex, '');
+
+  let width = 0;
+  for (const char of [...cleanStr]) {
+    // Emojis & fullwidth characters
+    if (char.match(/[\u{1100}-\u{115F}\u{2329}\u{232A}\u{2E80}-\u{A4CF}\u{AC00}-\u{D7A3}\u{F900}-\u{FAFF}\u{FE10}-\u{FE19}\u{FE30}-\u{FE6F}\u{FF00}-\u{FF60}\u{FFE0}-\u{FFE6}]/u)) {
+      width += 2;
+    } else if (char.length > 1) {
+      // Emoji surrogate pairs
+      width += 2;
+    } else {
+      width += 1;
+    }
+  }
+  return width;
+}
+
+// --- Build a line inside the frame ---
+function line(text = '') {
   const width = 70;
-  if (!text) return `╠${char.repeat(width)}╣`;
-  const space = width - text.length;
+  if (!text) return `╠${'═'.repeat(width)}╣`;
+
+  const realWidth = stringWidth(text);
+  const space = width - realWidth;
+
   return `║ ${text}${' '.repeat(space - 1)}║`;
+}
+
+// --- Centered title ---
+function title(text) {
+  const width = 70;
+  const realWidth = stringWidth(text);
+  const left = Math.floor((width - realWidth) / 2);
+  const right = Math.ceil((width - realWidth) / 2);
+  return `║${' '.repeat(left)}${text}${' '.repeat(right)}║`;
 }
 
 function displayNetworkInfo(port) {
   const localIP = getLocalIPAddress();
 
-  console.log('\n' + line('', '═'));
-  console.log(line('🚀  FunFood Server Started!'));
-  console.log(line('', '═'));
+  console.log('\n╔' + '═'.repeat(70) + '╗');
+  console.log(title('🚀  FunFood Server Started!'));
+  console.log('╠' + '═'.repeat(70) + '╣');
 
-  console.log(line(`🌍  Environment: ${process.env.NODE_ENV || 'development'}`));
-  console.log(line('', '═'));
-
-  console.log(line('📍 Local Access URLs:'));
+  console.log(line(`  Environment: ${process.env.NODE_ENV || 'development'}`));
+  console.log(line());
+  console.log(line('  Local Access URLs:'));
   console.log(line(`• http://localhost:${port}`));
   console.log(line(`• http://127.0.0.1:${port}`));
-  console.log(line('', '═'));
+  console.log(line());
 
-  console.log(line('📱 Network Access URLs (Same WiFi):'));
+  console.log(line('  Network Access URLs (WiFi):'));
   console.log(line(`• http://${localIP}:${port}`));
-  console.log(line('', '═'));
+  console.log(line());
 
-  console.log(line('📊 API Documentation:'));
+  console.log(line('  API Documentation:'));
   console.log(line(`• http://localhost:${port}/api`));
   console.log(line(`• http://${localIP}:${port}/api`));
-  console.log(line('', '═'));
+  console.log(line());
 
-  console.log(line('❤️  Health Check:'));
+  console.log(line('  Health Check: '));
   console.log(line(`• http://localhost:${port}/api/health`));
   console.log(line(`• http://${localIP}:${port}/api/health`));
-  console.log(line('', '═'));
+  console.log(line());
 
-  console.log(line('💡 Tips:'));
-  console.log(line('• Use the Network URL to access from other devices'));
-  console.log(line('• Make sure devices are on the same WiFi network'));
-  console.log(line('• Check firewall settings if connection fails'));
-  console.log(line('', '═') + '\n');
+  console.log(line('  Tips:'));
+  console.log(line('• Use Network URL for mobile access'));
+  console.log(line('• Devices must be on same WiFi'));
+  console.log(line('• Check firewall if connection fails'));
+
+  console.log('╚' + '═'.repeat(70) + '╝\n');
 }
+
 
 
 // ==================== SERVER START ====================

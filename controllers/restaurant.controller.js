@@ -17,6 +17,13 @@ class RestaurantController extends BaseController {
         });
       }
 
+      // Loại bỏ các tham số GPS khỏi filter để tránh lỗi query database
+      if (req.parsedQuery.filter) {
+        delete req.parsedQuery.filter.latitude;
+        delete req.parsedQuery.filter.longitude;
+        delete req.parsedQuery.filter.radius;
+      }
+
       const result = await this.service.getNearby(
         latitude,
         longitude,
