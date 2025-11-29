@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const favoriteController = require('../controllers/favorite.controller');
 const { protect } = require('../middleware/auth.middleware');
-const { validateSchema, validateFields } = require('../middleware/validation.middleware');
+// const { validateSchema, validateFields } = require('../middleware/validation.middleware');
 router.use(protect); // All routes need auth
 
 router.get('/', favoriteController.getFavorites);
@@ -14,12 +14,12 @@ router.get('/stats/summary', favoriteController.getFavoriteStats);
 router.get('/:type/:id/check', favoriteController.checkFavorite);
 
 router.post('/:type/:id/toggle',
-  validateFields('favorite', ['type']),
+  // validateFields('favorite', ['type']),
   favoriteController.toggleFavorite
 );
 
 router.post('/:type/:id',
-  validateFields('favorite', ['type']),
+  // validateFields('favorite', ['type']),
   favoriteController.addFavorite
 );
 
