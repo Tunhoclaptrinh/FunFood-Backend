@@ -89,7 +89,10 @@ class UserService extends BaseService {
   }
 
   async getUserActivity(userId) {
-    const user = db.findById('users', userId);
+    // SỬA: Ép kiểu userId sang số nguyên để khớp với dữ liệu trong db.json
+    const uid = parseInt(userId);
+
+    const user = db.findById('users', uid);
 
     if (!user) {
       return {
@@ -99,10 +102,12 @@ class UserService extends BaseService {
       };
     }
 
-    const orders = db.findMany('orders', { userId });
-    const reviews = db.findMany('reviews', { userId });
-    const favorites = db.findMany('favorites', { userId });
+    // SỬA: Sử dụng biến uid (đã là số) để tìm kiếm
+    const orders = db.findMany('orders', { userId: uid });
+    const reviews = db.findMany('reviews', { userId: uid });
+    const favorites = db.findMany('favorites', { userId: uid });
 
+    // Các phần tính toán bên dưới giữ nguyên
     const totalSpent = orders
       .filter(o => o.status === 'delivered')
       .reduce((sum, o) => sum + o.total, 0);
@@ -146,7 +151,6 @@ class UserService extends BaseService {
       data: activity
     };
   }
-
   async toggleUserStatus(userId) {
     const user = db.findById('users', userId);
 
