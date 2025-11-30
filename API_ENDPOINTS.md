@@ -4,9 +4,9 @@
 
 **Base URL:** `http://localhost:3000/api`  
 **Version:** 2.2.0  
-**Total Endpoints:** 138+  
+**Total Endpoints:** 146+  
 **Authentication:** JWT Bearer Token  
-**Content-Type:** `application/json`
+**Content-Type:** `application/json` (except file uploads: `multipart/form-data`)
 
 ---
 
@@ -25,10 +25,11 @@
 11. [Addresses](#11-addresses)
 12. [Notifications](#12-notifications)
 13. [Payment](#13-payment)
-14. [Manager](#14-manager)
-15. [Shipper](#15-shipper)
-16. [Import/Export](#16-importexport)
-17. [Schemas & Validation](#17-schemas--validation)
+14. [Upload](#14-upload)
+15. [Manager](#15-manager)
+16. [Shipper](#16-shipper)
+17. [Import/Export](#17-importexport)
+18. [Schemas & Validation](#18-schemas--validation)
 
 ---
 
@@ -652,12 +653,6 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 **Thêm vào favorites**  
 **Access:** Protected
 
-**Validation:**
-
-- type required (restaurant/product)
-- Item must exist
-- No duplicates
-
 ### POST `/api/favorites/:type/:id/toggle`
 
 **Toggle favorite (add/remove)**  
@@ -703,29 +698,10 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 
 - `type`: Required, enum [restaurant, product]
 - `restaurantId`: Required, must exist
-- `productId`: Required if type=product, must exist and belong to restaurant
+- `productId`: Required if type=product
 - `rating`: Required, 1-5
 - `comment`: Required, 5-500 characters
 - `orderId`: Optional, link to order
-- No duplicate reviews per type+target
-
-**Request:**
-
-```json
-{
-  "type": "restaurant",
-  "restaurantId": 1,
-  "productId": null,
-  "rating": 5,
-  "comment": "Rất ngon!",
-  "orderId": 5
-}
-```
-
-**Auto-updates after create:**
-
-- Restaurant/Product rating recalculated
-- Notification sent to user
 
 #### GET `/api/reviews/user/me`
 
@@ -828,7 +804,7 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 - `discountValue`: Required, min 0
 - `minOrderValue`: Optional, min 0, default 0
 - `maxDiscount`: Optional, min 0
-- `validFrom`, `validTo`: Required, date, validFrom < validTo
+- `validFrom`, `validTo`: Required, date
 - `usageLimit`, `perUserLimit`: Optional, min 0
 
 ### PUT `/api/promotions/:id`
@@ -989,11 +965,224 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 **ZaloPay webhook callback**  
 **Access:** Public (webhook)
 
-**Validates:** MAC verification
+---
+
+## 14. Upload
+
+**NEW in v2.2:** File upload with automatic image processing
+
+### POST `/api/upload/avatar`
+
+**Upload user avatar**  
+**Access:** Protected (Customer)  
+**Content-Type:** `multipart/form-data`
+
+**Processing:**
+
+- Resize: 200x200 pixels
+- Format: JPEG
+- Quality: 85%
+- Fit: Cover
+
+**Request:**
+
+```bash
+POST /api/upload/avatar
+Content-Type: multipart/form-data
+Authorization: Bearer YOUR_TOKEN
+
+FormData:
+  image: [File]
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Avatar uploaded successfully",
+  "data": {
+    "url": "/uploads/avatars/user-2-1234567890.jpeg",
+    "filename": "user-2-1234567890.jpeg",
+    "user": {
+      "id": 2,
+      "name": "Nguyễn Văn A",
+      "avatar": "/uploads/avatars/user-2-1234567890.jpeg"
+    }
+  }
+}
+```
+
+### POST `/api/upload/product/:productId`
+
+**Upload product image**  
+**Access:** Admin, Manager (own products)  
+**Content-Type:** `multipart/form-data`
+
+**Processing:**
+
+- Resize: 800x600 pixels
+- Format: JPEG
+- Quality: 80%
+
+**Request:**
+
+```bash
+POST /api/upload/product/10
+Content-Type: multipart/form-data
+Authorization: Bearer YOUR_TOKEN
+
+FormData:
+  image: [File]
+```
+
+### POST `/api/upload/restaurant/:restaurantId`
+
+**Upload restaurant image**  
+**Access:** Admin  
+**Content-Type:** `multipart/form-data`
+
+**Processing:**
+
+- Resize: 1200x800 pixels
+- Format: JPEG
+- Quality: 85%
+
+### POST `/api/upload/category/:categoryId`
+
+**Upload category image**  
+**Access:** Admin  
+**Content-Type:** `multipart/form-data`
+
+**Processing:**
+
+- Resize: 400x300 pixels
+- Format: JPEG
+- Quality: 80%
+
+### DELETE `/api/upload/file`
+
+**Delete uploaded file**  
+**Access:** Admin
+
+**Query Parameters:**
+
+- `url`: string (required) - File URL to delete
+
+**Example:**
+
+```bash
+DELETE /api/upload/file?url=/uploads/avatars/user-2-1234567890.jpeg
+Authorization: Bearer YOUR_TOKEN
+```
+
+### GET `/api/upload/file/info`
+
+**Get file information**  
+**Access:** Protected
+
+**Query Parameters:**
+
+- `url`: string (required) - File URL
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "filename": "user-2-1234567890.jpeg",
+    "size": 45678,
+    "created": "2024-10-26T10:30:00.000Z",
+    "modified": "2024-10-26T10:30:00.000Z",
+    "path": "/path/to/file"
+  }
+}
+```
+
+### GET `/api/upload/stats`
+
+**Get storage statistics**  
+**Access:** Admin
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "totalSize": 125829120,
+    "totalFiles": 245,
+    "totalSizeFormatted": "120.00 MB",
+    "byFolder": {
+      "avatars": {
+        "files": 50,
+        "size": 5242880,
+        "sizeFormatted": "5.00 MB"
+      },
+      "products": {
+        "files": 120,
+        "size": 83886080,
+        "sizeFormatted": "80.00 MB"
+      }
+    }
+  }
+}
+```
+
+### POST `/api/upload/cleanup`
+
+**Cleanup old files**  
+**Access:** Admin
+
+**Request:**
+
+```json
+{
+  "days": 30
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Deleted 15 old files",
+  "data": {
+    "deletedCount": 15
+  }
+}
+```
+
+### Upload Validation Rules
+
+**File Types:**
+
+- ✅ `image/jpeg`
+- ✅ `image/jpg`
+- ✅ `image/png`
+- ✅ `image/gif`
+- ✅ `image/webp`
+
+**File Size:**
+
+- Max: 5MB per file
+
+**Storage Structure:**
+
+```
+database/uploads/
+├── avatars/           # User avatars (200x200)
+├── products/          # Product images (800x600)
+├── restaurants/       # Restaurant images (1200x800)
+├── categories/        # Category images (400x300)
+└── temp/              # Temporary uploads
+```
 
 ---
 
-## 14. Manager
+## 15. Manager
 
 ### GET `/api/manager/restaurant`
 
@@ -1058,7 +1247,7 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 
 ---
 
-## 15. Shipper
+## 16. Shipper
 
 ### GET `/api/shipper/orders/available`
 
@@ -1117,7 +1306,7 @@ GET /api/restaurants/nearby?latitude=10.7756&longitude=106.7019&radius=3&isOpen=
 
 ---
 
-## 16. Import/Export
+## 17. Import/Export
 
 **Supported Entities:** users, categories, restaurants, products, promotions
 
@@ -1916,5 +2105,5 @@ GET /api/products/schema
 
 **Version:** 2.2.0  
 **Last Updated:** November 2024  
-**Total Endpoints:** 125+  
+**Total Endpoints:** 146+  
 **Status:** Production Ready ✅

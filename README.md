@@ -3,8 +3,9 @@
 [![Node.js](https://img.shields.io/badge/Node.js-18.x-green.svg)](https://nodejs.org/)
 [![Express](https://img.shields.io/badge/Express-4.18-blue.svg)](https://expressjs.com/)
 [![JWT](https://img.shields.io/badge/JWT-9.0-orange.svg)](https://jwt.io/)
+[![Sharp](https://img.shields.io/badge/Sharp-0.34-purple.svg)](https://sharp.pixelplumbing.com/)
 
-Backend API hoàn chỉnh cho ứng dụng đặt đồ ăn FunFood. Được xây dựng với Node.js, Express, JWT Authentication và tích hợp đầy đủ tính năng JSON-Server style queries với GPS tracking, RBAC, Payment Gateway Integration, Schema-based Validation và nhiều hơn nữa.
+Backend API hoàn chỉnh cho ứng dụng đặt đồ ăn FunFood. Được xây dựng với Node.js, Express, JWT Authentication và tích hợp đầy đủ tính năng JSON-Server style queries với GPS tracking, RBAC, Payment Gateway Integration, Schema-based Validation, File Upload với Image Processing và nhiều hơn nữa.
 
 ---
 
@@ -16,6 +17,7 @@ Backend API hoàn chỉnh cho ứng dụng đặt đồ ăn FunFood. Được x�
 - [Cấu trúc dự án](#-cấu-trúc-dự-án)
 - [Authentication & Authorization](#-authentication--authorization)
 - [API Endpoints](#-api-endpoints)
+- [Upload API](#-upload-api)
 - [Tính năng JSON-Server](#-tính-năng-json-server)
 - [Schema Validation System](#-schema-validation-system)
 - [GPS & Location Features](#-gps--location-features)
@@ -38,9 +40,21 @@ Backend API hoàn chỉnh cho ứng dụng đặt đồ ăn FunFood. Được x�
 - **Protected routes**: Middleware bảo vệ routes
 - **Ownership Verification**: Kiểm tra quyền sở hữu resource
 - **Dynamic Permissions**: Phân quyền chi tiết per action
-- **Custom Validation**: Cross-field validation với custom functions
 
-#### 📋 Schema Validation System (NEW!)
+#### 📤 File Upload & Image Processing (NEW!)
+
+- **Multi-format Support**: JPEG, PNG, GIF, WebP
+- **Auto Image Processing**: Resize, compress, format conversion with Sharp
+- **Organized Storage**: `/uploads/avatars`, `/products`, `/restaurants`, `/categories`
+- **Smart Optimization**:
+  - Avatars: 200x200px, 85% quality
+  - Products: 800x600px, 80% quality
+  - Restaurants: 1200x800px, 85% quality
+  - Categories: 400x300px, 80% quality
+- **Storage Management**: Statistics, cleanup utilities, file info
+- **Security**: File type validation, size limits (5MB), role-based access
+
+#### 📋 Schema Validation System
 
 - **Centralized Schema Definitions**: Schema cho tất cả entities
 - **Auto Type Conversion**: Tự động chuyển đổi kiểu dữ liệu
@@ -372,6 +386,66 @@ Customer:   (10.7769, 106.7009)
 
 ---
 
+## 📤 Upload API
+
+### Endpoints
+
+```bash
+# Upload avatar (200x200, JPEG)
+POST /api/upload/avatar
+Content-Type: multipart/form-data
+Authorization: Bearer TOKEN
+
+# Upload product image (800x600, JPEG)
+POST /api/upload/product/:productId
+
+# Upload restaurant image (1200x800, JPEG)
+POST /api/upload/restaurant/:restaurantId
+
+# Upload category image (400x300, JPEG)
+POST /api/upload/category/:categoryId
+
+# Delete file
+DELETE /api/upload/file?url=/uploads/avatars/file.jpg
+
+# Get file info
+GET /api/upload/file/info?url=/uploads/avatars/file.jpg
+
+# Storage statistics
+GET /api/upload/stats
+
+# Cleanup old files (30+ days)
+POST /api/upload/cleanup
+```
+
+### Usage Example
+
+```javascript
+const formData = new FormData();
+formData.append("image", fileInput.files[0]);
+
+const response = await fetch("/api/upload/avatar", {
+  method: "POST",
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+  body: formData,
+});
+
+const result = await response.json();
+console.log("Avatar URL:", result.data.url);
+```
+
+### Features
+
+- ✅ Auto resize & compress with Sharp
+- ✅ Support JPEG, PNG, GIF, WebP (max 5MB)
+- ✅ Role-based access control
+- ✅ Organized storage structure
+- ✅ Storage statistics & cleanup
+
+---
+
 ## 🎯 Schema Validation System
 
 ### Tổng quan
@@ -509,12 +583,13 @@ file: users.xlsx
 | Express           | 4.18+   | Web Framework         |
 | JWT               | 9.0+    | Authentication        |
 | bcryptjs          | 2.4+    | Password hashing      |
+| Sharp             | 0.34+   | Image processing      |
+| Multer            | 2.0+    | File upload           |
 | XLSX              | 0.18+   | Excel import/export   |
 | json2csv          | 6.0+    | CSV export            |
 | CORS              | 2.8+    | Cross-origin requests |
 | dotenv            | 16.3+   | Environment variables |
 | express-validator | 7.0+    | Input validation      |
-| multer            | 2.0+    | File upload           |
 
 ---
 
@@ -600,7 +675,8 @@ funfood-backend/
 ├── controllers/                 # HTTP request handlers
 │   ├── auth.controller.js
 │   ├── user.controller.js
-│   ├── [... 15 controllers ...]
+│   ├── upload.controller.js     # NEW: File upload controller
+│   ├── [... 15+ controllers]
 │   └── importExport.controller.js
 │
 ├── middleware/                  # Express middleware
@@ -611,22 +687,24 @@ funfood-backend/
 │
 ├── routes/                      # API route definitions
 │   ├── auth.routes.js
-│   ├── [... 15 route files ...]
+│   ├── upload.routes.js         # NEW: Upload routes
+│   ├── [... 15+ route files]
 │   └── shipper.routes.js
 │
 ├── services/                    # Business logic
 │   ├── auth.service.js
+│   ├── upload.service.js        # NEW: Upload service with Sharp
 │   ├── [... services ...]
 │   └── importExport.service.js
 │
-├── schemas/                     # 🆕 Schema definitions
-│   ├── index.js                 # Schema exports
+├── schemas/                     # Schema definitions
+│   ├── index.js
 │   ├── user.schema.js
 │   ├── restaurant.schema.js
 │   ├── product.schema.js
 │   ├── order.schema.js
 │   ├── promotion.schema.js
-│   └── [... 12 schemas ...]
+│   └── [... 12+ schemas ...]
 │
 ├── utils/                       # Utilities
 │   ├── BaseService.js           # Enhanced with schema validation
@@ -635,7 +713,21 @@ funfood-backend/
 │   └── seedData.js              # Database seeding
 │
 ├── database/
-│   └── db.json                  # JSON database (auto-generated)
+│   ├── db.json                  # JSON database
+│   └── uploads/                 # NEW: Upload storage
+│       ├── avatars/
+│       ├── products/
+│       ├── restaurants/
+│       ├── categories/
+│       └── temp/
+│
+├── docs/
+│   ├── README.md
+│   ├── API_ENDPOINTS.md
+│   ├── UPLOAD_API_GUIDE.md      # NEW: Upload documentation
+│   ├── QUICK_START.md
+│   ├── DEPLOYMENT.md
+│   └── ARCHITECTURE.md
 │
 ├── .env                         # Environment config
 ├── .env.develop                 # Development template
@@ -715,9 +807,10 @@ router.patch("/:id/status", checkOwnership("order"), validateOrderStatusTransiti
 | Addresses     | 0      | 8         | 0      | 8       |
 | Notifications | 0      | 5         | 0      | 5       |
 | Payment       | 2      | 2         | 2      | 6       |
+| Upload        | 0      | 4         | 4      | 8       |
 | Manager       | 0      | 8         | 0      | 8       |
 | Shipper       | 0      | 6         | 0      | 6       |
-| **TOTAL**     | **20** | **67**    | **51** | **138** |
+| **TOTAL**     | **20** | **71**    | **55** | **146** |
 
 **📖 Full documentation:** [API_ENDPOINTS.md](docs/API_ENDPOINTS.md)
 
@@ -725,7 +818,19 @@ router.patch("/:id/status", checkOwnership("order"), validateOrderStatusTransiti
 
 ## 📦 Advanced Features
 
-### 1. Schema-Based Validation System
+### 1. File Upload với Image Processing
+
+```javascript
+✓ Auto resize & optimize with Sharp
+✓ Multiple formats: JPEG, PNG, GIF, WebP
+✓ Smart compression (80-85% quality)
+✓ Role-based access control
+✓ Storage management & cleanup
+✓ File size limit: 5MB
+✓ Organized folder structure
+```
+
+### 2. Schema-Based Validation System
 
 ```javascript
 ✓ Centralized schema definitions
@@ -738,7 +843,7 @@ router.patch("/:id/status", checkOwnership("order"), validateOrderStatusTransiti
 ✓ Detailed error reporting
 ```
 
-### 2. Order Workflow & Validation
+### 3. Order Workflow & Validation
 
 ```javascript
 Order Status Flow:
@@ -747,7 +852,7 @@ pending → confirmed → preparing → delivering → delivered
                 cancelled (anytime from pending/confirmed)
 
 Validation before create:
-✓ Items must exist & available (schema validation)
+✓ Items must exist & available
 ✓ All items from same restaurant
 ✓ Delivery address required
 ✓ Restaurant must be open
@@ -755,7 +860,7 @@ Validation before create:
 ✓ GPS coordinates validated
 ```
 
-### 3. Unified Favorites & Reviews
+### 4. Unified Favorites & Reviews
 
 ```javascript
 // Hỗ trợ cả Restaurant & Product trong cùng API
@@ -765,7 +870,7 @@ GET /api/reviews/type/:type
 POST /api/reviews                 // Tự động detect type
 ```
 
-### 4. Import/Export với Schema Validation
+### 5. Import/Export với Schema Validation
 
 ```bash
 # Download template với schema hints
@@ -824,6 +929,7 @@ GET /api/products/export?format=xlsx&includeRelations=true
 | ---- | ------------- | ------------------------ |
 | 200  | OK            | Resource retrieved       |
 | 201  | Created       | Resource created         |
+| 207  | Multi-Status  | Partial success (import) |
 | 400  | Bad Request   | Invalid input            |
 | 401  | Unauthorized  | Missing/invalid token    |
 | 403  | Forbidden     | Insufficient permissions |
@@ -874,11 +980,18 @@ Link: <...>; rel="first", <...>; rel="prev", <...>; rel="next", <...>; rel="last
 Security:
 - [x] Schema-based validation implemented
 - [x] JWT authentication active
+- [x] File upload validation
 - [ ] Change JWT_SECRET to strong random string
 - [ ] Use HTTPS/TLS
 - [ ] Enable rate limiting
 - [ ] Add CORS whitelist
 - [ ] Input sanitization
+
+Storage:
+- [x] Upload directory structure
+- [ ] Setup CDN for images (Cloudinary/AWS S3)
+- [ ] Configure file storage limits
+- [ ] Setup backup for uploads
 
 Database:
 - [ ] Migrate to real database (MongoDB/PostgreSQL)
@@ -903,7 +1016,8 @@ Documentation:
 
 ## 📚 Documentation
 
-- **[API_ENDPOINTS.md](docs/API_ENDPOINTS.md)** - Complete API reference với tất cả 111 endpoints
+- **[API_ENDPOINTS.md](docs/API_ENDPOINTS.md)** - Complete API reference với tất cả endpoints
+- **[UPLOAD_API_GUIDE.md](docs/UPLOAD_API_GUIDE.md)** - Upload API documentation
 - **[QUICK_START.md](docs/QUICK_START.md)** - Quick start guide
 - **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System architecture
 - **[DEPLOYMENT.md](docs/DEPLOYMENT.md)** - Production deployment guide
@@ -913,15 +1027,23 @@ Documentation:
 
 ## 🆕 What's New in v2.2
 
-### Schema Validation System
+### File Upload & Image Processing
 
-- ✅ Centralized schema definitions trong `schemas/` directory
+- ✅ Upload API với 4 endpoints (avatar, product, restaurant, category)
+- ✅ Auto image processing với Sharp (resize, compress, format conversion)
+- ✅ Storage management (statistics, cleanup, file info)
+- ✅ Role-based access control
+- ✅ Organized folder structure
+
+### Enhanced Validation
+
+- ✅ Schema validation system trong `schemas/` directory
 - ✅ Auto type conversion & validation
 - ✅ Foreign key validation tự động
 - ✅ Custom validation functions với cross-field support
 - ✅ Integration với Import/Export
 
-### Enhanced Services
+### Improved Services
 
 - ✅ BaseService với schema validation built-in
 - ✅ Auto validation hooks trong CRUD operations
@@ -935,9 +1057,9 @@ Documentation:
 
 ### Improved Documentation
 
-- ✅ Complete schema documentation
-- ✅ Enhanced API endpoint docs
-- ✅ Architecture guide updates
+- ✅ Complete upload API documentation
+- ✅ Enhanced schema documentation
+- ✅ Updated architecture guide
 - ✅ Import/export workflow guide
 
 ---
@@ -949,6 +1071,7 @@ Documentation:
 - **API Explorer**: `GET /api`
 - **Endpoints Reference**: `GET /api/endpoints`
 - **Schema Reference**: `GET /api/:entity/schema`
+- **Upload Guide**: See `UPLOAD_API_GUIDE.md`
 
 ---
 
@@ -969,6 +1092,7 @@ Contributions are welcome!
 - Inspired by [JSON Server](https://github.com/typicode/json-server)
 - Built with [Express.js](https://expressjs.com/)
 - Authentication with [JWT](https://jwt.io/)
+- Image processing with [Sharp](https://sharp.pixelplumbing.com/)
 - GPS calculations using Haversine formula
 - Validation inspired by JSON Schema standards
 
