@@ -1,0 +1,4 @@
+{
+  "ignore": ["database/*.json", "database/uploads/*", "uploads/*", "*.log"],
+  "ext": "js,json"
+}
