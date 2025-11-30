@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const os = require('os');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -20,6 +21,9 @@ app.use(express.urlencoded({ extended: true }));
 const apiLogger = require('./middleware/logger.middleware');
 app.use(apiLogger);
 
+// Serve uploaded files statically
+// This makes http://localhost:3000/uploads/... map to /database/uploads/...
+app.use('/uploads', express.static(path.join(__dirname, 'database/uploads')));
 
 const { parseQuery, formatResponse, validateQuery, logQuery } = require('./middleware/query.middleware');
 

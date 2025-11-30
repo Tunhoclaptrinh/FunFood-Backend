@@ -16,17 +16,17 @@
     },
     {
       "id": 2,
-      "name": "Nguyễn Văn Anh",
+      "name": "Nguyễn Văn An",
       "email": "user@funfood.com",
       "password": "$2a$10$AYuy44CrHLUH.O7x8wnzU.tbq285fOoq1i.GW7MGkyF/lb0ufjY32",
-      "phone": "0987654322",
-      "avatar": "https://ui-avatars.com/api/?name=Nguyen+Van+A&background=10B981&color=fff",
+      "phone": "0987654321",
+      "avatar": "/uploads/avatars/user-2-1764496490078.jpeg",
       "address": "456 Đường Nguyễn Huệ, Quận 1, TP.HCM",
       "role": "customer",
       "isActive": true,
       "createdAt": "2024-02-20T14:20:00Z",
-      "lastLogin": "2025-11-29T14:30:26.468Z",
-      "updatedAt": "2025-11-29T14:30:14.005Z"
+      "lastLogin": "2025-11-30T10:06:09.052Z",
+      "updatedAt": "2025-11-30T10:06:21.255Z"
     },
     {
       "id": 3,

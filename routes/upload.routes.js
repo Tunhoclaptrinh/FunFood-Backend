@@ -6,7 +6,7 @@ const { protect, authorize } = require('../middleware/auth.middleware');
 // Avatar upload (Customer only)
 router.post('/avatar',
   protect,
-  uploadController.getUploadMiddleware('avatar'),
+  uploadController.getUploadMiddleware('avatars'),
   uploadController.uploadAvatar
 );
 
@@ -14,7 +14,7 @@ router.post('/avatar',
 router.post('/product/:productId',
   protect,
   authorize('admin', 'manager'),
-  uploadController.getUploadMiddleware('product'),
+  uploadController.getUploadMiddleware('products'),
   uploadController.uploadProductImage
 );
 
@@ -22,7 +22,7 @@ router.post('/product/:productId',
 router.post('/restaurant/:restaurantId',
   protect,
   authorize('admin'),
-  uploadController.getUploadMiddleware('restaurant'),
+  uploadController.getUploadMiddleware('restaurants'),
   uploadController.uploadRestaurantImage
 );
 
@@ -30,7 +30,7 @@ router.post('/restaurant/:restaurantId',
 router.post('/category/:categoryId',
   protect,
   authorize('admin'),
-  uploadController.getUploadMiddleware('category'),
+  uploadController.getUploadMiddleware('categories'),
   uploadController.uploadCategoryImage
 );
 
