@@ -89,9 +89,7 @@ class UserService extends BaseService {
   }
 
   async getUserActivity(userId) {
-    // SỬA: Ép kiểu userId sang số nguyên để khớp với dữ liệu trong db.json
     const uid = parseInt(userId);
-
     const user = db.findById('users', uid);
 
     if (!user) {
@@ -102,35 +100,38 @@ class UserService extends BaseService {
       };
     }
 
-    // SỬA: Sử dụng biến uid (đã là số) để tìm kiếm
     const orders = db.findMany('orders', { userId: uid });
     const reviews = db.findMany('reviews', { userId: uid });
     const favorites = db.findMany('favorites', { userId: uid });
 
-    // Các phần tính toán bên dưới giữ nguyên
-    const totalSpent = orders
-      .filter(o => o.status === 'delivered')
-      .reduce((sum, o) => sum + o.total, 0);
-
     const completedOrders = orders.filter(o => o.status === 'delivered');
+    const totalSpent = completedOrders.reduce((sum, o) => sum + o.total, 0);
+
     const avgOrderValue = completedOrders.length > 0
       ? totalSpent / completedOrders.length
       : 0;
 
+    // --- CẬP NHẬT MỚI: Tách chi tiết các trạng thái ---
+    const stats = {
+      totalOrders: orders.length,
+      // Đếm số lượng theo từng trạng thái cụ thể
+      pendingOrders: orders.filter(o => ['pending', 'confirmed'].includes(o.status)).length, // Chờ xác nhận + Đã xác nhận
+      shippingOrders: orders.filter(o => ['delivering', 'on_the_way'].includes(o.status)).length, // Đang giao
+      completedOrders: completedOrders.length, // Đã giao thành công
+      cancelledOrders: orders.filter(o => o.status === 'cancelled').length, // Đã hủy
+
+      totalSpent: Math.round(totalSpent),
+      avgOrderValue: Math.round(avgOrderValue),
+      totalReviews: reviews.length,
+      avgRating: reviews.length > 0
+        ? Math.round((reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length) * 10) / 10
+        : 0,
+      totalFavorites: favorites.length
+    };
+
     const activity = {
       user: sanitizeUser(user),
-      stats: {
-        totalOrders: orders.length,
-        completedOrders: completedOrders.length,
-        cancelledOrders: orders.filter(o => o.status === 'cancelled').length,
-        totalSpent: Math.round(totalSpent),
-        avgOrderValue: Math.round(avgOrderValue),
-        totalReviews: reviews.length,
-        avgRating: reviews.length > 0
-          ? Math.round((reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length) * 10) / 10
-          : 0,
-        totalFavorites: favorites.length
-      },
+      stats: stats,
       recentOrders: orders
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
         .slice(0, 5)
@@ -151,6 +152,7 @@ class UserService extends BaseService {
       data: activity
     };
   }
+
   async toggleUserStatus(userId) {
     const user = db.findById('users', userId);
 
