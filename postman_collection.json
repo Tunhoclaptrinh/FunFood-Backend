@@ -179,7 +179,106 @@
       ]
     },
     {
-      "name": "2. Categories",
+      "name": "2. Users",
+      "item": [
+        {
+          "name": "Get All Users (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users?_page=1&_limit=10&role=customer",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"],
+              "query": [
+                {"key": "_page", "value": "1"},
+                {"key": "_limit", "value": "10"},
+                {"key": "role", "value": "customer", "description": "customer, manager, shipper, admin"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get User Stats (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/stats/summary",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "stats", "summary"]
+            }
+          }
+        },
+        {
+          "name": "Get User By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update My Profile",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nguyen Van Updated\",\n  \"address\": \"789 New Address\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Get User Activity",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/activity",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}", "activity"]
+            }
+          }
+        },
+        {
+          "name": "Toggle User Status (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Permanent Delete User (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/permanent",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}", "permanent"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Categories",
       "item": [
         {
           "name": "Get All Categories",
@@ -299,7 +398,7 @@
       ]
     },
     {
-      "name": "3. Restaurants",
+      "name": "4. Restaurants",
       "item": [
         {
           "name": "Get All Restaurants",
@@ -497,7 +596,7 @@
       ]
     },
     {
-      "name": "4. Products",
+      "name": "5. Products",
       "item": [
         {
           "name": "Get All Products",
@@ -677,7 +776,7 @@
       ]
     },
     {
-      "name": "5. Cart",
+      "name": "6. Cart",
       "item": [
         {
           "name": "Get Cart",
@@ -793,7 +892,7 @@
       ]
     },
     {
-      "name": "6. Orders",
+      "name": "7. Orders",
       "item": [
         {
           "name": "Create Order",
@@ -959,7 +1058,7 @@
       ]
     },
     {
-      "name": "7. Favorites",
+      "name": "8. Favorites",
       "item": [
         {
           "name": "Get My Favorites",
@@ -990,7 +1089,7 @@
       ]
     },
     {
-      "name": "8. Reviews",
+      "name": "9. Reviews",
       "item": [
         {
           "name": "Get Restaurant Reviews",
@@ -1036,7 +1135,7 @@
       ]
     },
     {
-      "name": "9. Addresses",
+      "name": "10. Addresses",
       "item": [
         {
           "name": "Get My Addresses",
@@ -1074,7 +1173,7 @@
       ]
     },
     {
-      "name": "10. Notifications",
+      "name": "11. Notifications",
       "item": [
         {
           "name": "Get Notifications",
@@ -1108,32 +1207,53 @@
       ]
     },
     {
-      "name": "11. Payment",
+      "name": "12. Payment",
       "item": [
         {
-          "name": "Create Payment Session",
+          "name": "Create Payment (Cash/MoMo/Zalo/Card)",
           "request": {
             "method": "POST",
-            "body": {"mode": "raw", "raw": "{\n  \"orderId\": {{orderId}}\n}"},
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentMethod\": \"momo\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
             "url": {
-              "raw": "{{baseUrl}}/payment/create-session",
+              "raw": "{{baseUrl}}/payment/{{orderId}}/create",
               "host": ["{{baseUrl}}"],
-              "path": ["payment", "create-session"]
+              "path": ["payment", "{{orderId}}", "create"]
             }
           }
         },
         {
-          "name": "Verify Payment",
+          "name": "Check Payment Status",
           "request": {
-            "method": "POST",
-            "body": {"mode": "raw", "raw": "{\n  \"orderId\": {{orderId}}\n}"},
-            "url": {"raw": "{{baseUrl}}/payment/verify", "host": ["{{baseUrl}}"], "path": ["payment", "verify"]}
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payment/{{orderId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["payment", "{{orderId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Get All Payments (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payment",
+              "host": ["{{baseUrl}}"],
+              "path": ["payment"]
+            }
           }
         }
       ]
     },
     {
-      "name": "12. Shipper",
+      "name": "13. Shipper",
       "item": [
         {
           "name": "Get Assigned Orders",
@@ -1157,7 +1277,7 @@
       ]
     },
     {
-      "name": "13. Import / Export",
+      "name": "14. Import / Export",
       "item": [
         {
           "name": "Export Products CSV",
@@ -1177,7 +1297,7 @@
       ]
     },
     {
-      "name": "14. Upload",
+      "name": "15. Upload",
       "item": [
         {
           "name": "Upload Avatar",
@@ -1228,6 +1348,175 @@
               "host": ["{{baseUrl}}"],
               "path": ["upload", "file"],
               "query": [{"key": "url", "value": "/uploads/test.jpg"}]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "16. Manager Dashboard",
+      "item": [
+        {
+          "name": "Get My Restaurant",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/manager/restaurant",
+              "host": ["{{baseUrl}}"],
+              "path": ["manager", "restaurant"]
+            }
+          }
+        },
+        {
+          "name": "Get Restaurant Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/manager/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["manager", "stats"]
+            }
+          }
+        },
+        {
+          "name": "Get Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/manager/products",
+              "host": ["{{baseUrl}}"],
+              "path": ["manager", "products"]
+            }
+          }
+        },
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Món Mới Của Quán\",\n  \"description\": \"Mô tả món ăn\",\n  \"price\": 45000,\n  \"categoryId\": 1,\n  \"image\": \"\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manager/products",
+              "host": ["{{baseUrl}}"],
+              "path": ["manager", "products"]
+            }
+          }
+        },
+        {
+          "name": "Toggle Product Availability",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"available\": false\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manager/products/{{productId}}/availability",
+              "host": ["{{baseUrl}}"],
+              "path": ["manager", "products", "{{productId}}", "availability"]
+            }
+          }
+        },
+        {
+          "name": "Get Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/manager/orders?status=pending",
+              "host": ["{{baseUrl}}"],
+              "path": ["manager", "orders"],
+              "query": [{"key": "status", "value": "pending"}]
+            }
+          }
+        },
+        {
+          "name": "Confirm Order",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"confirmed\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{baseUrl}}/manager/orders/{{orderId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["manager", "orders", "{{orderId}}", "status"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "17. Promotions",
+      "item": [
+        {
+          "name": "Get Active Promotions",
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/promotions/active",
+              "host": ["{{baseUrl}}"],
+              "path": ["promotions", "active"]
+            }
+          }
+        },
+        {
+          "name": "Validate Promotion Code",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"FUNFOOD10\",\n  \"orderValue\": 150000,\n  \"deliveryFee\": 15000\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{baseUrl}}/promotions/validate",
+              "host": ["{{baseUrl}}"],
+              "path": ["promotions", "validate"]
+            }
+          }
+        },
+        {
+          "name": "Create Promotion (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"TESTCODE2024\",\n  \"description\": \"Giảm giá test\",\n  \"discountType\": \"percentage\",\n  \"discountValue\": 10,\n  \"minOrderValue\": 50000,\n  \"maxDiscount\": 20000,\n  \"validFrom\": \"2024-01-01\",\n  \"validTo\": \"2024-12-31\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{baseUrl}}/promotions",
+              "host": ["{{baseUrl}}"],
+              "path": ["promotions"]
+            }
+          }
+        },
+        {
+          "name": "Toggle Active (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/promotions/1/toggle",
+              "host": ["{{baseUrl}}"],
+              "path": ["promotions", "1", "toggle"]
             }
           }
         }
