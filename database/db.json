@@ -20,13 +20,13 @@
       "email": "user@funfood.com",
       "password": "$2a$10$AYuy44CrHLUH.O7x8wnzU.tbq285fOoq1i.GW7MGkyF/lb0ufjY32",
       "phone": "0987654321",
-      "avatar": "/uploads/avatars/user-2-1764496490078.jpeg",
+      "avatar": "/uploads/avatars/user-2-1764531138705.jpeg",
       "address": "456 Đường Nguyễn Huệ, Quận 1, TP.HCM",
       "role": "customer",
       "isActive": true,
       "createdAt": "2024-02-20T14:20:00Z",
-      "lastLogin": "2025-11-30T10:06:09.052Z",
-      "updatedAt": "2025-11-30T10:06:21.255Z"
+      "lastLogin": "2025-12-01T04:15:12.118Z",
+      "updatedAt": "2025-11-30T19:59:21.300Z"
     },
     {
       "id": 3,
@@ -97,6 +97,19 @@
       "createdAt": "2024-03-01T09:00:00Z",
       "lastLogin": "2024-10-25T15:00:00Z",
       "updatedAt": "2024-10-25T15:00:00Z"
+    },
+    {
+      "id": 8,
+      "email": "tn@ff.com",
+      "password": "$2a$10$95FDrr2ZDLnglPgoQeb1ru/ID4gKdwsCrS65znbo6wlBclqXhDkia",
+      "name": "tuan",
+      "phone": "0123456789",
+      "address": "",
+      "avatar": "https://ui-avatars.com/api/?name=tuan&background=random",
+      "role": "customer",
+      "isActive": true,
+      "createdAt": "2025-11-30T18:57:52.573Z",
+      "lastLogin": "2025-11-30T18:58:33.633Z"
     }
   ],
   "categories": [
@@ -371,6 +384,42 @@
       "closeTime": "21:00",
       "isOpen": true,
       "categoryId": 1
+    },
+    {
+      "id": 12,
+      "name": "Nhà Hàng Sushi Tokyo",
+      "description": "Sushi tươi ngon chuẩn Nhật, sashimi hảo hạng",
+      "image": "https://images.unsplash.com/photo-1553621042-f6e147245754?w=600",
+      "rating": 4.7,
+      "totalReviews": 210,
+      "deliveryTime": "25-35 phút",
+      "deliveryFee": 20000,
+      "address": "10 Đường Lý Tự Trọng, Quận 1, TP.HCM",
+      "latitude": 10.7751,
+      "longitude": 106.699,
+      "phone": "0283 9998888",
+      "openTime": "10:00",
+      "closeTime": "22:00",
+      "isOpen": true,
+      "categoryId": 10
+    },
+    {
+      "id": 13,
+      "name": "Nhà Hàng Nhật Bản Ramen",
+      "description": "Ramen nước dùng chuẩn Nhật, topping đầy đặn",
+      "image": "https://images.unsplash.com/photo-1550547660-d9450f859349?w=600",
+      "rating": 4.5,
+      "totalReviews": 150,
+      "deliveryTime": "20-30 phút",
+      "deliveryFee": 15000,
+      "address": "30 Đường Võ Văn Kiệt, Quận 1, TP.HCM",
+      "latitude": 10.776,
+      "longitude": 106.7,
+      "phone": "0283 8887777",
+      "openTime": "11:00",
+      "closeTime": "21:30",
+      "isOpen": true,
+      "categoryId": 11
     }
   ],
   "products": [
@@ -703,6 +752,314 @@
       "categoryId": 6,
       "available": true,
       "discount": 0
+    },
+    {
+      "id": 33,
+      "name": "Sushi Cá Hồi",
+      "description": "Sushi cá hồi tươi ngon chuẩn Nhật",
+      "price": 90000,
+      "image": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 34,
+      "name": "Sushi Cá Ngừ",
+      "description": "Sushi cá ngừ tươi, dai mềm",
+      "price": 95000,
+      "image": "https://images.unsplash.com/photo-1603052875480-44b6f89a1f4f?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 5
+    },
+    {
+      "id": 35,
+      "name": "Sushi Tôm",
+      "description": "Sushi tôm tươi ngon, dai vừa phải",
+      "price": 90000,
+      "image": "https://images.unsplash.com/photo-1589307001296-6a9dc2c1151d?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 36,
+      "name": "Sashimi Cá Hồi",
+      "description": "Sashimi cá hồi tươi nguyên miếng",
+      "price": 120000,
+      "image": "https://images.unsplash.com/photo-1562967916-eb82221dfb36?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 10
+    },
+    {
+      "id": 37,
+      "name": "Sashimi Cá Ngừ",
+      "description": "Sashimi cá ngừ tươi, thơm ngậy",
+      "price": 125000,
+      "image": "https://images.unsplash.com/photo-1603052875513-71f1bbd0a8ad?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 38,
+      "name": "Ramen Tonkotsu",
+      "description": "Ramen nước dùng xương heo đậm đà, thịt heo mềm",
+      "price": 120000,
+      "image": "https://images.unsplash.com/photo-1550547660-d9450f859349?w=600",
+      "restaurantId": 13,
+      "categoryId": 11,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 39,
+      "name": "Ramen Shoyu",
+      "description": "Ramen nước dùng xì dầu Nhật Bản",
+      "price": 110000,
+      "image": "https://images.unsplash.com/photo-1605479569830-2a04e5c1c3de?w=600",
+      "restaurantId": 13,
+      "categoryId": 11,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 40,
+      "name": "Ramen Miso",
+      "description": "Ramen nước dùng miso thơm ngon",
+      "price": 115000,
+      "image": "https://images.unsplash.com/photo-1605479569830-2a04e5c1c3de?w=600",
+      "restaurantId": 13,
+      "categoryId": 11,
+      "available": true,
+      "discount": 5
+    },
+    {
+      "id": 41,
+      "name": "Tempura Tôm",
+      "description": "Tôm chiên tempura giòn rụm",
+      "price": 90000,
+      "image": "https://images.unsplash.com/photo-1589307001296-6a9dc2c1151d?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 42,
+      "name": "Tempura Rau Củ",
+      "description": "Rau củ chiên tempura giòn ngon",
+      "price": 70000,
+      "image": "https://images.unsplash.com/photo-1603052875513-71f1bbd0a8ad?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 43,
+      "name": "Onigiri Cá Hồi",
+      "description": "Cơm nắm nhân cá hồi Nhật Bản",
+      "price": 35000,
+      "image": "https://images.unsplash.com/photo-1603052875513-71f1bbd0a8ad?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 44,
+      "name": "Onigiri Tôm",
+      "description": "Cơm nắm nhân tôm Nhật Bản",
+      "price": 35000,
+      "image": "https://images.unsplash.com/photo-1603052875480-44b6f89a1f4f?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 45,
+      "name": "Takoyaki",
+      "description": "Bánh bạch tuộc chiên giòn nóng hổi",
+      "price": 45000,
+      "image": "https://images.unsplash.com/photo-1603052875480-44b6f89a1f4f?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 46,
+      "name": "Gyoza",
+      "description": "Bánh xếp Nhật Gyoza chiên giòn",
+      "price": 60000,
+      "image": "https://images.unsplash.com/photo-1605479569830-2a04e5c1c3de?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 47,
+      "name": "Udon Thịt Heo",
+      "description": "Mì Udon nước dùng ngon, thịt heo mềm",
+      "price": 100000,
+      "image": "https://images.unsplash.com/photo-1605479569830-2a04e5c1c3de?w=600",
+      "restaurantId": 13,
+      "categoryId": 11,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 48,
+      "name": "Udon Hải Sản",
+      "description": "Mì Udon nước dùng hải sản",
+      "price": 110000,
+      "image": "https://images.unsplash.com/photo-1603052875513-71f1bbd0a8ad?w=600",
+      "restaurantId": 13,
+      "categoryId": 11,
+      "available": true,
+      "discount": 5
+    },
+    {
+      "id": 49,
+      "name": "Cơm Cá Hồi",
+      "description": "Cơm Nhật kèm cá hồi nướng",
+      "price": 120000,
+      "image": "https://images.unsplash.com/photo-1603052875480-44b6f89a1f4f?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 50,
+      "name": "Cơm Gà Teriyaki",
+      "description": "Cơm Nhật kèm gà sốt Teriyaki",
+      "price": 100000,
+      "image": "https://images.unsplash.com/photo-1603052875480-44b6f89a1f4f?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 51,
+      "name": "Cơm Cá Ngừ",
+      "description": "Cơm Nhật kèm cá ngừ nướng sốt Teriyaki",
+      "price": 110000,
+      "image": "https://images.unsplash.com/photo-1603052875480-44b6f89a1f4f?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 5
+    },
+    {
+      "id": 52,
+      "name": "Cơm Tôm Tempura",
+      "description": "Cơm Nhật kèm tôm chiên tempura",
+      "price": 115000,
+      "image": "https://images.unsplash.com/photo-1603052875480-44b6f89a1f4f?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 53,
+      "name": "Donburi Thịt Heo",
+      "description": "Cơm Nhật donburi thịt heo sốt Teriyaki",
+      "price": 105000,
+      "image": "https://images.unsplash.com/photo-1605479569830-2a04e5c1c3de?w=600",
+      "restaurantId": 13,
+      "categoryId": 11,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 54,
+      "name": "Donburi Hải Sản",
+      "description": "Cơm Nhật donburi hải sản sốt Nhật",
+      "price": 120000,
+      "image": "https://images.unsplash.com/photo-1603052875513-71f1bbd0a8ad?w=600",
+      "restaurantId": 13,
+      "categoryId": 11,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 55,
+      "name": "Mì Soba Nóng",
+      "description": "Mì soba nóng thơm ngon, nước dùng đậm vị",
+      "price": 95000,
+      "image": "https://images.unsplash.com/photo-1605479569830-2a04e5c1c3de?w=600",
+      "restaurantId": 13,
+      "categoryId": 11,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 56,
+      "name": "Mì Soba Lạnh",
+      "description": "Mì soba lạnh mát, ăn kèm sốt đặc biệt",
+      "price": 95000,
+      "image": "https://images.unsplash.com/photo-1603052875513-71f1bbd0a8ad?w=600",
+      "restaurantId": 13,
+      "categoryId": 11,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 57,
+      "name": "Miso Soup",
+      "description": "Canh miso Nhật Bản thanh nhẹ",
+      "price": 35000,
+      "image": "https://images.unsplash.com/photo-1589307001296-6a9dc2c1151d?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 58,
+      "name": "Edamame",
+      "description": "Đậu nành Nhật Bản luộc muối",
+      "price": 40000,
+      "image": "https://images.unsplash.com/photo-1603052875480-44b6f89a1f4f?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 59,
+      "name": "Salad Rong Biển",
+      "description": "Salad rong biển tươi ngon",
+      "price": 50000,
+      "image": "https://images.unsplash.com/photo-1603052875513-71f1bbd0a8ad?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 60,
+      "name": "Matcha Ice Cream",
+      "description": "Kem trà xanh Nhật Bản thơm mát",
+      "price": 45000,
+      "image": "https://images.unsplash.com/photo-1603052875480-44b6f89a1f4f?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
     }
   ],
   "orders": [
@@ -826,7 +1183,11 @@
       "note": "Pizza cắt nhỏ",
       "promotionCode": null,
       "createdAt": "2024-10-26T10:00:00Z",
-      "updatedAt": "2024-10-26T10:00:00Z"
+      "updatedAt": "2025-11-30T10:51:19.442Z",
+      "paymentStatus": "cancelled",
+      "cancelledAt": "2025-11-30T10:51:19.442Z",
+      "cancelledBy": 2,
+      "cancelReason": ""
     },
     {
       "id": 5,
@@ -961,13 +1322,6 @@
   ],
   "favorites": [
     {
-      "id": 1,
-      "userId": 2,
-      "type": "restaurant",
-      "referenceId": 2,
-      "createdAt": "2024-10-15T10:00:00Z"
-    },
-    {
       "id": 2,
       "userId": 2,
       "type": "restaurant",
@@ -1001,13 +1355,6 @@
       "type": "restaurant",
       "referenceId": 11,
       "createdAt": "2024-10-26T11:00:00Z"
-    },
-    {
-      "id": 15,
-      "userId": 2,
-      "type": "product",
-      "referenceId": 16,
-      "createdAt": "2024-10-26T12:00:00Z"
     },
     {
       "id": 6,
@@ -1084,7 +1431,21 @@
       "userId": 2,
       "type": "restaurant",
       "referenceId": 1,
-      "createdAt": "2025-11-29T14:22:23.131Z"
+      "createdAt": "2025-11-30T16:18:13.170Z"
+    },
+    {
+      "id": 19,
+      "userId": 2,
+      "type": "product",
+      "referenceId": 8,
+      "createdAt": "2025-12-01T03:44:21.142Z"
+    },
+    {
+      "id": 20,
+      "userId": 2,
+      "type": "product",
+      "referenceId": 1,
+      "createdAt": "2025-12-01T09:19:01.868Z"
     }
   ],
   "reviews": [
@@ -1298,9 +1659,9 @@
       "latitude": 10.7756,
       "longitude": 106.7019,
       "note": "Gọi trước 5 phút khi đến",
-      "isDefault": true,
+      "isDefault": false,
       "createdAt": "2024-02-20T14:30:00Z",
-      "updatedAt": "2024-10-15T10:00:00Z"
+      "updatedAt": "2025-12-01T02:26:24.558Z"
     },
     {
       "id": 2,
@@ -1312,9 +1673,9 @@
       "latitude": 10.7881,
       "longitude": 106.6983,
       "note": "Tầng 5, phòng 501. Để ở bảo vệ nếu không có người",
-      "isDefault": false,
+      "isDefault": true,
       "createdAt": "2024-02-25T10:00:00Z",
-      "updatedAt": "2024-02-25T10:00:00Z"
+      "updatedAt": "2025-12-01T02:32:35.391Z"
     },
     {
       "id": 3,
@@ -1328,7 +1689,7 @@
       "note": "Nhấn chuông căn số 5",
       "isDefault": false,
       "createdAt": "2024-03-15T18:00:00Z",
-      "updatedAt": "2024-03-15T18:00:00Z"
+      "updatedAt": "2025-11-30T20:03:55.808Z"
     },
     {
       "id": 4,
