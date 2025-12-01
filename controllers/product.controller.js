@@ -35,7 +35,7 @@ class ProductController extends BaseController {
       let enriched = result.data;
       if (req.parsedQuery.expand) {
         const db = require('../config/database');
-        const items = db.applyRelations([result.data], 'products', req.parsedQuery);
+        const items = await db.applyRelations([result.data], 'products', req.parsedQuery);
         enriched = items[0];
       }
 

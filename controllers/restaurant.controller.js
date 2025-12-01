@@ -81,7 +81,7 @@ class RestaurantController extends BaseController {
       let enriched = result.data;
       if (req.parsedQuery.embed) {
         const db = require('../config/database');
-        const items = db.applyRelations([result.data], 'restaurants', req.parsedQuery);
+        const items = await db.applyRelations([result.data], 'restaurants', req.parsedQuery);
         enriched = items[0];
       }
 

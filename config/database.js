@@ -3,9 +3,11 @@ const path = require('path');
 
 const DB_FILE = path.join(__dirname, '../database/db.json');
 
-class Database {
+class JsonAdapter {
   constructor() {
     this.data = this.loadData();
+
+    console.log('📂 JSON Database Adapter Loaded');
   }
 
   loadData() {
@@ -313,4 +315,16 @@ class Database {
   }
 }
 
-module.exports = new Database();
+let dbInstance;
+
+if (process.env.DB_CONNECTION === 'mongodb') {
+  // Nếu env set là mongodb thì dùng Adapter mới
+  dbInstance = require('../utils/MongoAdapter');
+} else {
+  // Mặc định dùng JSON file như cũ
+  dbInstance = new JsonAdapter();
+}
+
+// module.exports = new Database();
+
+module.exports = dbInstance;

@@ -17,6 +17,7 @@
     "express-validator": "^7.0.1",
     "json2csv": "^6.0.0-alpha.2",
     "jsonwebtoken": "^9.0.2",
+    "mongoose": "^9.0.0",
     "multer": "^2.0.2",
     "sharp": "^0.34.5",
     "uuid": "^9.0.1",
