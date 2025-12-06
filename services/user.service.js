@@ -59,9 +59,9 @@ class UserService extends BaseService {
   }
 
   async getUserStats() {
-    const users = db.findAll('users');
-    const orders = db.findAll('orders');
-    const reviews = db.findAll('reviews');
+    const users = await db.findAll('users');
+    const orders = await db.findAll('orders');
+    const reviews = await db.findAll('reviews');
 
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
@@ -90,7 +90,7 @@ class UserService extends BaseService {
 
   async getUserActivity(userId) {
     const uid = parseInt(userId);
-    const user = db.findById('users', uid);
+    const user = await db.findById('users', uid);
 
     if (!user) {
       return {
@@ -100,9 +100,9 @@ class UserService extends BaseService {
       };
     }
 
-    const orders = db.findMany('orders', { userId: uid });
-    const reviews = db.findMany('reviews', { userId: uid });
-    const favorites = db.findMany('favorites', { userId: uid });
+    const orders = await db.findMany('orders', { userId: uid });
+    const reviews = await db.findMany('reviews', { userId: uid });
+    const favorites = await db.findMany('favorites', { userId: uid });
 
     const completedOrders = orders.filter(o => o.status === 'delivered');
     const totalSpent = completedOrders.reduce((sum, o) => sum + o.total, 0);
@@ -111,14 +111,13 @@ class UserService extends BaseService {
       ? totalSpent / completedOrders.length
       : 0;
 
-    // --- CẬP NHẬT MỚI: Tách chi tiết các trạng thái ---
     const stats = {
       totalOrders: orders.length,
       // Đếm số lượng theo từng trạng thái cụ thể
-      pendingOrders: orders.filter(o => ['pending', 'confirmed'].includes(o.status)).length, // Chờ xác nhận + Đã xác nhận
-      shippingOrders: orders.filter(o => ['delivering', 'on_the_way'].includes(o.status)).length, // Đang giao
-      completedOrders: completedOrders.length, // Đã giao thành công
-      cancelledOrders: orders.filter(o => o.status === 'cancelled').length, // Đã hủy
+      pendingOrders: orders.filter(o => ['pending', 'confirmed'].includes(o.status)).length,
+      shippingOrders: orders.filter(o => ['delivering', 'on_the_way'].includes(o.status)).length,
+      completedOrders: completedOrders.length,
+      cancelledOrders: orders.filter(o => o.status === 'cancelled').length,
 
       totalSpent: Math.round(totalSpent),
       avgOrderValue: Math.round(avgOrderValue),
@@ -154,7 +153,7 @@ class UserService extends BaseService {
   }
 
   async toggleUserStatus(userId) {
-    const user = db.findById('users', userId);
+    const user = await db.findById('users', userId);
 
     if (!user) {
       return {
@@ -164,7 +163,7 @@ class UserService extends BaseService {
       };
     }
 
-    const updated = db.update('users', userId, {
+    const updated = await db.update('users', userId, {
       isActive: !user.isActive,
       updatedAt: new Date().toISOString()
     });
@@ -177,7 +176,7 @@ class UserService extends BaseService {
   }
 
   async permanentDeleteUser(userId) {
-    const user = db.findById('users', userId);
+    const user = await db.findById('users', userId);
 
     if (!user) {
       return {
@@ -198,47 +197,59 @@ class UserService extends BaseService {
     };
 
     // Delete all related data
-    const orders = db.findMany('orders', { userId });
-    orders.forEach(order => {
-      db.delete('orders', order.id);
-      deleted.orders++;
-    });
+    const orders = await db.findMany('orders', { userId });
+    await Promise.all(
+      orders.map(async (order) => {
+        await db.delete('orders', order.id);
+        deleted.orders++;
+      })
+    );
 
-    const cartItems = db.findMany('cart', { userId });
-    cartItems.forEach(item => {
-      db.delete('cart', item.id);
-      deleted.cart++;
-    });
+    const cartItems = await db.findMany('cart', { userId });
+    await Promise.all(
+      cartItems.map(async (item) => {
+        await db.delete('cart', item.id);
+        deleted.cart++;
+      })
+    );
 
-    const favorites = db.findMany('favorites', { userId });
-    favorites.forEach(fav => {
-      db.delete('favorites', fav.id);
-      deleted.favorites++;
-    });
+    const favorites = await db.findMany('favorites', { userId });
+    await Promise.all(
+      favorites.map(async (fav) => {
+        await db.delete('favorites', fav.id);
+        deleted.favorites++;
+      })
+    );
 
-    const reviews = db.findMany('reviews', { userId });
-    reviews.forEach(review => {
-      const restaurantId = review.restaurantId;
-      db.delete('reviews', review.id);
-      deleted.reviews++;
-      // Update restaurant rating
-      this.updateRestaurantRating(restaurantId);
-    });
+    const reviews = await db.findMany('reviews', { userId });
+    await Promise.all(
+      reviews.map(async (review) => {
+        const restaurantId = review.restaurantId;
+        await db.delete('reviews', review.id);
+        deleted.reviews++;
+        // Update restaurant rating
+        await this.updateRestaurantRating(restaurantId);
+      })
+    );
 
-    const addresses = db.findMany('addresses', { userId });
-    addresses.forEach(addr => {
-      db.delete('addresses', addr.id);
-      deleted.addresses++;
-    });
+    const addresses = await db.findMany('addresses', { userId });
+    await Promise.all(
+      addresses.map(async (addr) => {
+        await db.delete('addresses', addr.id);
+        deleted.addresses++;
+      })
+    );
 
-    const notifications = db.findMany('notifications', { userId });
-    notifications.forEach(notif => {
-      db.delete('notifications', notif.id);
-      deleted.notifications++;
-    });
+    const notifications = await db.findMany('notifications', { userId });
+    await Promise.all(
+      notifications.map(async (notif) => {
+        await db.delete('notifications', notif.id);
+        deleted.notifications++;
+      })
+    );
 
     // Finally delete user
-    db.delete('users', userId);
+    await db.delete('users', userId);
 
     return {
       success: true,
@@ -247,11 +258,13 @@ class UserService extends BaseService {
     };
   }
 
-  updateRestaurantRating(restaurantId) {
-    const allReviews = db.findMany('reviews', { restaurantId: parseInt(restaurantId) });
+  async updateRestaurantRating(restaurantId) {
+    const allReviews = await db.findMany('reviews', {
+      restaurantId: parseInt(restaurantId)
+    });
 
     if (allReviews.length === 0) {
-      db.update('restaurants', restaurantId, {
+      await db.update('restaurants', restaurantId, {
         rating: 0,
         totalReviews: 0
       });
@@ -260,7 +273,7 @@ class UserService extends BaseService {
 
     const avgRating = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length;
 
-    db.update('restaurants', restaurantId, {
+    await db.update('restaurants', restaurantId, {
       rating: Math.round(avgRating * 10) / 10,
       totalReviews: allReviews.length
     });

@@ -7,6 +7,9 @@ class UploadController {
    */
   getUploadMiddleware(type) {
     return (req, res, next) => {
+      // Để ý: middleware của multer không phải async function của ta,
+      // nên giữ nguyên callback nhưng bọc trong try/catch nếu cần logic phức tạp.
+      // Ở đây chỉ gọi service trả về middleware express chuẩn.
       const middleware = uploadService.getSingleUpload('image', type);
       middleware(req, res, (err) => {
         if (err) {
@@ -27,23 +30,17 @@ class UploadController {
   uploadAvatar = async (req, res, next) => {
     try {
       if (!req.file) {
-        return res.status(400).json({
-          success: false,
-          message: 'No file uploaded'
-        });
+        return res.status(400).json({ success: false, message: 'No file uploaded' });
       }
 
       const result = await uploadService.uploadAvatar(req.file, req.user.id);
 
       if (!result.success) {
-        return res.status(400).json({
-          success: false,
-          message: result.error
-        });
+        return res.status(400).json({ success: false, message: result.error });
       }
 
       // Update user avatar in database
-      const updatedUser = db.update('users', req.user.id, {
+      const updatedUser = await db.update('users', req.user.id, {
         avatar: result.url,
         updatedAt: new Date().toISOString()
       });
@@ -54,11 +51,7 @@ class UploadController {
         data: {
           url: result.url,
           filename: result.filename,
-          user: {
-            id: updatedUser.id,
-            name: updatedUser.name,
-            avatar: updatedUser.avatar
-          }
+          user: { id: updatedUser.id, name: updatedUser.name, avatar: updatedUser.avatar }
         }
       });
     } catch (error) {
@@ -72,50 +65,31 @@ class UploadController {
    */
   uploadProductImage = async (req, res, next) => {
     try {
-      if (!req.file) {
-        return res.status(400).json({
-          success: false,
-          message: 'No file uploaded'
-        });
-      }
+      if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' });
 
       const { productId } = req.params;
+      const product = await db.findById('products', productId);
 
-      // Check product exists
-      const product = db.findById('products', productId);
-      if (!product) {
-        return res.status(404).json({
-          success: false,
-          message: 'Product not found'
-        });
-      }
+      if (!product) return res.status(404).json({ success: false, message: 'Product not found' });
 
       // Manager check: must own the product's restaurant
       if (req.user.role === 'manager') {
-        const restaurant = db.findOne('restaurants', {
+        const restaurant = await db.findOne('restaurants', {
           managerId: req.user.id,
           id: product.restaurantId
         });
 
         if (!restaurant) {
-          return res.status(403).json({
-            success: false,
-            message: 'Not authorized to update this product'
-          });
+          return res.status(403).json({ success: false, message: 'Not authorized to update this product' });
         }
       }
 
       const result = await uploadService.uploadProductImage(req.file, productId);
 
-      if (!result.success) {
-        return res.status(400).json({
-          success: false,
-          message: result.error
-        });
-      }
+      if (!result.success) return res.status(400).json({ success: false, message: result.error });
 
       // Update product image in database
-      const updatedProduct = db.update('products', productId, {
+      const updatedProduct = await db.update('products', productId, {
         image: result.url,
         updatedAt: new Date().toISOString()
       });
@@ -126,11 +100,7 @@ class UploadController {
         data: {
           url: result.url,
           filename: result.filename,
-          product: {
-            id: updatedProduct.id,
-            name: updatedProduct.name,
-            image: updatedProduct.image
-          }
+          product: { id: updatedProduct.id, name: updatedProduct.name, image: updatedProduct.image }
         }
       });
     } catch (error) {
@@ -144,35 +114,21 @@ class UploadController {
    */
   uploadRestaurantImage = async (req, res, next) => {
     try {
-      if (!req.file) {
-        return res.status(400).json({
-          success: false,
-          message: 'No file uploaded'
-        });
-      }
+      if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' });
 
       const { restaurantId } = req.params;
 
       // Check restaurant exists
-      const restaurant = db.findById('restaurants', restaurantId);
-      if (!restaurant) {
-        return res.status(404).json({
-          success: false,
-          message: 'Restaurant not found'
-        });
-      }
+      const restaurant = await db.findById('restaurants', restaurantId);
+
+      if (!restaurant) return res.status(404).json({ success: false, message: 'Restaurant not found' });
 
       const result = await uploadService.uploadRestaurantImage(req.file, restaurantId);
 
-      if (!result.success) {
-        return res.status(400).json({
-          success: false,
-          message: result.error
-        });
-      }
+      if (!result.success) return res.status(400).json({ success: false, message: result.error });
 
       // Update restaurant image in database
-      const updatedRestaurant = db.update('restaurants', restaurantId, {
+      const updatedRestaurant = await db.update('restaurants', restaurantId, {
         image: result.url,
         updatedAt: new Date().toISOString()
       });
@@ -183,11 +139,7 @@ class UploadController {
         data: {
           url: result.url,
           filename: result.filename,
-          restaurant: {
-            id: updatedRestaurant.id,
-            name: updatedRestaurant.name,
-            image: updatedRestaurant.image
-          }
+          restaurant: { id: updatedRestaurant.id, name: updatedRestaurant.name, image: updatedRestaurant.image }
         }
       });
     } catch (error) {
@@ -201,35 +153,20 @@ class UploadController {
    */
   uploadCategoryImage = async (req, res, next) => {
     try {
-      if (!req.file) {
-        return res.status(400).json({
-          success: false,
-          message: 'No file uploaded'
-        });
-      }
+      if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' });
 
       const { categoryId } = req.params;
-
       // Check category exists
-      const category = db.findById('categories', categoryId);
-      if (!category) {
-        return res.status(404).json({
-          success: false,
-          message: 'Category not found'
-        });
-      }
+      const category = await db.findById('categories', categoryId);
+
+      if (!category) return res.status(404).json({ success: false, message: 'Category not found' });
 
       const result = await uploadService.uploadCategoryImage(req.file, categoryId);
 
-      if (!result.success) {
-        return res.status(400).json({
-          success: false,
-          message: result.error
-        });
-      }
+      if (!result.success) return res.status(400).json({ success: false, message: result.error });
 
       // Update category image in database
-      const updatedCategory = db.update('categories', categoryId, {
+      const updatedCategory = await db.update('categories', categoryId, {
         image: result.url,
         updatedAt: new Date().toISOString()
       });
@@ -240,11 +177,7 @@ class UploadController {
         data: {
           url: result.url,
           filename: result.filename,
-          category: {
-            id: updatedCategory.id,
-            name: updatedCategory.name,
-            image: updatedCategory.image
-          }
+          category: { id: updatedCategory.id, name: updatedCategory.name, image: updatedCategory.image }
         }
       });
     } catch (error) {
@@ -259,30 +192,13 @@ class UploadController {
   deleteFile = async (req, res, next) => {
     try {
       const { url } = req.query;
-
-      if (!url) {
-        return res.status(400).json({
-          success: false,
-          message: 'URL parameter is required'
-        });
-      }
+      if (!url) return res.status(400).json({ success: false, message: 'URL parameter is required' });
 
       const result = await uploadService.deleteFile(url);
+      if (!result.success) return res.status(404).json({ success: false, message: result.message });
 
-      if (!result.success) {
-        return res.status(404).json({
-          success: false,
-          message: result.message
-        });
-      }
-
-      res.json({
-        success: true,
-        message: 'File deleted successfully'
-      });
-    } catch (error) {
-      next(error);
-    }
+      res.json({ success: true, message: 'File deleted successfully' });
+    } catch (error) { next(error); }
   };
 
   /**
@@ -292,30 +208,13 @@ class UploadController {
   getFileInfo = async (req, res, next) => {
     try {
       const { url } = req.query;
-
-      if (!url) {
-        return res.status(400).json({
-          success: false,
-          message: 'URL parameter is required'
-        });
-      }
+      if (!url) return res.status(400).json({ success: false, message: 'URL parameter is required' });
 
       const result = await uploadService.getFileInfo(url);
+      if (!result.success) return res.status(404).json({ success: false, message: result.message });
 
-      if (!result.success) {
-        return res.status(404).json({
-          success: false,
-          message: result.message
-        });
-      }
-
-      res.json({
-        success: true,
-        data: result.data
-      });
-    } catch (error) {
-      next(error);
-    }
+      res.json({ success: true, data: result.data });
+    } catch (error) { next(error); }
   };
 
   /**
@@ -325,14 +224,8 @@ class UploadController {
   getStorageStats = async (req, res, next) => {
     try {
       const result = await uploadService.getStorageStats();
-
-      res.json({
-        success: true,
-        data: result.data
-      });
-    } catch (error) {
-      next(error);
-    }
+      res.json({ success: true, data: result.data });
+    } catch (error) { next(error); }
   };
 
   /**
@@ -342,19 +235,14 @@ class UploadController {
   cleanupOldFiles = async (req, res, next) => {
     try {
       const { days = 30 } = req.body;
-
       const result = await uploadService.cleanupOldFiles(days);
 
       res.json({
         success: true,
         message: result.message,
-        data: {
-          deletedCount: result.deletedCount
-        }
+        data: { deletedCount: result.deletedCount }
       });
-    } catch (error) {
-      next(error);
-    }
+    } catch (error) { next(error); }
   };
 }
 

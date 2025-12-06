@@ -3,9 +3,11 @@ const path = require('path');
 
 const DB_FILE = path.join(__dirname, '../database/db.json');
 
-class Database {
+class JsonAdapter {
   constructor() {
     this.data = this.loadData();
+
+    console.log('📂 JSON Database Adapter Loaded');
   }
 
   loadData() {
@@ -313,4 +315,19 @@ class Database {
   }
 }
 
-module.exports = new Database();
+let dbInstance;
+
+if (process.env.DB_CONNECTION === 'mongodb') {
+  dbInstance = require('../utils/MongoAdapter');
+} else if (process.env.DB_CONNECTION === 'mysql') {
+  dbInstance = require('../utils/MySQLAdapter');
+} else if (process.env.DB_CONNECTION === 'postgresql') {
+  dbInstance = require('../utils/PostgreSQLAdapter');
+} else {
+  // Mặc định dùng JSON file như cũ
+  dbInstance = new JsonAdapter();
+}
+
+// module.exports = new Database();
+
+module.exports = dbInstance;

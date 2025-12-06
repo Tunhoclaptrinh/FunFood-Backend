@@ -3,7 +3,6 @@ const db = require('../config/database');
 const { calculateDistance } = require('../utils/helpers');
 const restaurantSchema = require('../schemas/restaurant.schema');
 
-
 class RestaurantService extends BaseService {
   constructor() {
     super('restaurants');  // Collection name
@@ -21,7 +20,7 @@ class RestaurantService extends BaseService {
    */
   async validateCreate(data) {
     // Check category exists
-    const category = db.findById('categories', data.categoryId);
+    const category = await db.findById('categories', data.categoryId);
     if (!category) {
       return {
         success: false,
@@ -31,7 +30,7 @@ class RestaurantService extends BaseService {
     }
 
     // Check duplicate name
-    const existing = db.findOne('restaurants', { name: data.name });
+    const existing = await db.findOne('restaurants', { name: data.name });
     if (existing) {
       return {
         success: false,
@@ -44,8 +43,8 @@ class RestaurantService extends BaseService {
   }
 
   /**
- * Transform data before create
- */
+   * Transform data before create
+   */
   async beforeCreate(data) {
     return {
       ...data,
@@ -61,7 +60,7 @@ class RestaurantService extends BaseService {
    */
   async validateDelete(id) {
     // Check if has products
-    const products = db.findMany('products', { restaurantId: parseInt(id) });
+    const products = await db.findMany('products', { restaurantId: parseInt(id) });
     if (products.length > 0) {
       return {
         success: false,
@@ -72,12 +71,13 @@ class RestaurantService extends BaseService {
 
     return { success: true };
   }
+
   /**
- * Get nearby restaurants (GPS)
- */
+   * Get nearby restaurants (GPS)
+   */
   async getNearby(latitude, longitude, radius = 5, options = {}) {
     try {
-      const allRestaurants = db.findAll('restaurants');
+      const allRestaurants = await db.findAll('restaurants');
 
       // Calculate distance for each
       const restaurantsWithDistance = allRestaurants
@@ -130,8 +130,8 @@ class RestaurantService extends BaseService {
   }
 
   /**
-     * Get restaurant menu (products)
-     */
+   * Get restaurant menu (products)
+   */
   async getMenu(restaurantId, options = {}) {
     try {
       // Check restaurant exists
@@ -141,7 +141,7 @@ class RestaurantService extends BaseService {
       }
 
       // Get products with filters
-      const result = db.findAllAdvanced('products', {
+      const result = await db.findAllAdvanced('products', {
         ...options,
         filter: {
           ...options.filter,
@@ -160,14 +160,16 @@ class RestaurantService extends BaseService {
   }
 
   /**
-  * Update restaurant rating (called after review)
-  */
+   * Update restaurant rating (called after review)
+   */
   async updateRating(restaurantId) {
     try {
-      const reviews = db.findMany('reviews', { restaurantId: parseInt(restaurantId) });
+      const reviews = await db.findMany('reviews', {
+        restaurantId: parseInt(restaurantId)
+      });
 
       if (reviews.length === 0) {
-        db.update('restaurants', restaurantId, {
+        await db.update('restaurants', restaurantId, {
           rating: 0,
           totalReviews: 0
         });
@@ -176,7 +178,7 @@ class RestaurantService extends BaseService {
 
       const avgRating = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
 
-      db.update('restaurants', restaurantId, {
+      await db.update('restaurants', restaurantId, {
         rating: Math.round(avgRating * 10) / 10,
         totalReviews: reviews.length
       });

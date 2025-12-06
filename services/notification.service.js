@@ -7,7 +7,7 @@ class NotificationService extends BaseService {
   }
 
   async getNotifications(userId, options = {}) {
-    const result = db.findAllAdvanced('notifications', {
+    const result = await db.findAllAdvanced('notifications', {
       ...options,
       filter: {
         ...options.filter,
@@ -28,7 +28,7 @@ class NotificationService extends BaseService {
   }
 
   async markAsRead(notificationId, userId) {
-    const notification = db.findById('notifications', notificationId);
+    const notification = await db.findById('notifications', notificationId);
 
     if (!notification) {
       return {
@@ -46,7 +46,7 @@ class NotificationService extends BaseService {
       };
     }
 
-    const updated = db.update('notifications', notificationId, {
+    const updated = await db.update('notifications', notificationId, {
       isRead: true
     });
 
@@ -57,14 +57,16 @@ class NotificationService extends BaseService {
   }
 
   async markAllAsRead(userId) {
-    const notifications = db.findMany('notifications', {
+    const notifications = await db.findMany('notifications', {
       userId,
       isRead: false
     });
 
-    notifications.forEach(notification => {
-      db.update('notifications', notification.id, { isRead: true });
-    });
+    await Promise.all(
+      notifications.map(notification =>
+        db.update('notifications', notification.id, { isRead: true })
+      )
+    );
 
     return {
       success: true,
@@ -74,7 +76,7 @@ class NotificationService extends BaseService {
   }
 
   async deleteNotification(notificationId, userId) {
-    const notification = db.findById('notifications', notificationId);
+    const notification = await db.findById('notifications', notificationId);
 
     if (!notification) {
       return {
@@ -92,7 +94,7 @@ class NotificationService extends BaseService {
       };
     }
 
-    db.delete('notifications', notificationId);
+    await db.delete('notifications', notificationId);
 
     return {
       success: true,
@@ -101,7 +103,7 @@ class NotificationService extends BaseService {
   }
 
   async clearAll(userId) {
-    const notifications = db.findMany('notifications', { userId });
+    const notifications = await db.findMany('notifications', { userId });
 
     if (notifications.length === 0) {
       return {
@@ -110,9 +112,11 @@ class NotificationService extends BaseService {
       };
     }
 
-    notifications.forEach(notification => {
-      db.delete('notifications', notification.id);
-    });
+    await Promise.all(
+      notifications.map(notification =>
+        db.delete('notifications', notification.id)
+      )
+    );
 
     return {
       success: true,

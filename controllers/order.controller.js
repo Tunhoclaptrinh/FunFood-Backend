@@ -16,10 +16,7 @@ class OrderController extends BaseController {
     try {
       const errors = this.validateRequest(req);
       if (errors) {
-        return res.status(400).json({
-          success: false,
-          errors
-        });
+        return res.status(400).json({ success: false, errors });
       }
 
       const result = await this.service.create({
@@ -108,13 +105,10 @@ class OrderController extends BaseController {
    */
   reorder = async (req, res, next) => {
     try {
-      const originalOrder = db.findById('orders', req.params.id);
+      const originalOrder = await db.findById('orders', req.params.id);
 
       if (!originalOrder) {
-        return res.status(404).json({
-          success: false,
-          message: 'Order not found'
-        });
+        return res.status(404).json({ success: false, message: 'Order not found' });
       }
 
       // Create new order with same items
@@ -156,26 +150,20 @@ class OrderController extends BaseController {
    */
   rateOrder = async (req, res, next) => {
     try {
-      const order = db.findById('orders', req.params.id);
+      const order = await db.findById('orders', req.params.id);
 
       if (!order) {
-        return res.status(404).json({
-          success: false,
-          message: 'Order not found'
-        });
+        return res.status(404).json({ success: false, message: 'Order not found' });
       }
 
       if (order.status !== 'delivered') {
-        return res.status(400).json({
-          success: false,
-          message: 'Can only rate delivered orders'
-        });
+        return res.status(400).json({ success: false, message: 'Can only rate delivered orders' });
       }
 
       const { rating, comment } = req.body;
 
       // Create review
-      const review = db.create('reviews', {
+      const review = await db.create('reviews', {
         userId: req.user.id,
         restaurantId: order.restaurantId,
         orderId: order.id,
@@ -186,10 +174,10 @@ class OrderController extends BaseController {
       });
 
       // Update restaurant rating
-      const reviews = db.findMany('reviews', { restaurantId: order.restaurantId });
+      const reviews = await db.findMany('reviews', { restaurantId: order.restaurantId });
       const avgRating = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
 
-      db.update('restaurants', order.restaurantId, {
+      await db.update('restaurants', order.restaurantId, {
         rating: Math.round(avgRating * 10) / 10,
         totalReviews: reviews.length
       });
@@ -230,16 +218,13 @@ class OrderController extends BaseController {
   adminUpdateStatus = async (req, res, next) => {
     try {
       const { status, note } = req.body;
+      const order = await db.findById('orders', req.params.id);
 
-      const order = db.findById('orders', req.params.id);
       if (!order) {
-        return res.status(404).json({
-          success: false,
-          message: 'Order not found'
-        });
+        return res.status(404).json({ success: false, message: 'Order not found' });
       }
 
-      const updated = db.update('orders', req.params.id, {
+      const updated = await db.update('orders', req.params.id, {
         status,
         [`${status}At`]: new Date().toISOString(),
         adminNote: note,
@@ -247,7 +232,7 @@ class OrderController extends BaseController {
       });
 
       // Notify customer
-      db.create('notifications', {
+      await db.create('notifications', {
         userId: order.userId,
         title: 'Order Status Updated',
         message: `Order #${order.id} status changed to ${status}`,
@@ -272,8 +257,7 @@ class OrderController extends BaseController {
    */
   getAdminStats = async (req, res, next) => {
     try {
-      const orders = db.findAll('orders');
-
+      const orders = await db.findAll('orders');
       const today = new Date().toISOString().split('T')[0];
       const todayOrders = orders.filter(o => o.createdAt.startsWith(today));
 
@@ -281,11 +265,7 @@ class OrderController extends BaseController {
         total: orders.length,
         today: todayOrders.length,
         byStatus: {},
-        revenue: {
-          total: 0,
-          today: 0,
-          thisMonth: 0
-        },
+        revenue: { total: 0, today: 0, thisMonth: 0 },
         avgOrderValue: 0,
         topRestaurants: []
       };
@@ -315,32 +295,26 @@ class OrderController extends BaseController {
       const restaurantOrders = {};
       completedOrders.forEach(order => {
         if (!restaurantOrders[order.restaurantId]) {
-          restaurantOrders[order.restaurantId] = {
-            count: 0,
-            revenue: 0
-          };
+          restaurantOrders[order.restaurantId] = { count: 0, revenue: 0 };
         }
         restaurantOrders[order.restaurantId].count++;
         restaurantOrders[order.restaurantId].revenue += order.total;
       });
 
-      stats.topRestaurants = Object.entries(restaurantOrders)
-        .map(([id, data]) => {
-          const restaurant = db.findById('restaurants', parseInt(id));
+      stats.topRestaurants = await Promise.all(Object.entries(restaurantOrders)
+        .map(async ([id, data]) => {
+          const restaurant = await db.findById('restaurants', parseInt(id));
           return {
             id: parseInt(id),
             name: restaurant?.name,
             orders: data.count,
             revenue: data.revenue
           };
-        })
-        .sort((a, b) => b.revenue - a.revenue)
-        .slice(0, 10);
+        }));
 
-      res.json({
-        success: true,
-        data: stats
-      });
+      stats.topRestaurants.sort((a, b) => b.revenue - a.revenue).splice(10);
+
+      res.json({ success: true, data: stats });
     } catch (error) {
       next(error);
     }
@@ -351,33 +325,22 @@ class OrderController extends BaseController {
    */
   permanentDelete = async (req, res, next) => {
     try {
-      const order = db.findById('orders', req.params.id);
+      const order = await db.findById('orders', req.params.id);
+      if (!order) return res.status(404).json({ success: false, message: 'Not found' });
 
-      if (!order) {
-        return res.status(404).json({
-          success: false,
-          message: 'Order not found'
-        });
-      }
+      // Delete relations
+      const notifications = await db.findMany('notifications', { refId: order.id, type: 'order' });
+      await Promise.all(notifications.map(n => db.delete('notifications', n.id)));
 
-      // Delete related data
-      const notifications = db.findMany('notifications', { refId: order.id, type: 'order' });
-      notifications.forEach(n => db.delete('notifications', n.id));
+      const reviews = await db.findMany('reviews', { orderId: order.id });
+      await Promise.all(reviews.map(r => db.delete('reviews', r.id)));
 
-      const reviews = db.findMany('reviews', { orderId: order.id });
-      reviews.forEach(r => db.delete('reviews', r.id));
-
-      // Delete order
-      db.delete('orders', req.params.id);
+      await db.delete('orders', req.params.id);
 
       res.json({
         success: true,
         message: 'Order permanently deleted',
-        deleted: {
-          order: 1,
-          notifications: notifications.length,
-          reviews: reviews.length
-        }
+        deleted: { order: 1, notifications: notifications.length, reviews: reviews.length }
       });
     } catch (error) {
       next(error);
@@ -391,7 +354,7 @@ class OrderController extends BaseController {
    */
   getRestaurantOrders = async (req, res, next) => {
     try {
-      const restaurant = db.findOne('restaurants', { managerId: req.user.id });
+      const restaurant = await db.findOne('restaurants', { managerId: req.user.id });
 
       if (!restaurant) {
         return res.status(404).json({
@@ -400,7 +363,7 @@ class OrderController extends BaseController {
         });
       }
 
-      const result = db.findAllAdvanced('orders', {
+      const result = await db.findAllAdvanced('orders', {
         ...req.parsedQuery,
         filter: {
           ...req.parsedQuery.filter,
@@ -424,17 +387,10 @@ class OrderController extends BaseController {
    */
   getManagerStats = async (req, res, next) => {
     try {
-      const restaurant = db.findOne('restaurants', { managerId: req.user.id });
-
-      if (!restaurant) {
-        return res.status(404).json({
-          success: false,
-          message: 'Restaurant not found'
-        });
-      }
+      const restaurant = await db.findOne('restaurants', { managerId: req.user.id });
+      if (!restaurant) return res.status(404).json({ success: false, message: 'Not found' });
 
       const result = await this.service.getOrderStats(req.user.id, 'manager');
-
       res.json(result);
     } catch (error) {
       next(error);
@@ -448,17 +404,13 @@ class OrderController extends BaseController {
    */
   getAvailableOrders = async (req, res, next) => {
     try {
-      const result = db.findAllAdvanced('orders', {
+      const result = await db.findAllAdvanced('orders', {
         ...req.parsedQuery,
-        filter: {
-          status: 'preparing',
-          shipperId: null
-        }
+        filter: { status: 'preparing', shipperId: null }
       });
 
-      // Enrich with restaurant & distance info
-      const enriched = result.data.map(order => {
-        const restaurant = db.findById('restaurants', order.restaurantId);
+      const enriched = await Promise.all(result.data.map(async (order) => {
+        const restaurant = await db.findById('restaurants', order.restaurantId);
         return {
           ...order,
           restaurant: restaurant ? {
@@ -469,7 +421,7 @@ class OrderController extends BaseController {
             longitude: restaurant.longitude
           } : null
         };
-      });
+      }));
 
       res.json({
         success: true,
@@ -487,32 +439,14 @@ class OrderController extends BaseController {
    */
   acceptOrder = async (req, res, next) => {
     try {
-      const order = db.findById('orders', req.params.id);
+      const order = await db.findById('orders', req.params.id);
 
-      if (!order) {
-        return res.status(404).json({
-          success: false,
-          message: 'Order not found'
-        });
-      }
-
-      if (order.status !== 'preparing') {
-        return res.status(400).json({
-          success: false,
-          message: 'Order is not ready for pickup',
-          currentStatus: order.status
-        });
-      }
-
-      if (order.shipperId) {
-        return res.status(400).json({
-          success: false,
-          message: 'Order already assigned to another shipper'
-        });
-      }
+      if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+      if (order.status !== 'preparing') return res.status(400).json({ success: false, message: 'Not ready' });
+      if (order.shipperId) return res.status(400).json({ success: false, message: 'Assigned' });
 
       // Assign to shipper
-      const updated = db.update('orders', req.params.id, {
+      const updated = await db.update('orders', req.params.id, {
         shipperId: req.user.id,
         assignedAt: new Date().toISOString(),
         status: 'delivering',
@@ -521,7 +455,7 @@ class OrderController extends BaseController {
       });
 
       // Notify customer
-      db.create('notifications', {
+      await db.create('notifications', {
         userId: order.userId,
         title: 'Order Picked Up',
         message: `Your order #${order.id} is on the way!`,
@@ -531,11 +465,7 @@ class OrderController extends BaseController {
         createdAt: new Date().toISOString()
       });
 
-      res.json({
-        success: true,
-        message: 'Order accepted successfully',
-        data: updated
-      });
+      res.json({ success: true, message: 'Order accepted', data: updated });
     } catch (error) {
       next(error);
     }
@@ -546,7 +476,7 @@ class OrderController extends BaseController {
    */
   getMyDeliveries = async (req, res, next) => {
     try {
-      const result = db.findAllAdvanced('orders', {
+      const result = await db.findAllAdvanced('orders', {
         ...req.parsedQuery,
         filter: {
           ...req.parsedQuery.filter,

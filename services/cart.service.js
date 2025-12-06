@@ -7,40 +7,45 @@ class CartService extends BaseService {
   }
 
   async getCart(userId) {
-    const cartItems = db.findMany('cart', { userId });
+    const cartItems = await db.findMany('cart', { userId });
 
-    const enrichedCart = cartItems.map(item => {
-      const product = db.findById('products', item.productId);
-      if (!product) return null;
+    const enrichedCart = await Promise.all(
+      cartItems.map(async (item) => {
+        const product = await db.findById('products', item.productId);
+        if (!product) return null;
 
-      const restaurant = db.findById('restaurants', product.restaurantId);
-      const finalPrice = product.price * (1 - product.discount / 100);
-      const itemTotal = finalPrice * item.quantity;
+        const restaurant = await db.findById('restaurants', product.restaurantId);
+        const finalPrice = product.price * (1 - product.discount / 100);
+        const itemTotal = finalPrice * item.quantity;
 
-      return {
-        id: item.id,
-        productId: item.productId,
-        quantity: item.quantity,
-        product: {
-          id: product.id,
-          name: product.name,
-          description: product.description,
-          price: product.price,
-          discount: product.discount,
-          finalPrice: Math.round(finalPrice),
-          image: product.image,
-          available: product.available
-        },
-        restaurant: restaurant ? {
-          id: restaurant.id,
-          name: restaurant.name,
-          deliveryFee: restaurant.deliveryFee
-        } : null,
-        itemTotal: Math.round(itemTotal)
-      };
-    }).filter(item => item !== null);
+        return {
+          id: item.id,
+          productId: item.productId,
+          quantity: item.quantity,
+          product: {
+            id: product.id,
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            discount: product.discount,
+            finalPrice: Math.round(finalPrice),
+            image: product.image,
+            available: product.available
+          },
+          restaurant: restaurant ? {
+            id: restaurant.id,
+            name: restaurant.name,
+            deliveryFee: restaurant.deliveryFee
+          } : null,
+          itemTotal: Math.round(itemTotal)
+        };
+      })
+    );
 
-    const groupedByRestaurant = enrichedCart.reduce((acc, item) => {
+    // Filter out null values
+    const validItems = enrichedCart.filter(item => item !== null);
+
+    const groupedByRestaurant = validItems.reduce((acc, item) => {
       const restaurantId = item.restaurant?.id || 0;
       if (!acc[restaurantId]) {
         acc[restaurantId] = {
@@ -54,8 +59,8 @@ class CartService extends BaseService {
       return acc;
     }, {});
 
-    const subtotal = enrichedCart.reduce((sum, item) => sum + item.itemTotal, 0);
-    const totalItems = enrichedCart.reduce((sum, item) => sum + item.quantity, 0);
+    const subtotal = validItems.reduce((sum, item) => sum + item.itemTotal, 0);
+    const totalItems = validItems.reduce((sum, item) => sum + item.quantity, 0);
     const deliveryFee = Object.values(groupedByRestaurant).reduce(
       (sum, group) => sum + (group.restaurant?.deliveryFee || 0),
       0
@@ -64,7 +69,7 @@ class CartService extends BaseService {
     return {
       success: true,
       data: {
-        items: enrichedCart,
+        items: validItems,
         groupedByRestaurant: Object.values(groupedByRestaurant),
         summary: {
           totalItems,
@@ -77,7 +82,7 @@ class CartService extends BaseService {
   }
 
   async addToCart(userId, productId, quantity) {
-    const product = db.findById('products', productId);
+    const product = await db.findById('products', productId);
     if (!product) {
       return {
         success: false,
@@ -94,7 +99,7 @@ class CartService extends BaseService {
       };
     }
 
-    const existingItem = db.findOne('cart', {
+    const existingItem = await db.findOne('cart', {
       userId,
       productId: parseInt(productId)
     });
@@ -103,14 +108,14 @@ class CartService extends BaseService {
       const newQuantity = existingItem.quantity + quantity;
 
       if (newQuantity <= 0) {
-        db.delete('cart', existingItem.id);
+        await db.delete('cart', existingItem.id);
         return {
           success: true,
           message: 'Item removed from cart'
         };
       }
 
-      const updated = db.update('cart', existingItem.id, {
+      const updated = await db.update('cart', existingItem.id, {
         quantity: newQuantity,
         updatedAt: new Date().toISOString()
       });
@@ -122,7 +127,7 @@ class CartService extends BaseService {
       };
     }
 
-    const cartItem = db.create('cart', {
+    const cartItem = await db.create('cart', {
       userId,
       productId: parseInt(productId),
       quantity,
@@ -137,7 +142,7 @@ class CartService extends BaseService {
   }
 
   async updateCartItem(userId, cartItemId, quantity) {
-    const cartItem = db.findById('cart', cartItemId);
+    const cartItem = await db.findById('cart', cartItemId);
     if (!cartItem) {
       return {
         success: false,
@@ -155,14 +160,14 @@ class CartService extends BaseService {
     }
 
     if (quantity === 0) {
-      db.delete('cart', cartItemId);
+      await db.delete('cart', cartItemId);
       return {
         success: true,
         message: 'Item removed from cart'
       };
     }
 
-    const updated = db.update('cart', cartItemId, {
+    const updated = await db.update('cart', cartItemId, {
       quantity,
       updatedAt: new Date().toISOString()
     });
@@ -175,7 +180,7 @@ class CartService extends BaseService {
   }
 
   async removeFromCart(userId, cartItemId) {
-    const cartItem = db.findById('cart', cartItemId);
+    const cartItem = await db.findById('cart', cartItemId);
     if (!cartItem) {
       return {
         success: false,
@@ -192,7 +197,7 @@ class CartService extends BaseService {
       };
     }
 
-    db.delete('cart', cartItemId);
+    await db.delete('cart', cartItemId);
 
     return {
       success: true,
@@ -201,7 +206,7 @@ class CartService extends BaseService {
   }
 
   async clearCart(userId) {
-    const cartItems = db.findMany('cart', { userId });
+    const cartItems = await db.findMany('cart', { userId });
 
     if (cartItems.length === 0) {
       return {
@@ -210,7 +215,10 @@ class CartService extends BaseService {
       };
     }
 
-    cartItems.forEach(item => db.delete('cart', item.id));
+    // Delete all items
+    await Promise.all(
+      cartItems.map(item => db.delete('cart', item.id))
+    );
 
     return {
       success: true,
@@ -220,26 +228,32 @@ class CartService extends BaseService {
   }
 
   async clearRestaurantCart(userId, restaurantId) {
-    const cartItems = db.findMany('cart', { userId });
+    const cartItems = await db.findMany('cart', { userId });
 
-    const itemsToDelete = cartItems.filter(item => {
-      const product = db.findById('products', item.productId);
-      return product && product.restaurantId === parseInt(restaurantId);
-    });
+    const itemsToDelete = await Promise.all(
+      cartItems.map(async (item) => {
+        const product = await db.findById('products', item.productId);
+        return product && product.restaurantId === parseInt(restaurantId) ? item : null;
+      })
+    );
 
-    if (itemsToDelete.length === 0) {
+    const validItemsToDelete = itemsToDelete.filter(item => item !== null);
+
+    if (validItemsToDelete.length === 0) {
       return {
         success: true,
         message: 'No items from this restaurant in cart'
       };
     }
 
-    itemsToDelete.forEach(item => db.delete('cart', item.id));
+    await Promise.all(
+      validItemsToDelete.map(item => db.delete('cart', item.id))
+    );
 
     return {
       success: true,
       message: 'Restaurant items removed from cart',
-      cleared: itemsToDelete.length
+      cleared: validItemsToDelete.length
     };
   }
 
@@ -251,25 +265,25 @@ class CartService extends BaseService {
       try {
         const { productId, quantity } = item;
 
-        const product = db.findById('products', productId);
+        const product = await db.findById('products', productId);
         if (!product || !product.available) {
           errors.push({ productId, error: 'Product not available' });
           continue;
         }
 
-        const existing = db.findOne('cart', {
+        const existing = await db.findOne('cart', {
           userId,
           productId: parseInt(productId)
         });
 
         if (existing) {
-          const updated = db.update('cart', existing.id, {
+          const updated = await db.update('cart', existing.id, {
             quantity: Math.max(existing.quantity, quantity),
             updatedAt: new Date().toISOString()
           });
           syncedItems.push(updated);
         } else {
-          const created = db.create('cart', {
+          const created = await db.create('cart', {
             userId,
             productId: parseInt(productId),
             quantity,

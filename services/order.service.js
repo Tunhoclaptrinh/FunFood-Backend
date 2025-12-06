@@ -21,7 +21,7 @@ class OrderService extends BaseService {
     }
 
     // 2. Validate restaurant
-    const restaurant = db.findById('restaurants', data.restaurantId);
+    const restaurant = await db.findById('restaurants', data.restaurantId);
     if (!restaurant) {
       return {
         success: false,
@@ -46,7 +46,7 @@ class OrderService extends BaseService {
     // 4. Validate products
     const productErrors = [];
     for (const item of data.items) {
-      const product = db.findById('products', item.productId);
+      const product = await db.findById('products', item.productId);
 
       if (!product) {
         productErrors.push({
@@ -100,7 +100,7 @@ class OrderService extends BaseService {
     }
 
     // 6. Check user has no pending payment orders
-    const existingOrders = db.findMany('orders', {
+    const existingOrders = await db.findMany('orders', {
       userId: data.userId,
       paymentStatus: 'pending'
     });
@@ -129,8 +129,9 @@ class OrderService extends BaseService {
 
     // 1. Calculate subtotal
     let subtotal = 0;
-    const orderItems = items.map(item => {
-      const product = db.findById('products', item.productId);
+
+    const orderItems = await Promise.all(items.map(async (item) => {
+      const product = await db.findById('products', item.productId);
       const itemPrice = product.price * (1 - product.discount / 100);
       subtotal += itemPrice * item.quantity;
 
@@ -143,10 +144,10 @@ class OrderService extends BaseService {
         finalPrice: Math.round(itemPrice),
         itemTotal: Math.round(itemPrice * item.quantity)
       };
-    });
+    }));
 
     // 2. Calculate delivery fee
-    const restaurant = db.findById('restaurants', restaurantId);
+    const restaurant = await db.findById('restaurants', restaurantId);
     let deliveryFee = restaurant.deliveryFee || 15000;
     let estimatedDistance = 0;
 
@@ -227,26 +228,28 @@ class OrderService extends BaseService {
    */
   async afterCreate(order) {
     // 1. Clear cart items
-    const cartItems = db.findMany('cart', { userId: order.userId });
-    cartItems.forEach(item => {
-      const product = db.findById('products', item.productId);
+    const cartItems = await db.findMany('cart', { userId: order.userId });
+
+    // Dùng Promise.all để xóa song song
+    await Promise.all(cartItems.map(async (item) => {
+      const product = await db.findById('products', item.productId);
       if (product && product.restaurantId === order.restaurantId) {
-        db.delete('cart', item.id);
+        await db.delete('cart', item.id);
       }
-    });
+    }));
 
     // 2. Update promotion usage
     if (order.promotionId) {
-      const promotion = db.findById('promotions', order.promotionId);
+      const promotion = await db.findById('promotions', order.promotionId);
       if (promotion) {
-        db.update('promotions', promotion.id, {
+        await db.update('promotions', promotion.id, {
           usageCount: (promotion.usageCount || 0) + 1
         });
       }
     }
 
     // 3. Create notification for customer
-    db.create('notifications', {
+    await db.create('notifications', {
       userId: order.userId,
       title: 'Order Created',
       message: `Order #${order.id} has been placed successfully. Total: ${order.total.toLocaleString()}đ`,
@@ -257,9 +260,9 @@ class OrderService extends BaseService {
     });
 
     // 4. Notify restaurant manager (if exists)
-    const restaurant = db.findById('restaurants', order.restaurantId);
+    const restaurant = await db.findById('restaurants', order.restaurantId);
     if (restaurant.managerId) {
-      db.create('notifications', {
+      await db.create('notifications', {
         userId: restaurant.managerId,
         title: 'New Order Received',
         message: `New order #${order.id} from customer. Please confirm.`,
@@ -281,7 +284,7 @@ class OrderService extends BaseService {
    * Update order status với workflow validation
    */
   async updateStatus(orderId, newStatus, userId, userRole) {
-    const order = db.findById('orders', orderId);
+    const order = await db.findById('orders', orderId);
 
     if (!order) {
       return {
@@ -326,7 +329,7 @@ class OrderService extends BaseService {
         break;
     }
 
-    const updated = db.update('orders', orderId, updateData);
+    const updated = await db.update('orders', orderId, updateData);
 
     // Create notifications
     await this.notifyOrderStatusChange(updated, userRole);
@@ -345,7 +348,7 @@ class OrderService extends BaseService {
    * Cancel order
    */
   async cancelOrder(orderId, userId, userRole, reason = '') {
-    const order = db.findById('orders', orderId);
+    const order = await db.findById('orders', orderId);
 
     if (!order) {
       return {
@@ -366,7 +369,7 @@ class OrderService extends BaseService {
       };
     }
 
-    const updated = db.update('orders', orderId, {
+    const updated = await db.update('orders', orderId, {
       status: 'cancelled',
       paymentStatus: 'cancelled',
       cancelledAt: new Date().toISOString(),
@@ -377,9 +380,9 @@ class OrderService extends BaseService {
 
     // Refund promotion usage
     if (order.promotionId) {
-      const promotion = db.findById('promotions', order.promotionId);
+      const promotion = await db.findById('promotions', order.promotionId);
       if (promotion && promotion.usageCount > 0) {
-        db.update('promotions', promotion.id, {
+        await db.update('promotions', promotion.id, {
           usageCount: promotion.usageCount - 1
         });
       }
@@ -402,7 +405,7 @@ class OrderService extends BaseService {
    * Validate and apply promotion
    */
   async validateAndApplyPromotion(code, orderValue, deliveryFee, userId) {
-    const promotion = db.findOne('promotions', {
+    const promotion = await db.findOne('promotions', {
       code: code.toUpperCase(),
       isActive: true
     });
@@ -432,7 +435,7 @@ class OrderService extends BaseService {
 
     // Check per user limit
     if (promotion.perUserLimit) {
-      const userOrders = db.findMany('orders', {
+      const userOrders = await db.findMany('orders', {
         userId,
         promotionId: promotion.id
       });
@@ -489,7 +492,7 @@ class OrderService extends BaseService {
 
     // Notify customer
     if (statusMessages[order.status]) {
-      db.create('notifications', {
+      await db.create('notifications', {
         userId: order.userId,
         title: 'Order Status Update',
         message: statusMessages[order.status],
@@ -508,9 +511,10 @@ class OrderService extends BaseService {
         isActive: true
       });
 
-      shippers.forEach(shipper => {
+      // Gửi noti cho tất cả shipper song song
+      await Promise.all(shippers.map(shipper => {
         if (shipper.isAvailable !== false) {
-          db.create('notifications', {
+          return db.create('notifications', {
             userId: shipper.id,
             title: 'New Order Available',
             message: `Order #${order.id} is ready for pickup`,
@@ -520,7 +524,7 @@ class OrderService extends BaseService {
             createdAt: new Date().toISOString()
           });
         }
-      });
+      }));
     }
   }
 
@@ -536,7 +540,7 @@ class OrderService extends BaseService {
    * Get orders with advanced filtering
    */
   async getMyOrders(userId, options = {}) {
-    const result = db.findAllAdvanced('orders', {
+    const result = await db.findAllAdvanced('orders', {
       ...options,
       filter: {
         ...options.filter,
@@ -560,14 +564,14 @@ class OrderService extends BaseService {
     let orders;
 
     if (userRole === 'admin') {
-      orders = db.findAll('orders');
+      orders = await db.findAll('orders');
     } else if (userRole === 'manager') {
-      const restaurant = db.findOne('restaurants', { managerId: userId });
-      orders = restaurant ? db.findMany('orders', { restaurantId: restaurant.id }) : [];
+      const restaurant = await db.findOne('restaurants', { managerId: userId });
+      orders = restaurant ? await db.findMany('orders', { restaurantId: restaurant.id }) : [];
     } else if (userRole === 'shipper') {
-      orders = db.findMany('orders', { shipperId: userId });
+      orders = await db.findMany('orders', { shipperId: userId });
     } else {
-      orders = db.findMany('orders', { userId });
+      orders = await db.findMany('orders', { userId });
     }
 
     const stats = {

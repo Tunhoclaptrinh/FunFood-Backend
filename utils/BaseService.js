@@ -1,6 +1,6 @@
 /**
- * Base Service - Enhanced with Schema Integration
- * All services extend this class and inherit CRUD + Import/Export + Schema-based Validation
+ * Base Service - MongoDB/PostgreSQL/MySQL Compatible
+ * All database operations are now async
  */
 const db = require('../config/database');
 const schemas = require('../schemas');
@@ -106,7 +106,7 @@ class BaseService {
   /**
    * Validate data theo schema
    */
-  validateBySchema(data) {
+  async validateBySchema(data) {
     if (!this.schema) return { success: true };
 
     const errors = {};
@@ -155,7 +155,7 @@ class BaseService {
 
       // Unique validation
       if (rule.unique) {
-        const existing = db.findOne(this.collection, { [field]: value });
+        const existing = await db.findOne(this.collection, { [field]: value });
         if (existing) {
           errors[field] = `${field} '${value}' already exists`;
         }
@@ -163,22 +163,22 @@ class BaseService {
 
       // Foreign key validation
       if (rule.foreignKey) {
-        const relatedEntity = db.findById(rule.foreignKey, value);
+        const relatedEntity = await db.findById(rule.foreignKey, value);
         if (!relatedEntity) {
           errors[field] = `${field} references non-existent ${rule.foreignKey} (ID: ${value})`;
         }
       }
-    }
 
-    // ✅ NEW: Custom validation
-    if (rule.custom && typeof rule.custom === 'function') {
-      try {
-        const customError = rule.custom(value, data);  // Pass all data for cross-field
-        if (customError) {
-          errors[field] = customError;
+      // Custom validation
+      if (rule.custom && typeof rule.custom === 'function') {
+        try {
+          const customError = await rule.custom(value, data);  // Pass all data for cross-field
+          if (customError) {
+            errors[field] = customError;
+          }
+        } catch (err) {
+          errors[field] = `Custom validation failed: ${err.message}`;
         }
-      } catch (err) {
-        errors[field] = `Custom validation failed: ${err.message}`;
       }
     }
 
@@ -191,7 +191,7 @@ class BaseService {
 
   async findAll(options = {}) {
     try {
-      const result = db.findAllAdvanced(this.collection, options);
+      const result = await db.findAllAdvanced(this.collection, options);
       return {
         success: true,
         data: result.data,
@@ -204,7 +204,7 @@ class BaseService {
 
   async findById(id) {
     try {
-      const item = db.findById(this.collection, id);
+      const item = await db.findById(this.collection, id);
       if (!item) {
         return {
           success: false,
@@ -223,7 +223,7 @@ class BaseService {
 
   async findOne(query) {
     try {
-      const item = db.findOne(this.collection, query);
+      const item = await db.findOne(this.collection, query);
       return {
         success: !!item,
         data: item
@@ -235,7 +235,7 @@ class BaseService {
 
   async findMany(query) {
     try {
-      const items = db.findMany(this.collection, query);
+      const items = await db.findMany(this.collection, query);
       return {
         success: true,
         data: items
@@ -247,8 +247,8 @@ class BaseService {
 
   async create(data) {
     try {
-      // Schema validation
-      const schemaValidation = this.validateBySchema(data);
+      // Schema validation (already async)
+      const schemaValidation = await this.validateBySchema(data);
       if (!schemaValidation.success) {
         return {
           success: false,
@@ -291,7 +291,7 @@ class BaseService {
       }
 
       // Schema validation
-      const schemaValidation = this.validateBySchema(data);
+      const schemaValidation = await this.validateBySchema(data);
       if (!schemaValidation.success) {
         return {
           success: false,
@@ -342,7 +342,7 @@ class BaseService {
       // Hook before delete
       await this.beforeDelete(id);
 
-      db.delete(this.collection, id);
+      await db.delete(this.collection, id);
 
       // Hook after delete
       await this.afterDelete(id);
@@ -358,7 +358,7 @@ class BaseService {
 
   async search(query, options = {}) {
     try {
-      const result = db.findAllAdvanced(this.collection, {
+      const result = await db.findAllAdvanced(this.collection, {
         q: query,
         ...options
       });
@@ -421,7 +421,7 @@ class BaseService {
 
       // Foreign key validation
       if (rule.foreignKey) {
-        const relatedEntity = db.findById(rule.foreignKey, value);
+        const relatedEntity = await db.findById(rule.foreignKey, value);
         if (!relatedEntity) {
           errors.push(`${field} references non-existent ${rule.foreignKey} (ID: ${value})`);
         }
@@ -429,7 +429,7 @@ class BaseService {
 
       // Unique validation
       if (rule.unique) {
-        const existing = db.findOne(this.collection, { [field]: value });
+        const existing = await db.findOne(this.collection, { [field]: value });
         if (existing) {
           errors.push(`${field} '${value}' already exists`);
         }
@@ -493,6 +493,7 @@ class BaseService {
 
         // Additional validation
         const validation = await this.validateCreate(transformed);
+
         if (!validation.success) {
           results.failed++;
           results.errors.push({
@@ -504,7 +505,7 @@ class BaseService {
         }
 
         // Create
-        const item = db.create(this.collection, transformed);
+        const item = await db.create(this.collection, transformed);
         results.success++;
         results.inserted.push(item);
 
@@ -533,13 +534,13 @@ class BaseService {
     let data = result.data;
 
     if (options.includeRelations && this.schema) {
-      data = data.map(item => {
+      data = await Promise.all(data.map(async (item) => {
         const enriched = { ...item };
 
         // Expand foreign keys
         for (const [field, rule] of Object.entries(this.schema)) {
           if (rule.foreignKey && item[field]) {
-            const related = db.findById(rule.foreignKey, item[field]);
+            const related = await db.findById(rule.foreignKey, item[field]);
             if (related) {
               enriched[`${field}_name`] = related.name || related.email || related.code;
             }
@@ -547,7 +548,7 @@ class BaseService {
         }
 
         return enriched;
-      });
+      }));
     }
 
     // Select columns if specified
@@ -568,7 +569,7 @@ class BaseService {
     return data;
   }
 
-  // ==================== VALIDATION HOOKS ====================
+  // ====================VALIDATION HOOKS (Can be overridden) ====================
 
   async validateCreate(data) {
     return { success: true };

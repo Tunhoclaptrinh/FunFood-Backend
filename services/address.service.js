@@ -9,12 +9,14 @@ class AddressService extends BaseService {
   async beforeCreate(data) {
     // If this is set as default, unset other defaults
     if (data.isDefault) {
-      const userAddresses = db.findMany('addresses', { userId: data.userId });
-      userAddresses.forEach(addr => {
-        if (addr.isDefault) {
-          db.update('addresses', addr.id, { isDefault: false });
-        }
-      });
+      const userAddresses = await db.findMany('addresses', { userId: data.userId });
+
+      // Update all existing defaults to false
+      await Promise.all(
+        userAddresses
+          .filter(addr => addr.isDefault)
+          .map(addr => db.update('addresses', addr.id, { isDefault: false }))
+      );
     }
 
     return {
@@ -25,7 +27,7 @@ class AddressService extends BaseService {
   }
 
   async getAddresses(userId) {
-    const addresses = db.findMany('addresses', { userId });
+    const addresses = await db.findMany('addresses', { userId });
 
     return {
       success: true,
@@ -34,7 +36,7 @@ class AddressService extends BaseService {
   }
 
   async getDefaultAddress(userId) {
-    const defaultAddress = db.findOne('addresses', {
+    const defaultAddress = await db.findOne('addresses', {
       userId,
       isDefault: true
     });
@@ -54,7 +56,7 @@ class AddressService extends BaseService {
   }
 
   async setDefaultAddress(addressId, userId) {
-    const address = db.findById('addresses', addressId);
+    const address = await db.findById('addresses', addressId);
 
     if (!address) {
       return {
@@ -73,15 +75,15 @@ class AddressService extends BaseService {
     }
 
     // Unset all other defaults
-    const userAddresses = db.findMany('addresses', { userId });
-    userAddresses.forEach(addr => {
-      if (addr.isDefault) {
-        db.update('addresses', addr.id, { isDefault: false });
-      }
-    });
+    const userAddresses = await db.findMany('addresses', { userId });
+    await Promise.all(
+      userAddresses
+        .filter(addr => addr.isDefault)
+        .map(addr => db.update('addresses', addr.id, { isDefault: false }))
+    );
 
     // Set this as default
-    const updated = db.update('addresses', addressId, {
+    const updated = await db.update('addresses', addressId, {
       isDefault: true,
       updatedAt: new Date().toISOString()
     });
@@ -94,7 +96,7 @@ class AddressService extends BaseService {
   }
 
   async deleteAddress(addressId, userId) {
-    const address = db.findById('addresses', addressId);
+    const address = await db.findById('addresses', addressId);
 
     if (!address) {
       return {
@@ -112,7 +114,7 @@ class AddressService extends BaseService {
       };
     }
 
-    db.delete('addresses', addressId);
+    await db.delete('addresses', addressId);
 
     return {
       success: true,
@@ -121,7 +123,7 @@ class AddressService extends BaseService {
   }
 
   async clearNonDefault(userId) {
-    const userAddresses = db.findMany('addresses', { userId });
+    const userAddresses = await db.findMany('addresses', { userId });
     const nonDefaultAddresses = userAddresses.filter(addr => !addr.isDefault);
 
     if (nonDefaultAddresses.length === 0) {
@@ -131,7 +133,9 @@ class AddressService extends BaseService {
       };
     }
 
-    nonDefaultAddresses.forEach(addr => db.delete('addresses', addr.id));
+    await Promise.all(
+      nonDefaultAddresses.map(addr => db.delete('addresses', addr.id))
+    );
 
     return {
       success: true,

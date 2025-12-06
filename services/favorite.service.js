@@ -1,4 +1,4 @@
-// services/favorite.service.js - UPDATED: Support both Restaurant & Product
+// services/favorite.service.js
 const BaseService = require('../utils/BaseService');
 const db = require('../config/database');
 
@@ -11,19 +11,19 @@ class FavoriteService extends BaseService {
    * Get all favorites (both restaurants and products)
    */
   async getFavorites(userId, options = {}) {
-    const favorites = db.findMany('favorites', { userId });
+    const favorites = await db.findMany('favorites', { userId });
 
-    const enriched = favorites.map(fav => {
+    const enriched = await Promise.all(favorites.map(async fav => {
       if (fav.type === 'restaurant') {
-        const restaurant = db.findById('restaurants', fav.referenceId);
+        const restaurant = await db.findById('restaurants', fav.referenceId);
         return {
           ...fav,
           restaurant: restaurant || null,
           product: null
         };
       } else if (fav.type === 'product') {
-        const product = db.findById('products', fav.referenceId);
-        const restaurant = product ? db.findById('restaurants', product.restaurantId) : null;
+        const product = await db.findById('products', fav.referenceId);
+        const restaurant = product ? await db.findById('restaurants', product.restaurantId) : null;
 
         return {
           ...fav,
@@ -39,11 +39,11 @@ class FavoriteService extends BaseService {
         };
       }
       return fav;
-    }).filter(item => item.restaurant !== null || item.product !== null);
+    }));
 
     return {
       success: true,
-      data: enriched
+      data: enriched.filter(item => item.restaurant !== null || item.product !== null)
     };
   }
 
@@ -59,21 +59,18 @@ class FavoriteService extends BaseService {
       };
     }
 
-    const favorites = db.findMany('favorites', {
-      userId,
-      type
-    });
+    const favorites = await db.findMany('favorites', { userId, type });
 
-    const enriched = favorites.map(fav => {
+    const enriched = await Promise.all(favorites.map(async fav => {
       if (type === 'restaurant') {
-        const restaurant = db.findById('restaurants', fav.referenceId);
+        const restaurant = await db.findById('restaurants', fav.referenceId);
         return {
           ...fav,
           item: restaurant
         };
       } else {
-        const product = db.findById('products', fav.referenceId);
-        const restaurant = product ? db.findById('restaurants', product.restaurantId) : null;
+        const product = await db.findById('products', fav.referenceId);
+        const restaurant = product ? await db.findById('restaurants', product.restaurantId) : null;
 
         return {
           ...fav,
@@ -86,11 +83,11 @@ class FavoriteService extends BaseService {
           } : null
         };
       }
-    }).filter(item => item.item !== null);
+    }));
 
     return {
       success: true,
-      data: enriched
+      data: enriched.filter(item => item.item !== null)
     };
   }
 
@@ -106,11 +103,7 @@ class FavoriteService extends BaseService {
       };
     }
 
-    const favorites = db.findMany('favorites', {
-      userId,
-      type
-    });
-
+    const favorites = await db.findMany('favorites', { userId, type });
     const ids = favorites.map(f => f.referenceId);
 
     return {
@@ -120,7 +113,7 @@ class FavoriteService extends BaseService {
   }
 
   /**
-   * Add to favorites (unified for both types)
+   * Add to favorites
    */
   async addFavorite(userId, type, referenceId) {
     // Validate type
@@ -133,7 +126,7 @@ class FavoriteService extends BaseService {
     }
 
     // Check if item exists
-    const item = db.findById(
+    const item = await db.findById(
       type === 'restaurant' ? 'restaurants' : 'products',
       referenceId
     );
@@ -147,7 +140,7 @@ class FavoriteService extends BaseService {
     }
 
     // Check duplicate
-    const existing = db.findOne('favorites', {
+    const existing = await db.findOne('favorites', {
       userId,
       type,
       referenceId: parseInt(referenceId)
@@ -161,7 +154,7 @@ class FavoriteService extends BaseService {
       };
     }
 
-    const favorite = db.create('favorites', {
+    const favorite = await db.create('favorites', {
       userId,
       type,
       referenceId: parseInt(referenceId),
@@ -176,10 +169,10 @@ class FavoriteService extends BaseService {
   }
 
   /**
-   * Remove from favorites (unified)
+   * Remove from favorites
    */
   async removeFavorite(userId, type, referenceId) {
-    const favorite = db.findOne('favorites', {
+    const favorite = await db.findOne('favorites', {
       userId,
       type,
       referenceId: parseInt(referenceId)
@@ -193,7 +186,7 @@ class FavoriteService extends BaseService {
       };
     }
 
-    db.delete('favorites', favorite.id);
+    await db.delete('favorites', favorite.id);
 
     return {
       success: true,
@@ -202,10 +195,9 @@ class FavoriteService extends BaseService {
   }
 
   /**
-   * Toggle favorite (unified)
+   * Toggle favorite
    */
   async toggleFavorite(userId, type, referenceId) {
-    // Validate type
     if (!['restaurant', 'product'].includes(type)) {
       return {
         success: false,
@@ -214,7 +206,7 @@ class FavoriteService extends BaseService {
       };
     }
 
-    const favorite = db.findOne('favorites', {
+    const favorite = await db.findOne('favorites', {
       userId,
       type,
       referenceId: parseInt(referenceId)
@@ -222,7 +214,7 @@ class FavoriteService extends BaseService {
 
     if (favorite) {
       // Remove
-      db.delete('favorites', favorite.id);
+      await db.delete('favorites', favorite.id);
       return {
         success: true,
         message: `${type} removed from favorites`,
@@ -230,7 +222,7 @@ class FavoriteService extends BaseService {
       };
     } else {
       // Add
-      const item = db.findById(
+      const item = await db.findById(
         type === 'restaurant' ? 'restaurants' : 'products',
         referenceId
       );
@@ -243,7 +235,7 @@ class FavoriteService extends BaseService {
         };
       }
 
-      const newFavorite = db.create('favorites', {
+      const newFavorite = await db.create('favorites', {
         userId,
         type,
         referenceId: parseInt(referenceId),
@@ -263,7 +255,7 @@ class FavoriteService extends BaseService {
    * Check if item is favorited
    */
   async checkFavorite(userId, type, referenceId) {
-    const favorite = db.findOne('favorites', {
+    const favorite = await db.findOne('favorites', {
       userId,
       type,
       referenceId: parseInt(referenceId)
@@ -280,7 +272,12 @@ class FavoriteService extends BaseService {
    * Get trending favorites by type
    */
   async getTrendingFavorites(type, limit = 10) {
-    if (!['restaurant', 'product'].includes(type)) {
+    const validTypes = {
+      restaurant: 'restaurants',
+      product: 'products'
+    };
+
+    if (!validTypes[type]) {
       return {
         success: false,
         message: 'Invalid type',
@@ -288,61 +285,63 @@ class FavoriteService extends BaseService {
       };
     }
 
-    const allFavorites = db.findAll('favorites');
+    // Lấy tất cả favorites
+    const allFavorites = await db.findAll('favorites');
     const typedFavorites = allFavorites.filter(f => f.type === type);
 
-    // Count by referenceId
-    const counts = {};
-    typedFavorites.forEach(fav => {
-      counts[fav.referenceId] = (counts[fav.referenceId] || 0) + 1;
-    });
+    // Đếm lượt yêu thích theo referenceId
+    const counts = new Map();
+    for (const fav of typedFavorites) {
+      counts.set(fav.referenceId, (counts.get(fav.referenceId) || 0) + 1);
+    }
 
-    // Sort and get top items
-    const sorted = Object.entries(counts)
+    // Lấy top referenceId theo số lượt yêu thích
+    const sorted = [...counts.entries()]
       .sort((a, b) => b[1] - a[1])
       .slice(0, limit);
 
-    const trending = sorted.map(([refId, count]) => {
-      const item = db.findById(
-        type === 'restaurant' ? 'restaurants' : 'products',
-        parseInt(refId)
-      );
+    const trending = await Promise.all(
+      sorted.map(async ([refId, count]) => {
+        const item = await db.findById(validTypes[type], refId);
 
-      if (!item) return null;
+        if (!item) return null;
 
-      if (type === 'product') {
-        const restaurant = db.findById('restaurants', item.restaurantId);
+        // Trường hợp product cần thêm thông tin restaurant
+        if (type === 'product') {
+          const restaurant = await db.findById('restaurants', item.restaurantId);
+          return {
+            item: {
+              ...item,
+              restaurant: restaurant
+                ? { id: restaurant.id, name: restaurant.name }
+                : null
+            },
+            favoriteCount: count,
+            type
+          };
+        }
+
+        // Trường hợp restaurant
         return {
-          item: {
-            ...item,
-            restaurant: restaurant ? {
-              id: restaurant.id,
-              name: restaurant.name
-            } : null
-          },
+          item,
           favoriteCount: count,
-          type: 'product'
+          type
         };
-      }
-
-      return {
-        item,
-        favoriteCount: count,
-        type: 'restaurant'
-      };
-    }).filter(item => item !== null);
+      })
+    );
 
     return {
       success: true,
-      data: trending
+      data: trending.filter(x => x !== null)
     };
   }
+
 
   /**
    * Get favorite statistics
    */
   async getFavoriteStats(userId) {
-    const favorites = db.findMany('favorites', { userId });
+    const favorites = await db.findMany('favorites', { userId });
 
     const stats = {
       total: favorites.length,
@@ -362,7 +361,7 @@ class FavoriteService extends BaseService {
    * Clear all favorites
    */
   async clearAll(userId) {
-    const favorites = db.findMany('favorites', { userId });
+    const favorites = await db.findMany('favorites', { userId });
 
     if (favorites.length === 0) {
       return {
@@ -371,7 +370,9 @@ class FavoriteService extends BaseService {
       };
     }
 
-    favorites.forEach(fav => db.delete('favorites', fav.id));
+    await Promise.all(
+      favorites.map(fav => db.delete('favorites', fav.id))
+    );
 
     return {
       success: true,
@@ -392,7 +393,7 @@ class FavoriteService extends BaseService {
       };
     }
 
-    const favorites = db.findMany('favorites', { userId, type });
+    const favorites = await db.findMany('favorites', { userId, type });
 
     if (favorites.length === 0) {
       return {
@@ -401,7 +402,9 @@ class FavoriteService extends BaseService {
       };
     }
 
-    favorites.forEach(fav => db.delete('favorites', fav.id));
+    await Promise.all(
+      favorites.map(fav => db.delete('favorites', fav.id))
+    );
 
     return {
       success: true,

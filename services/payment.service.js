@@ -10,7 +10,7 @@ class PaymentService {
    * Process payment cho order
    */
   async processPayment(orderId, paymentMethod, paymentData = {}) {
-    const order = db.findById('orders', orderId);
+    const order = await db.findById('orders', orderId);
 
     if (!order) {
       return {
@@ -53,7 +53,7 @@ class PaymentService {
 
     // Update order payment status
     if (paymentResult.success) {
-      db.update('orders', orderId, {
+      await db.update('orders', orderId, {
         paymentStatus: 'completed',
         paymentMethod: paymentMethod,
         paymentData: {
@@ -64,7 +64,7 @@ class PaymentService {
       });
 
       // Create notification
-      db.create('notifications', {
+      await db.create('notifications', {
         userId: order.userId,
         title: 'Payment Successful',
         message: `Payment for order #${orderId} completed successfully`,
@@ -329,10 +329,10 @@ class PaymentService {
       }
 
       // Update order payment status
-      const order = db.findById('orders', orderId);
+      const order = await db.findById('orders', orderId);
 
       if (order) {
-        db.update('orders', orderId, {
+        await db.update('orders', orderId, {
           paymentStatus: status,
           paymentData: {
             ...order.paymentData,
@@ -343,7 +343,7 @@ class PaymentService {
         });
 
         // Notify user
-        db.create('notifications', {
+        await db.create('notifications', {
           userId: order.userId,
           title: status === 'completed' ? 'Payment Successful' : 'Payment Failed',
           message: status === 'completed'
@@ -374,7 +374,7 @@ class PaymentService {
    * Check payment status
    */
   async checkPaymentStatus(orderId) {
-    const order = db.findById('orders', orderId);
+    const order = await db.findById('orders', orderId);
 
     if (!order) {
       return {
@@ -400,7 +400,7 @@ class PaymentService {
    * Refund payment
    */
   async refundPayment(orderId, reason = '') {
-    const order = db.findById('orders', orderId);
+    const order = await db.findById('orders', orderId);
 
     if (!order) {
       return {
@@ -421,7 +421,7 @@ class PaymentService {
     // In production, call payment gateway API for refund
     // For now, just update status
 
-    db.update('orders', orderId, {
+    await db.update('orders', orderId, {
       paymentStatus: 'refunded',
       refundData: {
         reason,
@@ -432,7 +432,7 @@ class PaymentService {
     });
 
     // Notify user
-    db.create('notifications', {
+    await db.create('notifications', {
       userId: order.userId,
       title: 'Payment Refunded',
       message: `Payment for order #${orderId} has been refunded: ${order.total.toLocaleString()}đ`,

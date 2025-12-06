@@ -11,10 +11,7 @@ exports.protect = async (req, res, next) => {
     }
 
     if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: 'Not authorized to access this route'
-      });
+      return res.status(401).json({ success: false, message: 'Not authorized to access this route' });
     }
 
     try {
@@ -22,30 +19,21 @@ exports.protect = async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
       // Get user from database
-      const user = db.findById('users', decoded.id);
+      const user = await db.findById('users', decoded.id);
 
       if (!user) {
-        return res.status(401).json({
-          success: false,
-          message: 'User not found'
-        });
+        return res.status(401).json({ success: false, message: 'User not found' });
       }
 
       if (!user.isActive) {
-        return res.status(401).json({
-          success: false,
-          message: 'User account is inactive'
-        });
+        return res.status(401).json({ success: false, message: 'User account is inactive' });
       }
 
       // Add user to request
       req.user = user;
       next();
     } catch (err) {
-      return res.status(401).json({
-        success: false,
-        message: 'Token is invalid or expired'
-      });
+      return res.status(401).json({ success: false, message: 'Token is invalid or expired' });
     }
   } catch (error) {
     next(error);
@@ -63,68 +51,46 @@ exports.checkOwnership = (resourceType) => {
     const userRole = req.user.role;
 
     // Admin có full quyền
-    if (userRole === 'admin') {
-      return next();
-    }
+    if (userRole === 'admin') return next();
 
     try {
       switch (resourceType) {
         case 'order':
-          const order = db.findById('orders', resourceId);
-          if (!order) {
-            return res.status(404).json({
-              success: false,
-              message: 'Order not found'
-            });
-          }
+          const order = await db.findById('orders', resourceId);
+          if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
 
           // Customer chỉ xem order của mình
           if (userRole === 'customer' && order.userId !== userId) {
-            return res.status(403).json({
-              success: false,
-              message: 'Not authorized to access this order'
-            });
+            return res.status(403).json({ success: false, message: 'Not authorized' });
           }
 
           // Manager chỉ xem order của restaurant mình
           if (userRole === 'manager') {
-            if (req.user.restaurantId !== order.restaurantId) {
-              return res.status(403).json({
-                success: false,
-                message: 'Not authorized to access this order'
-              });
+            // Manager cần check thông qua restaurant
+            const restaurant = await db.findOne('restaurants', { managerId: userId });
+            if (!restaurant || restaurant.id !== order.restaurantId) {
+              return res.status(403).json({ success: false, message: 'Not authorized' });
             }
           }
-
           // Shipper chỉ xem order được assign cho mình
-          if (userRole === 'shipper') {
-            if (order.shipperId !== userId) {
-              return res.status(403).json({
-                success: false,
-                message: 'Not authorized to access this order'
-              });
-            }
+          if (userRole === 'shipper' && order.shipperId !== userId) {
+            return res.status(403).json({ success: false, message: 'Not authorized' });
           }
-
           req.resource = order; // Gắn vào req để dùng trong controller
           return next();
 
         case 'restaurant':
-          const restaurant = db.findById('restaurants', resourceId);
-          if (!restaurant) {
-            return res.status(404).json({
-              success: false,
-              message: 'Restaurant not found'
-            });
-          }
+          const restaurant = await db.findById('restaurants', resourceId);
+          if (!restaurant) return res.status(404).json({ success: false, message: 'Restaurant not found' });
 
-          // Manager chỉ quản lý restaurant của mình
-          if (userRole === 'manager') {
-            if (req.user.restaurantId !== parseInt(resourceId)) {
-              return res.status(403).json({
-                success: false,
-                message: 'Not authorized to manage this restaurant'
-              });
+          if (userRole === 'manager' && req.user.id !== restaurant.managerId) { // Giả sử user có managerId hoặc query ngược lại
+            // Logic check manager sở hữu nhà hàng
+            const myRestaurant = await db.findOne('restaurants', { managerId: userId });
+            // Manager chỉ quản lý restaurant của mình
+            if (userRole === 'manager') {
+              if (!myRestaurant || myRestaurant.id !== parseInt(resourceId)) {
+                return res.status(403).json({ success: false, message: 'Not authorized to manage this restaurant' });
+              }
             }
           }
 

@@ -6,7 +6,7 @@ class ManagerController {
    */
   getMyRestaurant = async (req, res, next) => {
     try {
-      const restaurant = db.findOne('restaurants', { managerId: req.user.id });
+      const restaurant = await db.findOne('restaurants', { managerId: req.user.id });
 
       if (!restaurant) {
         return res.status(404).json({
@@ -16,9 +16,11 @@ class ManagerController {
       }
 
       // Get additional data
-      const products = db.findMany('products', { restaurantId: restaurant.id });
-      const reviews = db.findMany('reviews', { restaurantId: restaurant.id });
-      const orders = db.findMany('orders', { restaurantId: restaurant.id });
+      const [products, reviews, orders] = await Promise.all([
+        db.findMany('products', { restaurantId: restaurant.id }),
+        db.findMany('reviews', { restaurantId: restaurant.id }),
+        db.findMany('orders', { restaurantId: restaurant.id })
+      ]);
 
       res.json({
         success: true,
@@ -43,7 +45,7 @@ class ManagerController {
    */
   getProducts = async (req, res, next) => {
     try {
-      const restaurant = db.findOne('restaurants', { managerId: req.user.id });
+      const restaurant = await db.findOne('restaurants', { managerId: req.user.id });
 
       if (!restaurant) {
         return res.status(404).json({
@@ -52,7 +54,7 @@ class ManagerController {
         });
       }
 
-      const result = db.findAllAdvanced('products', {
+      const result = await db.findAllAdvanced('products', {
         ...req.parsedQuery,
         filter: {
           ...req.parsedQuery.filter,
@@ -76,7 +78,7 @@ class ManagerController {
    */
   createProduct = async (req, res, next) => {
     try {
-      const restaurant = db.findOne('restaurants', { managerId: req.user.id });
+      const restaurant = await db.findOne('restaurants', { managerId: req.user.id });
 
       if (!restaurant) {
         return res.status(404).json({
@@ -85,7 +87,7 @@ class ManagerController {
         });
       }
 
-      const product = db.create('products', {
+      const product = await db.create('products', {
         ...req.body,
         restaurantId: restaurant.id,
         available: req.body.available !== undefined ? req.body.available : true,
@@ -108,7 +110,7 @@ class ManagerController {
    */
   updateProduct = async (req, res, next) => {
     try {
-      const product = db.findById('products', req.params.id);
+      const product = await db.findById('products', req.params.id);
 
       if (!product) {
         return res.status(404).json({
@@ -118,7 +120,7 @@ class ManagerController {
       }
 
       // Check ownership
-      const restaurant = db.findOne('restaurants', {
+      const restaurant = await db.findOne('restaurants', {
         managerId: req.user.id,
         id: product.restaurantId
       });
@@ -130,7 +132,7 @@ class ManagerController {
         });
       }
 
-      const updated = db.update('products', req.params.id, {
+      const updated = await db.update('products', req.params.id, {
         ...req.body,
         updatedAt: new Date().toISOString()
       });
@@ -150,7 +152,7 @@ class ManagerController {
    */
   toggleProductAvailability = async (req, res, next) => {
     try {
-      const product = db.findById('products', req.params.id);
+      const product = await db.findById('products', req.params.id);
 
       if (!product) {
         return res.status(404).json({
@@ -160,7 +162,7 @@ class ManagerController {
       }
 
       // Check ownership
-      const restaurant = db.findOne('restaurants', {
+      const restaurant = await db.findOne('restaurants', {
         managerId: req.user.id,
         id: product.restaurantId
       });
@@ -172,7 +174,7 @@ class ManagerController {
         });
       }
 
-      const updated = db.update('products', req.params.id, {
+      const updated = await db.update('products', req.params.id, {
         available: !product.available,
         updatedAt: new Date().toISOString()
       });
@@ -192,7 +194,7 @@ class ManagerController {
    */
   getOrders = async (req, res, next) => {
     try {
-      const restaurant = db.findOne('restaurants', { managerId: req.user.id });
+      const restaurant = await db.findOne('restaurants', { managerId: req.user.id });
 
       if (!restaurant) {
         return res.status(404).json({
@@ -201,7 +203,7 @@ class ManagerController {
         });
       }
 
-      const result = db.findAllAdvanced('orders', {
+      const result = await db.findAllAdvanced('orders', {
         ...req.parsedQuery,
         filter: {
           ...req.parsedQuery.filter,
@@ -212,8 +214,8 @@ class ManagerController {
       });
 
       // Enrich với customer info
-      const enriched = result.data.map(order => {
-        const customer = db.findById('users', order.userId);
+      const enriched = await Promise.all(result.data.map(async (order) => {
+        const customer = await db.findById('users', order.userId);
         return {
           ...order,
           customer: customer ? {
@@ -222,7 +224,7 @@ class ManagerController {
             phone: customer.phone
           } : null
         };
-      });
+      }));
 
       res.json({
         success: true,
@@ -242,8 +244,8 @@ class ManagerController {
     try {
       const order = req.resource; // Set by checkOwnership middleware
 
-      const customer = db.findById('users', order.userId);
-      const shipper = order.shipperId ? db.findById('users', order.shipperId) : null;
+      const customer = await db.findById('users', order.userId);
+      const shipper = order.shipperId ? await db.findById('users', order.shipperId) : null;
 
       res.json({
         success: true,
@@ -282,6 +284,23 @@ class ManagerController {
         });
       }
 
+      // Kiểm tra flow hợp lệ
+      const validTransitions = {
+        'pending': 'confirmed',
+        'confirmed': 'preparing',
+        'preparing': 'delivering',
+      };
+
+      if (validTransitions[order.status] !== status) {
+        return res.status(400).json({
+          success: false,
+          message: `Cannot transition from ${order.status} to ${status}`,
+          currentStatus: order.status,
+          allowedStatus: validTransitions[order.status]
+        });
+      }
+
+      // Update data
       const updateData = {
         status,
         updatedAt: new Date().toISOString()
@@ -293,10 +312,10 @@ class ManagerController {
         updateData.preparingAt = new Date().toISOString();
       }
 
-      const updated = db.update('orders', order.id, updateData);
+      const updated = await db.update('orders', order.id, updateData);
 
       // Notify customer
-      db.create('notifications', {
+      await db.create('notifications', {
         userId: order.userId,
         title: 'Order Status Updated',
         message: `Your order #${order.id} is now ${status}`,
@@ -308,8 +327,9 @@ class ManagerController {
 
       // Notify shippers when preparing
       if (status === 'preparing') {
-        const shippers = db.findMany('users', { role: 'shipper', isActive: true });
-        shippers.forEach(shipper => {
+        const shippers = await db.findMany('users', { role: 'shipper', isActive: true });
+        // Gửi noti song song
+        await Promise.all(shippers.map(shipper =>
           db.create('notifications', {
             userId: shipper.id,
             title: 'New Order Ready',
@@ -318,8 +338,8 @@ class ManagerController {
             refId: order.id,
             isRead: false,
             createdAt: new Date().toISOString()
-          });
-        });
+          })
+        ));
       }
 
       res.json({
@@ -337,7 +357,7 @@ class ManagerController {
    */
   getStats = async (req, res, next) => {
     try {
-      const restaurant = db.findOne('restaurants', { managerId: req.user.id });
+      const restaurant = await db.findOne('restaurants', { managerId: req.user.id });
 
       if (!restaurant) {
         return res.status(404).json({
@@ -346,9 +366,11 @@ class ManagerController {
         });
       }
 
-      const orders = db.findMany('orders', { restaurantId: restaurant.id });
-      const products = db.findMany('products', { restaurantId: restaurant.id });
-      const reviews = db.findMany('reviews', { restaurantId: restaurant.id });
+      const [orders, products, reviews] = await Promise.all([
+        db.findMany('orders', { restaurantId: restaurant.id }),
+        db.findMany('products', { restaurantId: restaurant.id }),
+        db.findMany('reviews', { restaurantId: restaurant.id })
+      ]);
 
       const today = new Date().toISOString().split('T')[0];
       const thisMonth = new Date().toISOString().slice(0, 7);
