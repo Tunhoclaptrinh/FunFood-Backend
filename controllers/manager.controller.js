@@ -284,6 +284,22 @@ class ManagerController {
         });
       }
 
+      // Kiểm tra flow hợp lệ
+      const validTransitions = {
+        'preparing': 'delivering',
+        'delivering': 'delivered'
+      };
+
+      if (validTransitions[order.status] !== status) {
+        return res.status(400).json({
+          success: false,
+          message: `Cannot transition from ${order.status} to ${status}`,
+          currentStatus: order.status,
+          allowedStatus: validTransitions[order.status]
+        });
+      }
+
+      // Update data
       const updateData = {
         status,
         updatedAt: new Date().toISOString()
