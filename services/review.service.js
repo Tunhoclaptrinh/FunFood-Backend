@@ -1,4 +1,3 @@
-// UPDATED: Support both Restaurant & Product
 const BaseService = require('../utils/BaseService');
 const db = require('../config/database');
 
@@ -24,7 +23,7 @@ class ReviewService extends BaseService {
     }
 
     // Validate restaurant exists
-    const restaurant = db.findById('restaurants', restaurantId);
+    const restaurant = await db.findById('restaurants', restaurantId);
     if (!restaurant) {
       return {
         success: false,
@@ -52,7 +51,7 @@ class ReviewService extends BaseService {
         };
       }
 
-      const product = db.findById('products', productId);
+      const product = await db.findById('products', productId);
       if (!product) {
         return {
           success: false,
@@ -71,7 +70,7 @@ class ReviewService extends BaseService {
       }
 
       // Check duplicate product review
-      const existingReview = db.findOne('reviews', {
+      const existingReview = await db.findOne('reviews', {
         userId: parseInt(userId),
         type: 'product',
         productId: parseInt(productId)
@@ -88,7 +87,7 @@ class ReviewService extends BaseService {
 
     // If restaurant review, check duplicate
     if (type === 'restaurant') {
-      const existingReview = db.findOne('reviews', {
+      const existingReview = await db.findOne('reviews', {
         userId: parseInt(userId),
         type: 'restaurant',
         restaurantId: parseInt(restaurantId)
@@ -123,15 +122,15 @@ class ReviewService extends BaseService {
    */
   async afterCreate(review) {
     // Update restaurant rating
-    this.updateRestaurantRating(review.restaurantId);
+    await this.updateRestaurantRating(review.restaurantId);
 
     // Update product rating if it's a product review
     if (review.type === 'product' && review.productId) {
-      this.updateProductRating(review.productId);
+      await this.updateProductRating(review.productId);
     }
 
     // Create notification
-    db.create('notifications', {
+    await db.create('notifications', {
       userId: review.userId,
       title: 'Review Submitted',
       message: `Your ${review.type} review has been submitted successfully`,
@@ -146,24 +145,24 @@ class ReviewService extends BaseService {
    * Hook after update - update ratings
    */
   async afterUpdate(review) {
-    this.updateRestaurantRating(review.restaurantId);
+    await this.updateRestaurantRating(review.restaurantId);
 
     if (review.type === 'product' && review.productId) {
-      this.updateProductRating(review.productId);
+      await this.updateProductRating(review.productId);
     }
   }
 
   /**
    * Update restaurant rating - calculate from all reviews
    */
-  updateRestaurantRating(restaurantId) {
-    const allReviews = db.findMany('reviews', {
+  async updateRestaurantRating(restaurantId) {
+    const allReviews = await db.findMany('reviews', {
       restaurantId: parseInt(restaurantId),
       type: 'restaurant'
     });
 
     if (allReviews.length === 0) {
-      db.update('restaurants', restaurantId, {
+      await db.update('restaurants', restaurantId, {
         rating: 0,
         totalReviews: 0
       });
@@ -172,7 +171,7 @@ class ReviewService extends BaseService {
 
     const avgRating = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length;
 
-    db.update('restaurants', restaurantId, {
+    await db.update('restaurants', restaurantId, {
       rating: Math.round(avgRating * 10) / 10,
       totalReviews: allReviews.length
     });
@@ -181,17 +180,17 @@ class ReviewService extends BaseService {
   /**
    * Update product rating - calculate from all reviews
    */
-  updateProductRating(productId) {
-    const allReviews = db.findMany('reviews', {
+  async updateProductRating(productId) {
+    const allReviews = await db.findMany('reviews', {
       productId: parseInt(productId),
       type: 'product'
     });
 
     if (allReviews.length === 0) {
       // Remove rating if no reviews
-      const product = db.findById('products', productId);
+      const product = await db.findById('products', productId);
       if (product) {
-        db.update('products', productId, {
+        await db.update('products', productId, {
           rating: 0,
           totalReviews: 0
         });
@@ -201,7 +200,7 @@ class ReviewService extends BaseService {
 
     const avgRating = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length;
 
-    db.update('products', productId, {
+    await db.update('products', productId, {
       rating: Math.round(avgRating * 10) / 10,
       totalReviews: allReviews.length
     });
@@ -219,7 +218,7 @@ class ReviewService extends BaseService {
       };
     }
 
-    const result = db.findAllAdvanced('reviews', {
+    const result = await db.findAllAdvanced('reviews', {
       ...options,
       filter: {
         ...options.filter,
@@ -227,29 +226,31 @@ class ReviewService extends BaseService {
       }
     });
 
-    const enrichedReviews = result.data.map(review => {
-      const user = db.findById('users', review.userId);
-      let target = null;
+    const enrichedReviews = await Promise.all(
+      result.data.map(async (review) => {
+        const user = await db.findById('users', review.userId);
+        let target = null;
 
-      if (type === 'restaurant') {
-        target = db.findById('restaurants', review.restaurantId);
-      } else {
-        target = db.findById('products', review.productId);
-      }
+        if (type === 'restaurant') {
+          target = await db.findById('restaurants', review.restaurantId);
+        } else {
+          target = await db.findById('products', review.productId);
+        }
 
-      return {
-        ...review,
-        user: user ? {
-          id: user.id,
-          name: user.name,
-          avatar: user.avatar
-        } : null,
-        target: target ? {
-          id: target.id,
-          name: target.name
-        } : null
-      };
-    });
+        return {
+          ...review,
+          user: user ? {
+            id: user.id,
+            name: user.name,
+            avatar: user.avatar
+          } : null,
+          target: target ? {
+            id: target.id,
+            name: target.name
+          } : null
+        };
+      })
+    );
 
     return {
       success: true,
@@ -262,7 +263,7 @@ class ReviewService extends BaseService {
    * Get restaurant reviews
    */
   async getRestaurantReviews(restaurantId, options = {}) {
-    const result = db.findAllAdvanced('reviews', {
+    const result = await db.findAllAdvanced('reviews', {
       ...options,
       filter: {
         ...options.filter,
@@ -271,17 +272,19 @@ class ReviewService extends BaseService {
       }
     });
 
-    const enrichedReviews = result.data.map(review => {
-      const user = db.findById('users', review.userId);
-      return {
-        ...review,
-        user: user ? {
-          id: user.id,
-          name: user.name,
-          avatar: user.avatar
-        } : null
-      };
-    });
+    const enrichedReviews = await Promise.all(
+      result.data.map(async (review) => {
+        const user = await db.findById('users', review.userId);
+        return {
+          ...review,
+          user: user ? {
+            id: user.id,
+            name: user.name,
+            avatar: user.avatar
+          } : null
+        };
+      })
+    );
 
     return {
       success: true,
@@ -294,7 +297,7 @@ class ReviewService extends BaseService {
    * Get product reviews
    */
   async getProductReviews(productId, options = {}) {
-    const result = db.findAllAdvanced('reviews', {
+    const result = await db.findAllAdvanced('reviews', {
       ...options,
       filter: {
         ...options.filter,
@@ -303,23 +306,25 @@ class ReviewService extends BaseService {
       }
     });
 
-    const enrichedReviews = result.data.map(review => {
-      const user = db.findById('users', review.userId);
-      const product = db.findById('products', review.productId);
-      return {
-        ...review,
-        user: user ? {
-          id: user.id,
-          name: user.name,
-          avatar: user.avatar
-        } : null,
-        product: product ? {
-          id: product.id,
-          name: product.name,
-          price: product.price
-        } : null
-      };
-    });
+    const enrichedReviews = await Promise.all(
+      result.data.map(async (review) => {
+        const user = await db.findById('users', review.userId);
+        const product = await db.findById('products', review.productId);
+        return {
+          ...review,
+          user: user ? {
+            id: user.id,
+            name: user.name,
+            avatar: user.avatar
+          } : null,
+          product: product ? {
+            id: product.id,
+            name: product.name,
+            price: product.price
+          } : null
+        };
+      })
+    );
 
     return {
       success: true,
@@ -332,7 +337,7 @@ class ReviewService extends BaseService {
    * Get my reviews (by current user)
    */
   async getMyReviews(userId, options = {}) {
-    const result = db.findAllAdvanced('reviews', {
+    const result = await db.findAllAdvanced('reviews', {
       ...options,
       filter: {
         ...options.filter,
@@ -340,24 +345,26 @@ class ReviewService extends BaseService {
       }
     });
 
-    const enrichedReviews = result.data.map(review => {
-      let target = null;
+    const enrichedReviews = await Promise.all(
+      result.data.map(async (review) => {
+        let target = null;
 
-      if (review.type === 'restaurant') {
-        target = db.findById('restaurants', review.restaurantId);
-      } else {
-        target = db.findById('products', review.productId);
-      }
+        if (review.type === 'restaurant') {
+          target = await db.findById('restaurants', review.restaurantId);
+        } else {
+          target = await db.findById('products', review.productId);
+        }
 
-      return {
-        ...review,
-        target: target ? {
-          id: target.id,
-          name: target.name,
-          type: review.type
-        } : null
-      };
-    });
+        return {
+          ...review,
+          target: target ? {
+            id: target.id,
+            name: target.name,
+            type: review.type
+          } : null
+        };
+      })
+    );
 
     return {
       success: true,
@@ -370,9 +377,9 @@ class ReviewService extends BaseService {
    * Get review stats for dashboard
    */
   async getReviewStats(userId) {
-    const myReviews = db.findMany('reviews', { userId });
-    const restaurants = db.findMany('reviews', { userId, type: 'restaurant' });
-    const products = db.findMany('reviews', { userId, type: 'product' });
+    const myReviews = await db.findMany('reviews', { userId });
+    const restaurants = myReviews.filter(r => r.type === 'restaurant');
+    const products = myReviews.filter(r => r.type === 'product');
 
     const stats = {
       total: myReviews.length,
@@ -413,7 +420,7 @@ class ReviewService extends BaseService {
       query.productId = parseInt(targetId);
     }
 
-    const review = db.findOne('reviews', query);
+    const review = await db.findOne('reviews', query);
 
     return {
       success: true,
@@ -426,7 +433,7 @@ class ReviewService extends BaseService {
    * Delete review with cleanup
    */
   async deleteReview(reviewId, userId, userRole) {
-    const review = db.findById('reviews', reviewId);
+    const review = await db.findById('reviews', reviewId);
 
     if (!review) {
       return {
@@ -447,12 +454,12 @@ class ReviewService extends BaseService {
     const restaurantId = review.restaurantId;
     const productId = review.productId;
 
-    db.delete('reviews', reviewId);
+    await db.delete('reviews', reviewId);
 
     // Update ratings
-    this.updateRestaurantRating(restaurantId);
+    await this.updateRestaurantRating(restaurantId);
     if (productId && review.type === 'product') {
-      this.updateProductRating(productId);
+      await this.updateProductRating(productId);
     }
 
     return {
