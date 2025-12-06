@@ -15,11 +15,11 @@ class ProductService extends BaseService {
    */
   getSchema() {
     return productSchema;
-  } PromotionService
+  }
 
   async validateCreate(data) {
     // Check restaurant exists
-    const restaurant = db.findById('restaurants', data.restaurantId);
+    const restaurant = await db.findById('restaurants', data.restaurantId);
     if (!restaurant) {
       return {
         success: false,
@@ -30,7 +30,7 @@ class ProductService extends BaseService {
 
     // Check category exists
     if (data.categoryId) {
-      const category = db.findById('categories', data.categoryId);
+      const category = await db.findById('categories', data.categoryId);
       if (!category) {
         return {
           success: false,
@@ -64,7 +64,7 @@ class ProductService extends BaseService {
    */
   async getByRestaurant(restaurantId, options = {}) {
     try {
-      const result = db.findAllAdvanced('products', {
+      const result = await db.findAllAdvanced('products', {
         ...options,
         filter: {
           ...options.filter,
@@ -87,7 +87,7 @@ class ProductService extends BaseService {
    */
   async getDiscounted(options = {}) {
     try {
-      const result = db.findAllAdvanced('products', {
+      const result = await db.findAllAdvanced('products', {
         ...options,
         filter: {
           ...options.filter,
@@ -111,7 +111,7 @@ class ProductService extends BaseService {
    */
   async getByPriceRange(minPrice, maxPrice, options = {}) {
     try {
-      const result = db.findAllAdvanced('products', {
+      const result = await db.findAllAdvanced('products', {
         ...options,
         filter: {
           ...options.filter,
@@ -135,22 +135,22 @@ class ProductService extends BaseService {
    */
   async bulkUpdateAvailability(productIds, available) {
     try {
-      const updated = [];
+      const updated = await Promise.all(
+        productIds.map(async (id) => {
+          const product = await db.update('products', id, {
+            available,
+            updatedAt: new Date().toISOString()
+          });
+          return product;
+        })
+      );
 
-      for (const id of productIds) {
-        const product = db.update('products', id, {
-          available,
-          updatedAt: new Date().toISOString()
-        });
-        if (product) {
-          updated.push(product);
-        }
-      }
+      const successfulUpdates = updated.filter(p => p !== null);
 
       return {
         success: true,
-        message: `${updated.length} products updated`,
-        data: updated
+        message: `${successfulUpdates.length} products updated`,
+        data: successfulUpdates
       };
     } catch (error) {
       throw error;
