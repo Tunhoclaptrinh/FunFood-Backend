@@ -35,12 +35,10 @@ class PostgreSQLAdapter {
         ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
       });
 
-      // Test connection
       const client = await this.pool.connect();
       console.log('🔌 PostgreSQL Adapter Connected');
       client.release();
 
-      // Create tables if not exist
       await this.createTables();
     } catch (error) {
       console.error('❌ PostgreSQL Connection Error:', error);
@@ -59,14 +57,14 @@ class PostgreSQLAdapter {
   }
 
   /**
-   * Convert camelCase to snake_case for PostgreSQL
+   * Convert camelCase to snake_case
    */
   toSnakeCase(str) {
     return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
   }
 
   /**
-   * Convert snake_case to camelCase for JavaScript
+   * Convert snake_case to camelCase
    */
   toCamelCase(str) {
     return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
@@ -82,7 +80,7 @@ class PostgreSQLAdapter {
     const converted = {};
     for (const [key, value] of Object.entries(obj)) {
       const snakeKey = this.toSnakeCase(key);
-      converted[snakeKey] = typeof value === 'object' && value !== null
+      converted[snakeKey] = typeof value === 'object' && value !== null && !Array.isArray(value)
         ? this.keysToSnakeCase(value)
         : value;
     }
@@ -99,7 +97,7 @@ class PostgreSQLAdapter {
     const converted = {};
     for (const [key, value] of Object.entries(obj)) {
       const camelKey = this.toCamelCase(key);
-      converted[camelKey] = typeof value === 'object' && value !== null
+      converted[camelKey] = typeof value === 'object' && value !== null && !Array.isArray(value)
         ? this.keysToCamelCase(value)
         : value;
     }
@@ -245,8 +243,9 @@ class PostgreSQLAdapter {
     const client = await this.pool.connect();
 
     try {
-      // Build WHERE clause
-      const { whereClause, params, paramIndex } = this.buildWhereClause(options.filter);
+      // Convert filter keys to snake_case
+      const snakeFilter = options.filter ? this.keysToSnakeCase(options.filter) : {};
+      const { whereClause, params, paramIndex } = this.buildWhereClause(snakeFilter);
 
       // Build ORDER BY
       let orderBy = 'ORDER BY created_at DESC';
@@ -260,7 +259,6 @@ class PostgreSQLAdapter {
         orderBy = `ORDER BY ${orderClauses.join(', ')}`;
       }
 
-      // Pagination
       const page = parseInt(options.page) || 1;
       const limit = parseInt(options.limit) || 10;
       const offset = (page - 1) * limit;
@@ -509,16 +507,18 @@ class PostgreSQLAdapter {
         const relConfig = this.relations[collection]?.[relation];
         if (!relConfig) continue;
 
-        const ids = items.map(item => item[relConfig.localField]).filter(Boolean);
+        const ids = items.map(item => item[this.toCamelCase(relConfig.localField)]).filter(Boolean);
         if (ids.length === 0) continue;
 
-        const relatedItems = await this.findMany(relConfig.table, {
-          [relConfig.foreignField]: { _in: ids }
-        });
+        const relatedQuery = {};
+        relatedQuery[this.toCamelCase(relConfig.foreignField) + '_in'] = ids;
+
+        const relatedItems = await this.findMany(relConfig.table, relatedQuery);
 
         enrichedItems.forEach(item => {
+          const localVal = item[this.toCamelCase(relConfig.localField)];
           item[relation] = relatedItems.filter(
-            rel => rel[relConfig.foreignField] === item[relConfig.localField]
+            rel => rel[this.toCamelCase(relConfig.foreignField)] === localVal
           );
         });
       }
@@ -533,7 +533,7 @@ class PostgreSQLAdapter {
         if (!relConfig) continue;
 
         for (const item of enrichedItems) {
-          const foreignId = item[relConfig.localField];
+          const foreignId = item[this.toCamelCase(relConfig.localField)];
           if (foreignId) {
             item[relation] = await this.findById(relConfig.table, foreignId);
           }
@@ -545,7 +545,35 @@ class PostgreSQLAdapter {
   }
 
   /**
-   * Apply pagination
+   * Apply filters (for compatibility)
+   */
+  applyFilters(items, filters) {
+    return items.filter(item => {
+      return Object.keys(filters).every(key => {
+        if (key.endsWith('_gte')) {
+          const field = key.replace('_gte', '');
+          return item[field] >= filters[key];
+        }
+        if (key.endsWith('_lte')) {
+          const field = key.replace('_lte', '');
+          return item[field] <= filters[key];
+        }
+        if (key.endsWith('_ne')) {
+          const field = key.replace('_ne', '');
+          return item[field] !== filters[key];
+        }
+        if (key.endsWith('_like')) {
+          const field = key.replace('_like', '');
+          const regex = new RegExp(filters[key], 'i');
+          return regex.test(item[field]);
+        }
+        return item[key] == filters[key];
+      });
+    });
+  }
+
+  /**
+   * Apply pagination (for compatibility)
    */
   applyPagination(items, page = 1, limit = 10) {
     const total = items.length;
