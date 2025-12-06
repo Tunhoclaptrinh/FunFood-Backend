@@ -8,14 +8,17 @@ class PromotionService extends BaseService {
   }
 
   /**
-     * Get schema for import/export
-     */
+   * Get schema for import/export
+   */
   getSchema() {
     return promotionSchema;
   }
 
   async validateCreate(data) {
-    const existingCode = db.findOne('promotions', { code: data.code.toUpperCase() });
+    const existingCode = await db.findOne('promotions', {
+      code: data.code.toUpperCase()
+    });
+
     if (existingCode) {
       return {
         success: false,
@@ -61,7 +64,7 @@ class PromotionService extends BaseService {
 
   async getActivePromotions(options = {}) {
     const now = new Date();
-    const allPromotions = db.findAll('promotions');
+    const allPromotions = await db.findAll('promotions');
 
     const activePromotions = allPromotions.filter(p =>
       p.isActive &&
@@ -76,7 +79,7 @@ class PromotionService extends BaseService {
   }
 
   async getByCode(code) {
-    const promotion = db.findOne('promotions', {
+    const promotion = await db.findOne('promotions', {
       code: code.toUpperCase(),
       isActive: true
     });
@@ -96,7 +99,7 @@ class PromotionService extends BaseService {
   }
 
   async validatePromotion(code, orderValue, deliveryFee) {
-    const promotion = db.findOne('promotions', {
+    const promotion = await db.findOne('promotions', {
       code: code.toUpperCase(),
       isActive: true
     });
@@ -157,7 +160,7 @@ class PromotionService extends BaseService {
   }
 
   async toggleActive(promotionId) {
-    const promotion = db.findById('promotions', promotionId);
+    const promotion = await db.findById('promotions', promotionId);
 
     if (!promotion) {
       return {
@@ -167,7 +170,7 @@ class PromotionService extends BaseService {
       };
     }
 
-    const updated = db.update('promotions', promotionId, {
+    const updated = await db.update('promotions', promotionId, {
       isActive: !promotion.isActive,
       updatedAt: new Date().toISOString()
     });
