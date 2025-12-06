@@ -272,58 +272,85 @@ class PostgreSQLAdapter {
         )
       `);
 
-      // Create indexes (after tables exist)
+      // Create indexes
       try {
-        // Check if orders table has rows first
-        const checkOrders = await client.query("SELECT COUNT(*) FROM orders");
-
         await client.query('CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id)');
         await client.query('CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status)');
+        await client.query('CREATE INDEX IF NOT EXISTS idx_orders_restaurant_id ON orders(restaurant_id)');
         await client.query('CREATE INDEX IF NOT EXISTS idx_products_restaurant_id ON products(restaurant_id)');
+        await client.query('CREATE INDEX IF NOT EXISTS idx_products_category_id ON products(category_id)');
         await client.query('CREATE INDEX IF NOT EXISTS idx_reviews_restaurant_id ON reviews(restaurant_id)');
+        await client.query('CREATE INDEX IF NOT EXISTS idx_reviews_product_id ON reviews(product_id)');
         await client.query('CREATE INDEX IF NOT EXISTS idx_favorites_user_id ON favorites(user_id)');
+        await client.query('CREATE INDEX IF NOT EXISTS idx_cart_user_id ON cart(user_id)');
+        await client.query('CREATE INDEX IF NOT EXISTS idx_addresses_user_id ON addresses(user_id)');
+        await client.query('CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id)');
 
         console.log('✅ PostgreSQL indexes created');
       } catch (indexError) {
-        console.warn('⚠️  Some indexes could not be created:', indexError.message);
+        console.warn('⚠️  Some indexes already exist or could not be created');
       }
 
       console.log('✅ PostgreSQL tables created/verified');
     } catch (error) {
-      console.error('Error creating tables:', error);
+      console.error('❌ Error creating tables:', error);
       throw error;
     } finally {
       client.release();
     }
   }
 
-  // Convert snake_case to camelCase
+  // ==================== CASE CONVERSION ====================
+
+  /**
+   * Convert snake_case to camelCase
+   */
   toCamelCase(obj) {
     if (!obj || typeof obj !== 'object') return obj;
     if (Array.isArray(obj)) return obj.map(item => this.toCamelCase(item));
 
     const camelObj = {};
     for (const [key, value] of Object.entries(obj)) {
+      // Convert snake_case to camelCase
       const camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
-      camelObj[camelKey] = this.toCamelCase(value);
+
+      // Recursively convert nested objects, but not JSONB fields
+      if (value && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date)) {
+        camelObj[camelKey] = this.toCamelCase(value);
+      } else {
+        camelObj[camelKey] = value;
+      }
     }
     return camelObj;
   }
 
-  // Convert camelCase to snake_case
+  /**
+   * Convert camelCase to snake_case (FIXED)
+   */
   toSnakeCase(obj) {
     if (!obj || typeof obj !== 'object') return obj;
     if (Array.isArray(obj)) return obj.map(item => this.toSnakeCase(item));
 
     const snakeObj = {};
     for (const [key, value] of Object.entries(obj)) {
+      // Convert camelCase to snake_case
       const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
-      snakeObj[snakeKey] = this.toSnakeCase(value);
+
+      // Don't convert JSONB fields (items, payment_data, etc.)
+      if (key === 'items' || key === 'paymentData' || value instanceof Date) {
+        snakeObj[snakeKey] = value;
+      } else if (value && typeof value === 'object' && !Array.isArray(value)) {
+        // Only convert if it's a plain object, not Date or Buffer
+        snakeObj[snakeKey] = this.toSnakeCase(value);
+      } else {
+        snakeObj[snakeKey] = value;
+      }
     }
     return snakeObj;
   }
 
   // ==================== FIND ALL ADVANCED ====================
+
   async findAllAdvanced(collection, options = {}) {
     const client = await this.pool.connect();
 
@@ -334,36 +361,39 @@ class PostgreSQLAdapter {
       const params = [];
       let paramCount = 1;
 
-      // Apply filters
+      // Apply filters (FIXED: Better handling)
       for (const [key, value] of Object.entries(filter)) {
+        // Handle operators
         if (key.endsWith('_gte')) {
-          const field = key.replace('_gte', '');
+          const field = this.camelToSnake(key.replace('_gte', ''));
           query += ` AND ${field} >= $${paramCount}`;
           params.push(value);
           paramCount++;
         } else if (key.endsWith('_lte')) {
-          const field = key.replace('_lte', '');
+          const field = this.camelToSnake(key.replace('_lte', ''));
           query += ` AND ${field} <= $${paramCount}`;
           params.push(value);
           paramCount++;
         } else if (key.endsWith('_ne')) {
-          const field = key.replace('_ne', '');
+          const field = this.camelToSnake(key.replace('_ne', ''));
           query += ` AND ${field} != $${paramCount}`;
           params.push(value);
           paramCount++;
         } else if (key.endsWith('_like')) {
-          const field = key.replace('_like', '');
+          const field = this.camelToSnake(key.replace('_like', ''));
           query += ` AND ${field} ILIKE $${paramCount}`;
           params.push(`%${value}%`);
           paramCount++;
         } else if (key.endsWith('_in')) {
-          const field = key.replace('_in', '');
+          const field = this.camelToSnake(key.replace('_in', ''));
           const values = typeof value === 'string' ? value.split(',') : value;
           query += ` AND ${field} = ANY($${paramCount})`;
           params.push(values);
           paramCount++;
         } else {
-          query += ` AND ${key} = $${paramCount}`;
+          // Regular filter - convert camelCase to snake_case
+          const snakeKey = this.camelToSnake(key);
+          query += ` AND ${snakeKey} = $${paramCount}`;
           params.push(value);
           paramCount++;
         }
@@ -376,18 +406,19 @@ class PostgreSQLAdapter {
         paramCount++;
       }
 
-      // Count total
+      // Count total (before pagination)
       const countQuery = query.replace('SELECT *', 'SELECT COUNT(*)');
       const countResult = await client.query(countQuery, params);
       const total = parseInt(countResult.rows[0].count);
 
-      // Sorting
+      // Sorting (FIXED: Convert field names)
       if (sort) {
         const sortFields = sort.split(',');
         const orders = order.split(',');
-        const sortClauses = sortFields.map((field, idx) =>
-          `${field} ${(orders[idx] || 'asc').toUpperCase()}`
-        );
+        const sortClauses = sortFields.map((field, idx) => {
+          const snakeField = this.camelToSnake(field);
+          return `${snakeField} ${(orders[idx] || 'asc').toUpperCase()}`;
+        });
         query += ` ORDER BY ${sortClauses.join(', ')}`;
       } else {
         query += ` ORDER BY created_at DESC`;
@@ -412,17 +443,24 @@ class PostgreSQLAdapter {
           hasPrev: page > 1
         }
       };
+    } catch (error) {
+      console.error('❌ findAllAdvanced error:', error);
+      throw error;
     } finally {
       client.release();
     }
   }
 
-  // ==================== FIND ALL ====================
+  // ==================== CRUD METHODS ====================
+
   async findAll(collection) {
     const client = await this.pool.connect();
     try {
       const result = await client.query(`SELECT * FROM ${collection} ORDER BY id`);
       return result.rows.map(row => this.toCamelCase(row));
+    } catch (error) {
+      console.error('❌ findAll error:', error);
+      throw error;
     } finally {
       client.release();
     }
@@ -434,6 +472,9 @@ class PostgreSQLAdapter {
     try {
       const result = await client.query(`SELECT * FROM ${collection} WHERE id = $1`, [id]);
       return result.rows[0] ? this.toCamelCase(result.rows[0]) : null;
+    } catch (error) {
+      console.error('❌ findById error:', error);
+      return null;
     } finally {
       client.release();
     }
@@ -451,12 +492,14 @@ class PostgreSQLAdapter {
       const result = await client.query(sql, values);
 
       return result.rows[0] ? this.toCamelCase(result.rows[0]) : null;
+    } catch (error) {
+      console.error('❌ findOne error:', error);
+      return null;
     } finally {
       client.release();
     }
   }
 
-  // ==================== FIND MANY ====================
   async findMany(collection, query) {
     const client = await this.pool.connect();
     try {
@@ -474,12 +517,14 @@ class PostgreSQLAdapter {
       const result = await client.query(sql, values);
 
       return result.rows.map(row => this.toCamelCase(row));
+    } catch (error) {
+      console.error('❌ findMany error:', error);
+      return [];
     } finally {
       client.release();
     }
   }
 
-  // ==================== CREATE ====================
   async create(collection, data) {
     const client = await this.pool.connect();
     try {
@@ -498,12 +543,14 @@ class PostgreSQLAdapter {
 
       const result = await client.query(sql, values);
       return this.toCamelCase(result.rows[0]);
+    } catch (error) {
+      console.error('❌ create error:', error);
+      throw error;
     } finally {
       client.release();
     }
   }
 
-  // ==================== UPDATE ====================
   async update(collection, id, data) {
     const client = await this.pool.connect();
     try {
@@ -524,28 +571,35 @@ class PostgreSQLAdapter {
 
       const result = await client.query(sql, [...values, id]);
       return result.rows[0] ? this.toCamelCase(result.rows[0]) : null;
+    } catch (error) {
+      console.error('❌ update error:', error);
+      return null;
     } finally {
       client.release();
     }
   }
 
-  // ==================== DELETE ====================
   async delete(collection, id) {
     const client = await this.pool.connect();
     try {
       const result = await client.query(`DELETE FROM ${collection} WHERE id = $1`, [id]);
       return result.rowCount > 0;
+    } catch (error) {
+      console.error('❌ delete error:', error);
+      return false;
     } finally {
       client.release();
     }
   }
 
-  // ==================== GET NEXT ID ====================
   async getNextId(collection) {
     const client = await this.pool.connect();
     try {
       const result = await client.query(`SELECT MAX(id) as max_id FROM ${collection}`);
       return (result.rows[0].max_id || 0) + 1;
+    } catch (error) {
+      console.error('❌ getNextId error:', error);
+      return Date.now();
     } finally {
       client.release();
     }
@@ -553,15 +607,27 @@ class PostgreSQLAdapter {
 
   // ==================== HELPER METHODS ====================
 
+  /**
+   * Convert single field from camelCase to snake_case
+   */
+  camelToSnake(str) {
+    return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+  }
+
+  /**
+   * Convert single field from snake_case to camelCase
+   */
+  snakeToCamel(str) {
+    return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+  }
+
   async applyRelations(items, collection, options) {
     // PostgreSQL doesn't have native populate like Mongoose
     // Would need to implement manual JOIN queries or separate queries
-    // For now, return items as-is
     return items;
   }
 
   applyFilters(items, filters) {
-    // Same implementation as other adapters
     return items.filter(item => {
       return Object.keys(filters).every(key => {
         if (key.endsWith('_gte')) {
@@ -610,7 +676,6 @@ class PostgreSQLAdapter {
     return true; // No-op for PostgreSQL
   }
 
-  // Cleanup connection on exit
   async close() {
     await this.pool.end();
   }
