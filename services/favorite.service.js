@@ -272,7 +272,12 @@ class FavoriteService extends BaseService {
    * Get trending favorites by type
    */
   async getTrendingFavorites(type, limit = 10) {
-    if (!['restaurant', 'product'].includes(type)) {
+    const validTypes = {
+      restaurant: 'restaurants',
+      product: 'products'
+    };
+
+    if (!validTypes[type]) {
       return {
         success: false,
         message: 'Invalid type',
@@ -280,55 +285,57 @@ class FavoriteService extends BaseService {
       };
     }
 
+    // Lấy tất cả favorites
     const allFavorites = await db.findAll('favorites');
     const typedFavorites = allFavorites.filter(f => f.type === type);
 
-    // Count by referenceId
-    const counts = {};
-    typedFavorites.forEach(fav => {
-      counts[fav.referenceId] = (counts[fav.referenceId] || 0) + 1;
-    });
+    // Đếm lượt yêu thích theo referenceId
+    const counts = new Map();
+    for (const fav of typedFavorites) {
+      counts.set(fav.referenceId, (counts.get(fav.referenceId) || 0) + 1);
+    }
 
-    // Sort and get top items
-    const sorted = Object.entries(counts)
+    // Lấy top referenceId theo số lượt yêu thích
+    const sorted = [...counts.entries()]
       .sort((a, b) => b[1] - a[1])
       .slice(0, limit);
 
-    const trending = await Promise.all(sorted.map(async ([refId, count]) => {
-      const item = await db.findById(
-        type === 'restaurant' ? 'restaurants' : 'products',
-        parseInt(refId)
-      );
+    const trending = await Promise.all(
+      sorted.map(async ([refId, count]) => {
+        const item = await db.findById(validTypes[type], refId);
 
-      if (!item) return null;
+        if (!item) return null;
 
-      if (type === 'product') {
-        const restaurant = await db.findById('restaurants', item.restaurantId);
+        // Trường hợp product cần thêm thông tin restaurant
+        if (type === 'product') {
+          const restaurant = await db.findById('restaurants', item.restaurantId);
+          return {
+            item: {
+              ...item,
+              restaurant: restaurant
+                ? { id: restaurant.id, name: restaurant.name }
+                : null
+            },
+            favoriteCount: count,
+            type
+          };
+        }
+
+        // Trường hợp restaurant
         return {
-          item: {
-            ...item,
-            restaurant: restaurant ? {
-              id: restaurant.id,
-              name: restaurant.name
-            } : null
-          },
+          item,
           favoriteCount: count,
-          type: 'product'
+          type
         };
-      }
-
-      return {
-        item,
-        favoriteCount: count,
-        type: 'restaurant'
-      };
-    }).filter(item => item !== null);
+      })
+    );
 
     return {
       success: true,
-      data: trending
+      data: trending.filter(x => x !== null)
     };
   }
+
 
   /**
    * Get favorite statistics
