@@ -14,11 +14,11 @@ class CategoryService extends BaseService {
     return categorySchema;
   }
 
-  // Chỉ cần validate delete
+  // Validate nếu category đang được dùng
   async validateDelete(id) {
     // Check nếu category đang được dùng
-    const restaurants = db.findMany('restaurants', { categoryId: parseInt(id) });
-    const products = db.findMany('products', { categoryId: parseInt(id) });
+    const restaurants = await db.findMany('restaurants', { categoryId: parseInt(id) });
+    const products = await db.findMany('products', { categoryId: parseInt(id) });
 
     if (restaurants.length > 0 || products.length > 0) {
       return {
