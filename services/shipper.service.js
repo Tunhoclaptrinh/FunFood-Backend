@@ -5,7 +5,7 @@ class ShipperService {
    * Lấy danh sách đơn có thể nhận (status = preparing)
    */
   async getAvailableOrders(shipperId, options = {}) {
-    const result = db.findAllAdvanced('orders', {
+    const result = await db.findAllAdvanced('orders', {
       ...options,
       filter: {
         ...options.filter,
@@ -15,26 +15,28 @@ class ShipperService {
     });
 
     // Enrich với restaurant & customer info
-    const enrichedOrders = result.data.map(order => {
-      const restaurant = db.findById('restaurants', order.restaurantId);
-      const customer = db.findById('users', order.userId);
+    const enrichedOrders = await Promise.all(
+      result.data.map(async (order) => {
+        const restaurant = await db.findById('restaurants', order.restaurantId);
+        const customer = await db.findById('users', order.userId);
 
-      return {
-        ...order,
-        restaurant: restaurant ? {
-          id: restaurant.id,
-          name: restaurant.name,
-          address: restaurant.address,
-          latitude: restaurant.latitude,
-          longitude: restaurant.longitude,
-          phone: restaurant.phone
-        } : null,
-        customer: customer ? {
-          name: customer.name,
-          phone: customer.phone
-        } : null
-      };
-    });
+        return {
+          ...order,
+          restaurant: restaurant ? {
+            id: restaurant.id,
+            name: restaurant.name,
+            address: restaurant.address,
+            latitude: restaurant.latitude,
+            longitude: restaurant.longitude,
+            phone: restaurant.phone
+          } : null,
+          customer: customer ? {
+            name: customer.name,
+            phone: customer.phone
+          } : null
+        };
+      })
+    );
 
     return {
       success: true,
@@ -47,7 +49,7 @@ class ShipperService {
    * Nhận đơn hàng
    */
   async acceptOrder(orderId, shipperId) {
-    const order = db.findById('orders', orderId);
+    const order = await db.findById('orders', orderId);
 
     if (!order) {
       return {
@@ -76,22 +78,22 @@ class ShipperService {
     }
 
     // Assign shipper
-    const updated = db.update('orders', orderId, {
+    const updated = await db.update('orders', orderId, {
       shipperId: shipperId,
       assignedAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     });
 
     // Update shipper status
-    const shipper = db.findById('users', shipperId);
+    const shipper = await db.findById('users', shipperId);
     const currentOrders = shipper.currentOrders || [];
-    db.update('users', shipperId, {
+    await db.update('users', shipperId, {
       currentOrders: [...currentOrders, orderId],
       isAvailable: false  // Đang bận
     });
 
     // Create notification cho customer
-    db.create('notifications', {
+    await db.create('notifications', {
       userId: order.userId,
       title: 'Shipper Assigned',
       message: `Your order #${orderId} has been picked up by shipper`,
@@ -112,7 +114,7 @@ class ShipperService {
    * Xem đơn đang giao của mình
    */
   async getMyDeliveries(shipperId, options = {}) {
-    const result = db.findAllAdvanced('orders', {
+    const result = await db.findAllAdvanced('orders', {
       ...options,
       filter: {
         ...options.filter,
@@ -132,7 +134,7 @@ class ShipperService {
    * Cập nhật trạng thái đơn
    */
   async updateOrderStatus(orderId, shipperId, status) {
-    const order = db.findById('orders', orderId);
+    const order = await db.findById('orders', orderId);
 
     if (!order) {
       return {
@@ -179,15 +181,15 @@ class ShipperService {
       updateData.deliveredAt = new Date().toISOString();
 
       // Update shipper status
-      const shipper = db.findById('users', shipperId);
+      const shipper = await db.findById('users', shipperId);
       const currentOrders = (shipper.currentOrders || []).filter(id => id !== parseInt(orderId));
-      db.update('users', shipperId, {
+      await db.update('users', shipperId, {
         currentOrders,
         isAvailable: currentOrders.length === 0  // Rảnh nếu không còn đơn nào
       });
     }
 
-    const updated = db.update('orders', orderId, updateData);
+    const updated = await db.update('orders', orderId, updateData);
 
     // Create notification
     const statusMessages = {
@@ -195,7 +197,7 @@ class ShipperService {
       'delivered': 'Your order has been delivered'
     };
 
-    db.create('notifications', {
+    await db.create('notifications', {
       userId: order.userId,
       title: 'Order Status Updated',
       message: statusMessages[status],
@@ -216,7 +218,7 @@ class ShipperService {
    * Thống kê shipper
    */
   async getStats(shipperId) {
-    const allOrders = db.findMany('orders', { shipperId });
+    const allOrders = await db.findMany('orders', { shipperId });
 
     const stats = {
       total: allOrders.length,
