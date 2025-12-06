@@ -286,8 +286,9 @@ class ManagerController {
 
       // Kiểm tra flow hợp lệ
       const validTransitions = {
+        'pending': 'confirmed',
+        'confirmed': 'preparing',
         'preparing': 'delivering',
-        'delivering': 'delivered'
       };
 
       if (validTransitions[order.status] !== status) {
