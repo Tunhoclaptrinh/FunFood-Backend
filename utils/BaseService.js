@@ -106,7 +106,7 @@ class BaseService {
   /**
    * Validate data theo schema
    */
-  validateBySchema(data) {
+  async validateBySchema(data) {
     if (!this.schema) return { success: true };
 
     const errors = {};
