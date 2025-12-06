@@ -7,7 +7,7 @@ class ShipperController {
    */
   getAvailableOrders = async (req, res, next) => {
     try {
-      const result = db.findAllAdvanced('orders', {
+      const result = await db.findAllAdvanced('orders', {
         ...req.parsedQuery,
         filter: {
           ...req.parsedQuery.filter,
@@ -19,9 +19,11 @@ class ShipperController {
       });
 
       // Enrich với restaurant & customer info
-      const enrichedOrders = result.data.map(order => {
-        const restaurant = db.findById('restaurants', order.restaurantId);
-        const customer = db.findById('users', order.userId);
+      const enrichedOrders = await Promise.all(result.data.map(async (order) => {
+        const [restaurant, customer] = await Promise.all([
+          db.findById('restaurants', order.restaurantId),
+          db.findById('users', order.userId)
+        ]);
 
         return {
           ...order,
@@ -38,7 +40,7 @@ class ShipperController {
             phone: customer.phone
           } : null
         };
-      });
+      }));
 
       res.json({
         success: true,
@@ -57,7 +59,7 @@ class ShipperController {
    */
   acceptOrder = async (req, res, next) => {
     try {
-      const order = db.findById('orders', req.params.id);
+      const order = await db.findById('orders', req.params.id);
 
       if (!order) {
         return res.status(404).json({
@@ -84,7 +86,7 @@ class ShipperController {
       }
 
       // Assign shipper & update status
-      const updated = db.update('orders', req.params.id, {
+      const updated = await db.update('orders', req.params.id, {
         shipperId: req.user.id,
         assignedAt: new Date().toISOString(),
         status: 'delivering',
@@ -93,7 +95,7 @@ class ShipperController {
       });
 
       // Create notification cho customer
-      db.create('notifications', {
+      await db.create('notifications', {
         userId: order.userId,
         title: 'Order Picked Up',
         message: `Your order #${order.id} is on the way!`,
@@ -119,7 +121,7 @@ class ShipperController {
    */
   getMyDeliveries = async (req, res, next) => {
     try {
-      const result = db.findAllAdvanced('orders', {
+      const result = await db.findAllAdvanced('orders', {
         ...req.parsedQuery,
         filter: {
           ...req.parsedQuery.filter,
@@ -131,9 +133,11 @@ class ShipperController {
       });
 
       // Enrich with customer & restaurant info
-      const enriched = result.data.map(order => {
-        const customer = db.findById('users', order.userId);
-        const restaurant = db.findById('restaurants', order.restaurantId);
+      const enriched = await Promise.all(result.data.map(async (order) => {
+        const [customer, restaurant] = await Promise.all([
+          db.findById('users', order.userId),
+          db.findById('restaurants', order.restaurantId)
+        ]);
 
         return {
           ...order,
@@ -148,7 +152,7 @@ class ShipperController {
             phone: restaurant.phone
           } : null
         };
-      });
+      }));
 
       res.json({
         success: true,
@@ -168,7 +172,7 @@ class ShipperController {
   updateOrderStatus = async (req, res, next) => {
     try {
       const { status } = req.body;
-      const order = db.findById('orders', req.params.id);
+      const order = await db.findById('orders', req.params.id);
 
       if (!order) {
         return res.status(404).json({
@@ -219,7 +223,7 @@ class ShipperController {
         updateData.paymentStatus = 'completed';
       }
 
-      const updated = db.update('orders', req.params.id, updateData);
+      const updated = await db.update('orders', req.params.id, updateData);
 
       // Create notification
       const statusMessages = {
@@ -227,7 +231,7 @@ class ShipperController {
         'delivered': 'Your order has been delivered. Enjoy your meal!'
       };
 
-      db.create('notifications', {
+      await db.create('notifications', {
         userId: order.userId,
         title: 'Order Status Updated',
         message: statusMessages[status],
@@ -253,7 +257,7 @@ class ShipperController {
    */
   getDeliveryHistory = async (req, res, next) => {
     try {
-      const result = db.findAllAdvanced('orders', {
+      const result = await db.findAllAdvanced('orders', {
         ...req.parsedQuery,
         filter: {
           ...req.parsedQuery.filter,
@@ -281,7 +285,7 @@ class ShipperController {
    */
   getStats = async (req, res, next) => {
     try {
-      const allOrders = db.findMany('orders', { shipperId: req.user.id });
+      const allOrders = await db.findMany('orders', { shipperId: req.user.id });
 
       const today = new Date().toISOString().split('T')[0];
       const thisMonth = new Date().toISOString().slice(0, 7);
