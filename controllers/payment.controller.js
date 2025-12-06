@@ -12,7 +12,7 @@ class PaymentController {
       const { paymentMethod } = req.body;
 
       // Validate order exists and belongs to user
-      const order = db.findById('orders', orderId);
+      const order = await db.findById('orders', orderId);
       if (!order) {
         return res.status(404).json({
           success: false,
@@ -111,7 +111,7 @@ class PaymentController {
    */
   getAllPayments = async (req, res, next) => {
     try {
-      const orders = db.findAll('orders');
+      const orders = await db.findAll('orders');
 
       // Filter orders with payment info
       const paymentsData = orders
