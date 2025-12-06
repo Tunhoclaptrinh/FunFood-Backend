@@ -5,9 +5,6 @@ const path = require('path');
 class MongoAdapter {
   constructor() {
     this.models = {};
-    this.initConnection();
-
-    // --- SỬA LỖI TẠI ĐÂY ---
     this.relations = {
       restaurants: {
         products: { ref: 'products', localField: '_id', foreignField: 'restaurantId' },
@@ -16,15 +13,17 @@ class MongoAdapter {
       users: {
         orders: { ref: 'orders', localField: '_id', foreignField: 'userId' }
       },
-      orders: {
-        // ❌ Đã xóa dòng: items: { ... } gây lỗi xung đột
-        // Lý do: 'items' đã là một trường dữ liệu thật trong Order Schema
-      },
       products: {
+        restaurant: { ref: 'restaurants', localField: 'restaurantId', foreignField: '_id', justOne: true },
+        category: { ref: 'categories', localField: 'categoryId', foreignField: '_id', justOne: true }
+      },
+      orders: {
+        user: { ref: 'users', localField: 'userId', foreignField: '_id', justOne: true },
         restaurant: { ref: 'restaurants', localField: 'restaurantId', foreignField: '_id', justOne: true }
       }
     };
 
+    this.initConnection();
     this.loadSchemasAsModels();
   }
 
@@ -39,16 +38,19 @@ class MongoAdapter {
     }
   }
 
+
   loadSchemasAsModels() {
     const schemasDir = path.join(__dirname, '../schemas');
     const files = fs.readdirSync(schemasDir);
 
     files.forEach(file => {
       if (file === 'index.js') return;
+
       const entityName = file.replace('.schema.js', 's');
       const schemaDef = require(path.join(schemasDir, file));
 
       const mongooseFields = {};
+
       for (const [key, val] of Object.entries(schemaDef)) {
         if (key === 'custom') continue;
 
@@ -56,7 +58,7 @@ class MongoAdapter {
         if (val.type === 'number') type = Number;
         if (val.type === 'boolean') type = Boolean;
         if (val.type === 'date') type = Date;
-        if (val.type === 'array') type = Array; // Thêm hỗ trợ Array
+        if (val.type === 'array') type = Array;
 
         if (val.foreignKey) {
           type = Number;
@@ -69,7 +71,7 @@ class MongoAdapter {
         };
       }
 
-      // Giữ ID là Number để tương thích với Frontend hiện tại
+      // Giữ ID là Number để tương thích với Frontend
       mongooseFields._id = { type: Number };
 
       if (!mongoose.models[entityName]) {
@@ -79,14 +81,16 @@ class MongoAdapter {
           toObject: { virtuals: true }
         });
 
-        // Map id -> _id để frontend không bị lỗi
-        schema.virtual('id').get(function () { return this._id; });
+        // Virtual field để map _id -> id
+        schema.virtual('id').get(function () {
+          return this._id;
+        });
 
         // Setup Virtuals cho populate
         const rels = this.relations[entityName];
         if (rels) {
           for (const [field, config] of Object.entries(rels)) {
-            // Kiểm tra xem field có bị trùng với schema thật không trước khi add virtual
+            // Chỉ thêm virtual nếu không trùng với field thật
             if (!mongooseFields[field]) {
               schema.virtual(field, {
                 ref: config.ref,
@@ -109,24 +113,39 @@ class MongoAdapter {
     return this.models[collection];
   }
 
-  // --- Các hàm Adapter ---
-
+  // ==================== FIND ALL ADVANCED ====================
   async findAllAdvanced(collection, options = {}) {
     const Model = this.getModel(collection);
     const query = {};
 
+    // Build query filters
     if (options.filter) {
       for (const [key, val] of Object.entries(options.filter)) {
         if (key === 'q') {
+          // Full-text search
           query['$or'] = [
             { name: { $regex: val, $options: 'i' } },
             { description: { $regex: val, $options: 'i' } }
           ];
-        } else if (key.endsWith('_gte')) query[key.replace('_gte', '')] = { $gte: val };
-        else if (key.endsWith('_lte')) query[key.replace('_lte', '')] = { $lte: val };
-        else if (key.endsWith('_like')) query[key.replace('_like', '')] = { $regex: val, $options: 'i' };
-        else if (key.endsWith('_in')) query[key.replace('_in', '')] = { $in: val.split(',') };
-        else query[key] = val;
+        } else if (key.endsWith('_gte')) {
+          const field = key.replace('_gte', '');
+          query[field] = { ...query[field], $gte: Number(val) };
+        } else if (key.endsWith('_lte')) {
+          const field = key.replace('_lte', '');
+          query[field] = { ...query[field], $lte: Number(val) };
+        } else if (key.endsWith('_ne')) {
+          const field = key.replace('_ne', '');
+          query[field] = { $ne: val };
+        } else if (key.endsWith('_like')) {
+          const field = key.replace('_like', '');
+          query[field] = { $regex: val, $options: 'i' };
+        } else if (key.endsWith('_in')) {
+          const field = key.replace('_in', '');
+          const values = typeof val === 'string' ? val.split(',') : val;
+          query[field] = { $in: values };
+        } else {
+          query[key] = val;
+        }
       }
     }
 
@@ -136,9 +155,17 @@ class MongoAdapter {
 
     let queryBuilder = Model.find(query);
 
+    // Sorting
     if (options.sort) {
+      const sortFields = options.sort.split(',');
+      const orders = options.order ? options.order.split(',') : [];
       const sortObj = {};
-      sortObj[options.sort] = options.order === 'desc' ? -1 : 1;
+
+      sortFields.forEach((field, index) => {
+        const order = orders[index] === 'desc' ? -1 : 1;
+        sortObj[field] = order;
+      });
+
       queryBuilder = queryBuilder.sort(sortObj);
     } else {
       queryBuilder = queryBuilder.sort({ createdAt: -1 });
@@ -146,17 +173,30 @@ class MongoAdapter {
 
     // Populate relations
     if (options.embed) {
-      options.embed.split(',').forEach(field => {
-        // Chỉ populate nếu field đó là virtual hoặc ref
-        try { queryBuilder.populate(field); } catch (e) { }
-      });
-    }
-    if (options.expand) {
-      options.expand.split(',').forEach(field => {
-        try { queryBuilder.populate(field); } catch (e) { }
+      const embedFields = options.embed.split(',');
+      embedFields.forEach(field => {
+        if (field !== 'items') { // Skip nếu là field thật trong schema
+          try {
+            queryBuilder = queryBuilder.populate(field);
+          } catch (e) {
+            console.log(`Skip populate ${field}:`, e.message);
+          }
+        }
       });
     }
 
+    if (options.expand) {
+      const expandFields = options.expand.split(',');
+      expandFields.forEach(field => {
+        try {
+          queryBuilder = queryBuilder.populate(field);
+        } catch (e) {
+          console.log(`Skip populate ${field}:`, e.message);
+        }
+      });
+    }
+
+    // Execute query
     const data = await queryBuilder.skip(skip).limit(limit).lean();
     const total = await Model.countDocuments(query);
 
@@ -164,63 +204,196 @@ class MongoAdapter {
       success: true,
       data: data,
       pagination: {
-        page, limit, total,
-        totalPages: Math.ceil(total / limit)
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+        hasNext: page < Math.ceil(total / limit),
+        hasPrev: page > 1
       }
     };
   }
 
+  // ==================== FIND ALL ====================
+  async findAll(collection) {
+    const Model = this.getModel(collection);
+    return await Model.find().lean();
+  }
+
+  // ==================== FIND BY ID ====================
   async findById(collection, id) {
     const Model = this.getModel(collection);
     try {
       const item = await Model.findById(id).lean();
-      return item ? { success: true, data: item } : { success: false };
-    } catch (e) { return { success: false }; }
+      return item || null;
+    } catch (e) {
+      return null;
+    }
   }
 
+  // ==================== FIND ONE ====================
   async findOne(collection, query) {
     const Model = this.getModel(collection);
-    return await Model.findOne(query).lean();
+    try {
+      return await Model.findOne(query).lean();
+    } catch (e) {
+      return null;
+    }
   }
 
+  // ==================== FIND MANY ====================
   async findMany(collection, query) {
     const Model = this.getModel(collection);
-    return await Model.find(query).lean();
+    try {
+      return await Model.find(query).lean();
+    } catch (e) {
+      return [];
+    }
   }
 
+  // ==================== CREATE ====================
   async create(collection, data) {
-    // Tự sinh ID số ngẫu nhiên nếu chưa có (để giống JSON server)
-    if (!data._id) data._id = Math.floor(Math.random() * 1000000000);
     const Model = this.getModel(collection);
-    return await Model.create(data);
+
+    // Tự sinh ID số ngẫu nhiên nếu chưa có
+    if (!data._id) {
+      data._id = Date.now() + Math.floor(Math.random() * 1000);
+    }
+
+    try {
+      const created = await Model.create(data);
+      return created.toObject();
+    } catch (error) {
+      console.error(`Error creating ${collection}:`, error);
+      throw error;
+    }
   }
 
+  // ==================== UPDATE ====================
   async update(collection, id, data) {
     const Model = this.getModel(collection);
-    return await Model.findByIdAndUpdate(id, data, { new: true });
+    try {
+      const updated = await Model.findByIdAndUpdate(id, data, {
+        new: true,
+        runValidators: true
+      }).lean();
+      return updated;
+    } catch (error) {
+      console.error(`Error updating ${collection}:`, error);
+      return null;
+    }
   }
 
+  // ==================== DELETE ====================
   async delete(collection, id) {
     const Model = this.getModel(collection);
-    return await Model.findByIdAndDelete(id);
+    try {
+      const deleted = await Model.findByIdAndDelete(id);
+      return deleted ? true : false;
+    } catch (error) {
+      console.error(`Error deleting ${collection}:`, error);
+      return false;
+    }
   }
 
+  // ==================== GET NEXT ID ====================
+  async getNextId(collection) {
+    const Model = this.getModel(collection);
+    try {
+      const lastItem = await Model.findOne().sort({ _id: -1 }).lean();
+      return lastItem ? lastItem._id + 1 : 1;
+    } catch (error) {
+      return Date.now();
+    }
+  }
+
+  // ==================== APPLY RELATIONS ====================
   async applyRelations(items, collection, options) {
     if (!items || items.length === 0) return items;
+
     const Model = this.getModel(collection);
     let populatedItems = [...items];
 
     if (options.embed) {
       const fields = options.embed.split(',');
       for (const field of fields) {
-        // Bỏ qua nếu field không phải virtual (như items trong order)
+        // Skip nếu là field thật trong schema (như items trong orders)
         if (collection === 'orders' && field === 'items') continue;
+
         try {
           populatedItems = await Model.populate(populatedItems, { path: field });
-        } catch (e) { console.log('Populate error ignored:', e.message); }
+        } catch (e) {
+          console.log('Populate error ignored:', e.message);
+        }
       }
     }
+
+    if (options.expand) {
+      const fields = options.expand.split(',');
+      for (const field of fields) {
+        try {
+          populatedItems = await Model.populate(populatedItems, { path: field });
+        } catch (e) {
+          console.log('Populate error ignored:', e.message);
+        }
+      }
+    }
+
     return populatedItems;
+  }
+
+  // ==================== HELPER METHODS ====================
+
+  // Apply filters (for backward compatibility)
+  applyFilters(items, filters) {
+    return items.filter(item => {
+      return Object.keys(filters).every(key => {
+        if (key.endsWith('_gte')) {
+          const field = key.replace('_gte', '');
+          return item[field] >= filters[key];
+        }
+        if (key.endsWith('_lte')) {
+          const field = key.replace('_lte', '');
+          return item[field] <= filters[key];
+        }
+        if (key.endsWith('_ne')) {
+          const field = key.replace('_ne', '');
+          return item[field] !== filters[key];
+        }
+        if (key.endsWith('_like')) {
+          const field = key.replace('_like', '');
+          const regex = new RegExp(filters[key], 'i');
+          return regex.test(item[field]);
+        }
+        return item[key] == filters[key];
+      });
+    });
+  }
+
+  // Apply pagination
+  applyPagination(items, page = 1, limit = 10) {
+    const total = items.length;
+    const currentPage = Math.max(1, parseInt(page));
+    const itemsPerPage = Math.max(1, parseInt(limit));
+    const totalPages = Math.ceil(total / itemsPerPage);
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+
+    return {
+      data: items.slice(startIndex, endIndex),
+      page: currentPage,
+      limit: itemsPerPage,
+      total,
+      totalPages,
+      hasNext: currentPage < totalPages,
+      hasPrev: currentPage > 1
+    };
+  }
+
+  // Save data (for compatibility - not used in MongoDB)
+  saveData() {
+    return true;
   }
 }
 
