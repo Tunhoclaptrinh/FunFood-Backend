@@ -38,7 +38,6 @@ class MongoAdapter {
     }
   }
 
-
   loadSchemasAsModels() {
     const schemasDir = path.join(__dirname, '../schemas');
     const files = fs.readdirSync(schemasDir);
@@ -175,7 +174,7 @@ class MongoAdapter {
     if (options.embed) {
       const embedFields = options.embed.split(',');
       embedFields.forEach(field => {
-        if (field !== 'items') { // Skip nếu là field thật trong schema
+        if (field !== 'items') {
           try {
             queryBuilder = queryBuilder.populate(field);
           } catch (e) {
@@ -200,9 +199,12 @@ class MongoAdapter {
     const data = await queryBuilder.skip(skip).limit(limit).lean();
     const total = await Model.countDocuments(query);
 
+    // Map _id -> id cho tất cả items
+    const mappedData = data.map(item => ({ ...item, id: item._id }));
+
     return {
       success: true,
-      data: data,
+      data: mappedData,
       pagination: {
         page,
         limit,
@@ -217,15 +219,21 @@ class MongoAdapter {
   // ==================== FIND ALL ====================
   async findAll(collection) {
     const Model = this.getModel(collection);
-    return await Model.find().lean();
+    const items = await Model.find().lean();
+    // Map _id -> id
+    return items.map(item => ({ ...item, id: item._id }));
   }
 
   // ==================== FIND BY ID ====================
   async findById(collection, id) {
     const Model = this.getModel(collection);
     try {
-      const item = await Model.findById(id).lean();
-      return item || null;
+      // Tìm theo _id (MongoDB ID)
+      const item = await Model.findOne({ _id: parseInt(id) }).lean();
+      if (!item) return null;
+
+      // Map _id -> id cho frontend
+      return { ...item, id: item._id };
     } catch (e) {
       return null;
     }
@@ -235,7 +243,11 @@ class MongoAdapter {
   async findOne(collection, query) {
     const Model = this.getModel(collection);
     try {
-      return await Model.findOne(query).lean();
+      const item = await Model.findOne(query).lean();
+      if (!item) return null;
+
+      // Map _id -> id
+      return { ...item, id: item._id };
     } catch (e) {
       return null;
     }
@@ -245,7 +257,9 @@ class MongoAdapter {
   async findMany(collection, query) {
     const Model = this.getModel(collection);
     try {
-      return await Model.find(query).lean();
+      const items = await Model.find(query).lean();
+      // Map _id -> id cho tất cả items
+      return items.map(item => ({ ...item, id: item._id }));
     } catch (e) {
       return [];
     }
@@ -256,13 +270,18 @@ class MongoAdapter {
     const Model = this.getModel(collection);
 
     // Tự sinh ID số ngẫu nhiên nếu chưa có
-    if (!data._id) {
+    if (!data._id && !data.id) {
       data._id = Date.now() + Math.floor(Math.random() * 1000);
+    } else if (data.id && !data._id) {
+      // Nếu có id thì dùng id làm _id
+      data._id = data.id;
     }
 
     try {
       const created = await Model.create(data);
-      return created.toObject();
+      const obj = created.toObject();
+      // Map _id -> id
+      return { ...obj, id: obj._id };
     } catch (error) {
       console.error(`Error creating ${collection}:`, error);
       throw error;
@@ -273,11 +292,19 @@ class MongoAdapter {
   async update(collection, id, data) {
     const Model = this.getModel(collection);
     try {
-      const updated = await Model.findByIdAndUpdate(id, data, {
-        new: true,
-        runValidators: true
-      }).lean();
-      return updated;
+      const updated = await Model.findOneAndUpdate(
+        { _id: parseInt(id) },
+        data,
+        {
+          new: true,
+          runValidators: true
+        }
+      ).lean();
+
+      if (!updated) return null;
+
+      // Map _id -> id
+      return { ...updated, id: updated._id };
     } catch (error) {
       console.error(`Error updating ${collection}:`, error);
       return null;
@@ -288,7 +315,7 @@ class MongoAdapter {
   async delete(collection, id) {
     const Model = this.getModel(collection);
     try {
-      const deleted = await Model.findByIdAndDelete(id);
+      const deleted = await Model.findOneAndDelete({ _id: parseInt(id) });
       return deleted ? true : false;
     } catch (error) {
       console.error(`Error deleting ${collection}:`, error);
@@ -344,7 +371,6 @@ class MongoAdapter {
 
   // ==================== HELPER METHODS ====================
 
-  // Apply filters (for backward compatibility)
   applyFilters(items, filters) {
     return items.filter(item => {
       return Object.keys(filters).every(key => {
