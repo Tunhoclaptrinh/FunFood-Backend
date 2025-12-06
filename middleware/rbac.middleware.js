@@ -104,9 +104,7 @@ exports.checkOwnership = (resourceType, idParam = 'id') => {
     const resourceId = req.params[idParam];
 
     // Admin bypass ownership check
-    if (userRole === 'admin') {
-      return next();
-    }
+    if (userRole === 'admin') return next();
 
     try {
       let resource;
@@ -114,33 +112,24 @@ exports.checkOwnership = (resourceType, idParam = 'id') => {
 
       switch (resourceType) {
         case 'order':
-          resource = db.findById('orders', resourceId);
-          if (!resource) {
-            return res.status(404).json({
-              success: false,
-              message: 'Order not found'
-            });
-          }
+          resource = await db.findById('orders', resourceId);
+          if (!resource) return res.status(404).json({ success: false, message: 'Order not found' });
 
           // Customer: chỉ order của mình
-          if (userRole === 'customer') {
-            isOwner = resource.userId === userId;
-          }
+          if (userRole === 'customer') isOwner = resource.userId === userId;
 
           // Manager: chỉ order của restaurant mình quản lý
           if (userRole === 'manager') {
-            const restaurant = db.findOne('restaurants', { managerId: userId });
+            const restaurant = await db.findOne('restaurants', { managerId: userId });
             isOwner = restaurant && resource.restaurantId === restaurant.id;
           }
 
           // Shipper: chỉ order được assign
-          if (userRole === 'shipper') {
-            isOwner = resource.shipperId === userId;
-          }
+          if (userRole === 'shipper') isOwner = resource.shipperId === userId;
           break;
 
         case 'review':
-          resource = db.findById('reviews', resourceId);
+          resource = await db.findById('reviews', resourceId);
           if (!resource) {
             return res.status(404).json({
               success: false,
@@ -151,7 +140,7 @@ exports.checkOwnership = (resourceType, idParam = 'id') => {
           break;
 
         case 'address':
-          resource = db.findById('addresses', resourceId);
+          resource = await db.findById('addresses', resourceId);
           if (!resource) {
             return res.status(404).json({
               success: false,
@@ -162,7 +151,7 @@ exports.checkOwnership = (resourceType, idParam = 'id') => {
           break;
 
         case 'cart':
-          resource = db.findById('cart', resourceId);
+          resource = await db.findById('cart', resourceId);
           if (!resource) {
             return res.status(404).json({
               success: false,
@@ -173,7 +162,7 @@ exports.checkOwnership = (resourceType, idParam = 'id') => {
           break;
 
         case 'restaurant':
-          resource = db.findById('restaurants', resourceId);
+          resource = await db.findById('restaurants', resourceId);
           if (!resource) {
             return res.status(404).json({
               success: false,
@@ -188,7 +177,7 @@ exports.checkOwnership = (resourceType, idParam = 'id') => {
           break;
 
         case 'product':
-          resource = db.findById('products', resourceId);
+          resource = await db.findById('products', resourceId);
           if (!resource) {
             return res.status(404).json({
               success: false,
