@@ -525,35 +525,37 @@ class MySQLAdapter {
       let query = `SELECT * FROM ${collection} WHERE 1=1`;
       const params = [];
 
-      // Apply filters
-      for (const [key, value] of Object.entries(filter)) {
-        // Handle operators
-        if (key.endsWith('_gte')) {
-          const field = this.camelToSnake(key.replace('_gte', ''));
-          query += ` AND ${field} >= ?`;
-          params.push(value);
-        } else if (key.endsWith('_lte')) {
-          const field = this.camelToSnake(key.replace('_lte', ''));
-          query += ` AND ${field} <= ?`;
-          params.push(value);
-        } else if (key.endsWith('_ne')) {
-          const field = this.camelToSnake(key.replace('_ne', ''));
-          query += ` AND ${field} != ?`;
-          params.push(value);
-        } else if (key.endsWith('_like')) {
-          const field = this.camelToSnake(key.replace('_like', ''));
-          query += ` AND ${field} LIKE ?`;
-          params.push(`%${value}%`);
-        } else if (key.endsWith('_in')) {
-          const field = this.camelToSnake(key.replace('_in', ''));
-          const values = typeof value === 'string' ? value.split(',') : value;
-          query += ` AND ${field} IN (${values.map(() => '?').join(',')})`;
-          params.push(...values);
-        } else {
-          // Regular filter - convert camelCase to snake_case
-          const snakeKey = this.camelToSnake(key);
-          query += ` AND ${snakeKey} = ?`;
-          params.push(value);
+      // Apply filters (FIXED: Added check for filter)
+      if (filter) {
+        for (const [key, value] of Object.entries(filter)) {
+          // Handle operators
+          if (key.endsWith('_gte')) {
+            const field = this.camelToSnake(key.replace('_gte', ''));
+            query += ` AND ${field} >= ?`;
+            params.push(value);
+          } else if (key.endsWith('_lte')) {
+            const field = this.camelToSnake(key.replace('_lte', ''));
+            query += ` AND ${field} <= ?`;
+            params.push(value);
+          } else if (key.endsWith('_ne')) {
+            const field = this.camelToSnake(key.replace('_ne', ''));
+            query += ` AND ${field} != ?`;
+            params.push(value);
+          } else if (key.endsWith('_like')) {
+            const field = this.camelToSnake(key.replace('_like', ''));
+            query += ` AND ${field} LIKE ?`;
+            params.push(`%${value}%`);
+          } else if (key.endsWith('_in')) {
+            const field = this.camelToSnake(key.replace('_in', ''));
+            const values = typeof value === 'string' ? value.split(',') : value;
+            query += ` AND ${field} IN (${values.map(() => '?').join(',')})`;
+            params.push(...values);
+          } else {
+            // Regular filter - convert camelCase to snake_case
+            const snakeKey = this.camelToSnake(key);
+            query += ` AND ${snakeKey} = ?`;
+            params.push(value);
+          }
         }
       }
 
