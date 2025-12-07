@@ -361,41 +361,43 @@ class PostgreSQLAdapter {
       const params = [];
       let paramCount = 1;
 
-      // Apply filters (FIXED: Better handling)
-      for (const [key, value] of Object.entries(filter)) {
-        // Handle operators
-        if (key.endsWith('_gte')) {
-          const field = this.camelToSnake(key.replace('_gte', ''));
-          query += ` AND ${field} >= $${paramCount}`;
-          params.push(value);
-          paramCount++;
-        } else if (key.endsWith('_lte')) {
-          const field = this.camelToSnake(key.replace('_lte', ''));
-          query += ` AND ${field} <= $${paramCount}`;
-          params.push(value);
-          paramCount++;
-        } else if (key.endsWith('_ne')) {
-          const field = this.camelToSnake(key.replace('_ne', ''));
-          query += ` AND ${field} != $${paramCount}`;
-          params.push(value);
-          paramCount++;
-        } else if (key.endsWith('_like')) {
-          const field = this.camelToSnake(key.replace('_like', ''));
-          query += ` AND ${field} ILIKE $${paramCount}`;
-          params.push(`%${value}%`);
-          paramCount++;
-        } else if (key.endsWith('_in')) {
-          const field = this.camelToSnake(key.replace('_in', ''));
-          const values = typeof value === 'string' ? value.split(',') : value;
-          query += ` AND ${field} = ANY($${paramCount})`;
-          params.push(values);
-          paramCount++;
-        } else {
-          // Regular filter - convert camelCase to snake_case
-          const snakeKey = this.camelToSnake(key);
-          query += ` AND ${snakeKey} = $${paramCount}`;
-          params.push(value);
-          paramCount++;
+      // Apply filters (FIXED: Better handling for null filter)
+      if (filter) {
+        for (const [key, value] of Object.entries(filter)) {
+          // Handle operators
+          if (key.endsWith('_gte')) {
+            const field = this.camelToSnake(key.replace('_gte', ''));
+            query += ` AND ${field} >= $${paramCount}`;
+            params.push(value);
+            paramCount++;
+          } else if (key.endsWith('_lte')) {
+            const field = this.camelToSnake(key.replace('_lte', ''));
+            query += ` AND ${field} <= $${paramCount}`;
+            params.push(value);
+            paramCount++;
+          } else if (key.endsWith('_ne')) {
+            const field = this.camelToSnake(key.replace('_ne', ''));
+            query += ` AND ${field} != $${paramCount}`;
+            params.push(value);
+            paramCount++;
+          } else if (key.endsWith('_like')) {
+            const field = this.camelToSnake(key.replace('_like', ''));
+            query += ` AND ${field} ILIKE $${paramCount}`;
+            params.push(`%${value}%`);
+            paramCount++;
+          } else if (key.endsWith('_in')) {
+            const field = this.camelToSnake(key.replace('_in', ''));
+            const values = typeof value === 'string' ? value.split(',') : value;
+            query += ` AND ${field} = ANY($${paramCount})`;
+            params.push(values);
+            paramCount++;
+          } else {
+            // Regular filter - convert camelCase to snake_case
+            const snakeKey = this.camelToSnake(key);
+            query += ` AND ${snakeKey} = $${paramCount}`;
+            params.push(value);
+            paramCount++;
+          }
         }
       }
 

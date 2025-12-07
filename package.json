@@ -7,7 +7,9 @@
     "start": "node server.js",
     "seed": "node utils/seedData.js",
     "dev": "nodemon server.js",
-    "test:upload": "node tests/upload.test.js"
+    "test:upload": "node tests/upload.test.js",
+    "query": "node tools/run-query.js",
+    "fix-sequences": "node tools/fix-sequences.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
