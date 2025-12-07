@@ -267,7 +267,7 @@ class BaseService {
       // Transform data before save
       const transformedData = await this.beforeCreate(data);
 
-      const item = db.create(this.collection, transformedData);
+      const item = await db.create(this.collection, transformedData);
 
       // Hook after create
       await this.afterCreate(item);
