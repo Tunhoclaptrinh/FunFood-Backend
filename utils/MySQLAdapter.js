@@ -437,9 +437,10 @@ class MySQLAdapter {
     return camelObj;
   }
 
+
   /**
-   * Convert camelCase to snake_case (with JSON field handling)
-   */
+     * Convert camelCase to snake_case (with JSON field handling)
+     */
   toSnakeCase(obj) {
     if (!obj || typeof obj !== 'object') return obj;
     if (Array.isArray(obj)) return obj.map(item => this.toSnakeCase(item));
@@ -470,6 +471,40 @@ class MySQLAdapter {
       }
     }
     return snakeObj;
+  }
+
+  /**
+   * Convert camelCase to snake_case (with JSON field handling)
+   */
+  toCamelCase(obj) {
+    if (!obj || typeof obj !== 'object') return obj;
+    if (Array.isArray(obj)) return obj.map(item => this.toCamelCase(item));
+
+    const camelObj = {};
+    for (const [key, value] of Object.entries(obj)) {
+      const camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+
+      // Handle datetime
+      if ((key.endsWith('_at') || key === 'created_at' || key === 'updated_at' || key === 'last_login') && value) {
+        camelObj[camelKey] = this.fromMySQLDateTime(value);
+      }
+      // JSON fields: MySQL driver có thể trả về string hoặc object tùy cấu hình
+      else if (this.isJsonField(camelKey)) {
+        if (typeof value === 'string') {
+          try {
+            camelObj[camelKey] = JSON.parse(value);
+          } catch (e) {
+            camelObj[camelKey] = []; // Fallback empty array/obj
+          }
+        } else {
+          camelObj[camelKey] = value;
+        }
+      }
+      else {
+        camelObj[camelKey] = value;
+      }
+    }
+    return camelObj;
   }
 
   /**
@@ -737,10 +772,101 @@ class MySQLAdapter {
 
   // ==================== HELPER METHODS ====================
 
+  /**
+   * Implement Relations thủ công (Simulation)
+   * Vì cấu trúc JSON Server cho phép embed linh động mà không cần join cứng SQL
+   */
   async applyRelations(items, collection, options) {
-    // MySQL doesn't have native populate
-    // Would need to implement manual JOIN queries
-    return items;
+    if (!items || items.length === 0) return items;
+
+    // Deep copy để tránh mutation
+    const resultItems = items.map(i => ({ ...i }));
+
+    // 1. Expand (Many-to-One): VD Order -> User, Product -> Restaurant
+    if (options.expand) {
+      const relations = options.expand.split(',');
+      for (const relation of relations) {
+        const foreignKey = `${relation}Id`; // vd: userId, restaurantId
+
+        // Lấy danh sách ID cần query
+        const idsToFetch = [...new Set(resultItems.map(item => item[foreignKey]).filter(id => id))];
+
+        if (idsToFetch.length > 0) {
+          // Determine table name (basic pluralization)
+          const targetTable = relation + 's';
+
+          // Query batch
+          const placeholders = idsToFetch.map(() => '?').join(',');
+          const connection = await this.pool.getConnection();
+          try {
+            const [rows] = await connection.query(`SELECT * FROM ${targetTable} WHERE id IN (${placeholders})`, idsToFetch);
+            const map = {};
+            rows.forEach(r => map[r.id] = this.toCamelCase(r));
+
+            // Map back to items
+            resultItems.forEach(item => {
+              if (item[foreignKey]) {
+                item[relation] = map[item[foreignKey]] || null;
+              }
+            });
+          } finally {
+            connection.release();
+          }
+        }
+      }
+    }
+
+    // 2. Embed (One-to-Many): VD Restaurant -> Products
+    if (options.embed) {
+      const relations = options.embed.split(',');
+      for (const relation of relations) {
+        // Map relation name to table name
+        // VD: embed=products -> table products, embed=items -> table products (special case for orders?)
+        let targetTable = relation;
+
+        // Xác định Foreign Key ngược
+        // VD: Embed products vào restaurants thì FK ở bảng products là restaurantId
+        let foreignKey = collection.slice(0, -1) + 'Id'; // restaurants -> restaurantId
+
+        // Special mapping logic (giống JsonAdapter)
+        if (collection === 'orders' && relation === 'items') continue; // Items đã có sẵn trong JSON order
+
+        const parentIds = resultItems.map(i => i.id);
+
+        if (parentIds.length > 0) {
+          const connection = await this.pool.getConnection();
+          try {
+            // Chuyển camelCase FK sang snake_case cho SQL query
+            const snakeFK = this.camelToSnake(foreignKey);
+            const placeholders = parentIds.map(() => '?').join(',');
+
+            const [rows] = await connection.query(
+              `SELECT * FROM ${targetTable} WHERE ${snakeFK} IN (${placeholders})`,
+              parentIds
+            );
+
+            // Group by parent ID
+            const map = {};
+            rows.forEach(r => {
+              const converted = this.toCamelCase(r);
+              const pId = converted[foreignKey];
+              if (!map[pId]) map[pId] = [];
+              map[pId].push(converted);
+            });
+
+            resultItems.forEach(item => {
+              item[relation] = map[item.id] || [];
+            });
+          } catch (e) {
+            console.warn(`⚠️ Embed failed for ${relation}: ${e.message}`);
+          } finally {
+            connection.release();
+          }
+        }
+      }
+    }
+
+    return resultItems;
   }
 
   applyFilters(items, filters) {

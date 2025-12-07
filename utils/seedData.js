@@ -15,7 +15,7 @@ const seedData = {
       "id": 1,
       "name": "Admin User",
       "email": "admin@funfood.com",
-      "password": hashedPassword,
+      "password": "$2a$10$AYuy44CrHLUH.O7x8wnzU.tbq285fOoq1i.GW7MGkyF/lb0ufjY32",
       "phone": "0912345678",
       "avatar": "https://ui-avatars.com/api/?name=Admin&background=4F46E5&color=fff",
       "address": "123 Đường Lê Lợi, Quận 1, TP.HCM",
@@ -29,21 +29,21 @@ const seedData = {
       "id": 2,
       "name": "Nguyễn Văn An",
       "email": "user@funfood.com",
-      "password": hashedPassword,
+      "password": "$2a$10$AYuy44CrHLUH.O7x8wnzU.tbq285fOoq1i.GW7MGkyF/lb0ufjY32",
       "phone": "0987654321",
-      "avatar": "https://ui-avatars.com/api/?name=Nguyen+Van+An&background=10B981&color=fff",
+      "avatar": "/uploads/avatars/user-2-1764531138705.jpeg",
       "address": "456 Đường Nguyễn Huệ, Quận 1, TP.HCM",
       "role": "customer",
       "isActive": true,
       "createdAt": "2024-02-20T14:20:00Z",
-      "lastLogin": "2024-10-26T09:30:00Z",
-      "updatedAt": "2024-10-26T09:30:00Z"
+      "lastLogin": "2025-12-01T04:15:12.118Z",
+      "updatedAt": "2025-11-30T19:59:21.300Z"
     },
     {
       "id": 3,
       "name": "Trần Thị B",
       "email": "customer@funfood.com",
-      "password": hashedPassword,
+      "password": "$2a$10$AYuy44CrHLUH.O7x8wnzU.tbq285fOoq1i.GW7MGkyF/lb0ufjY32",
       "phone": "0901234567",
       "avatar": "https://ui-avatars.com/api/?name=Tran+Thi+B&background=F59E0B&color=fff",
       "address": "789 Đường Lý Thường Kiệt, Quận 10, TP.HCM",
@@ -57,7 +57,7 @@ const seedData = {
       "id": 4,
       "name": "Lê Văn C",
       "email": "le.van.c@funfood.com",
-      "password": hashedPassword,
+      "password": "$2a$10$AYuy44CrHLUH.O7x8wnzU.tbq285fOoq1i.GW7MGkyF/lb0ufjY32",
       "phone": "0905123456",
       "avatar": "https://ui-avatars.com/api/?name=Le+Van+C&background=EF4444&color=fff",
       "address": "246 Sư Vạn Hạnh, Quận 10, TP.HCM",
@@ -71,7 +71,7 @@ const seedData = {
       "id": 5,
       "name": "Phạm Thị D",
       "email": "pham.thi.d@funfood.com",
-      "password": hashedPassword,
+      "password": "$2a$10$AYuy44CrHLUH.O7x8wnzU.tbq285fOoq1i.GW7MGkyF/lb0ufjY32",
       "phone": "0906789012",
       "avatar": "https://ui-avatars.com/api/?name=Pham+Thi+D&background=8B5CF6&color=fff",
       "address": "12 Nguyễn Oanh, Quận Gò Vấp, TP.HCM",
@@ -85,7 +85,7 @@ const seedData = {
       "id": 6,
       "name": "Hoàng Minh (Shipper)",
       "email": "shipper@funfood.com",
-      "password": hashedPassword,
+      "password": "$2a$10$AYuy44CrHLUH.O7x8wnzU.tbq285fOoq1i.GW7MGkyF/lb0ufjY32",
       "phone": "0909999888",
       "avatar": "https://ui-avatars.com/api/?name=Hoang+Minh&background=F97316&color=fff",
       "address": "459 Âu Cơ, Quận Tân Bình, TP.HCM",
@@ -99,7 +99,7 @@ const seedData = {
       "id": 7,
       "name": "Quản Lý (Nhà Hàng Chay)",
       "email": "manager.chay@funfood.com",
-      "password": hashedPassword,
+      "password": "$2a$10$AYuy44CrHLUH.O7x8wnzU.tbq285fOoq1i.GW7MGkyF/lb0ufjY32",
       "phone": "0918888777",
       "avatar": "https://ui-avatars.com/api/?name=Manager&background=22C55E&color=fff",
       "address": "111 Nguyễn Trãi, Quận 5, TP.HCM",
@@ -108,6 +108,19 @@ const seedData = {
       "createdAt": "2024-03-01T09:00:00Z",
       "lastLogin": "2024-10-25T15:00:00Z",
       "updatedAt": "2024-10-25T15:00:00Z"
+    },
+    {
+      "id": 8,
+      "email": "tn@ff.com",
+      "password": "$2a$10$95FDrr2ZDLnglPgoQeb1ru/ID4gKdwsCrS65znbo6wlBclqXhDkia",
+      "name": "tuan",
+      "phone": "0123456789",
+      "address": "",
+      "avatar": "https://ui-avatars.com/api/?name=tuan&background=random",
+      "role": "customer",
+      "isActive": true,
+      "createdAt": "2025-11-30T18:57:52.573Z",
+      "lastLogin": "2025-11-30T18:58:33.633Z"
     }
   ],
   "categories": [
@@ -188,51 +201,49 @@ const seedData = {
     {
       "id": 1,
       "name": "Quán Cơm Tấm Sườn Bì Chả",
-      "description": "Cơm tấm truyền thống Sài Gòn với sườn nướng thơm ngon",
+      "description": "Cơm tấm truyền thống Sài Gòn với sườn nướng thơm ngon, bì giòn tan và chả trứng đậm đà",
       "image": "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=600",
       "rating": 4.5,
       "totalReviews": 128,
       "deliveryTime": "20-30 phút",
       "deliveryFee": 15000,
-      "address": "789 Đường Lê Văn Sỹ, Quận Tân Bình, TP.HCM",
-      "latitude": 10.7993,
-      "longitude": 106.6632,
+      "address": "789 Đường Lê Văn Sỹ, Phường 1, Quận Tân Bình, TP.HCM",
+      "latitude": 20.9808954,
+      "longitude": 105.7806283,
       "phone": "0283 1234567",
       "openTime": "06:00",
       "closeTime": "22:00",
       "isOpen": true,
-      "categoryId": 1,
-      "managerId": 7
+      "categoryId": 1
     },
     {
       "id": 2,
       "name": "Phở Hà Nội",
-      "description": "Phở bò chính gốc Hà Nội, nước dùng ninh từ xương",
+      "description": "Phở bò chính gốc Hà Nội, nước dùng ninh từ xương trong nhiều giờ, thơm ngon đậm đà",
       "image": "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=600",
       "rating": 4.7,
       "totalReviews": 256,
       "deliveryTime": "25-35 phút",
       "deliveryFee": 20000,
-      "address": "123 Đường Pasteur, Quận 1, TP.HCM",
+      "address": "123 Đường Pasteur, Phường Bến Nghé, Quận 1, TP.HCM",
       "latitude": 10.7756,
       "longitude": 106.7019,
       "phone": "0283 7654321",
       "openTime": "06:30",
       "closeTime": "23:00",
       "isOpen": true,
-      "categoryId": 2,
-      "managerId": null
+      "categoryId": 2
     },
     {
       "id": 3,
       "name": "Bánh Mì Huỳnh Hoa",
-      "description": "Bánh mì thập cẩm đặc biệt nổi tiếng",
+      "description": "Bánh mì thập cẩm đặc biệt nổi tiếng khắp Sài Gòn với nhân đầy ắp",
       "image": "https://images.unsplash.com/photo-1558030006-450675393462?w=600",
       "rating": 4.8,
       "totalReviews": 512,
       "deliveryTime": "15-25 phút",
       "deliveryFee": 10000,
-      "address": "456 Đường Lê Thị Riêng, Quận 1, TP.HCM",
+      "address": "456 Đường Lê Thị Riêng, Phường Bến Thành, Quận 1, TP.HCM",
       "latitude": 10.7691,
       "longitude": 106.6978,
       "phone": "0283 2345678",
@@ -384,6 +395,42 @@ const seedData = {
       "closeTime": "21:00",
       "isOpen": true,
       "categoryId": 1
+    },
+    {
+      "id": 12,
+      "name": "Nhà Hàng Sushi Tokyo",
+      "description": "Sushi tươi ngon chuẩn Nhật, sashimi hảo hạng",
+      "image": "https://images.unsplash.com/photo-1553621042-f6e147245754?w=600",
+      "rating": 4.7,
+      "totalReviews": 210,
+      "deliveryTime": "25-35 phút",
+      "deliveryFee": 20000,
+      "address": "10 Đường Lý Tự Trọng, Quận 1, TP.HCM",
+      "latitude": 10.7751,
+      "longitude": 106.699,
+      "phone": "0283 9998888",
+      "openTime": "10:00",
+      "closeTime": "22:00",
+      "isOpen": true,
+      "categoryId": 10
+    },
+    {
+      "id": 13,
+      "name": "Nhà Hàng Nhật Bản Ramen",
+      "description": "Ramen nước dùng chuẩn Nhật, topping đầy đặn",
+      "image": "https://images.unsplash.com/photo-1550547660-d9450f859349?w=600",
+      "rating": 4.5,
+      "totalReviews": 150,
+      "deliveryTime": "20-30 phút",
+      "deliveryFee": 15000,
+      "address": "30 Đường Võ Văn Kiệt, Quận 1, TP.HCM",
+      "latitude": 10.776,
+      "longitude": 106.7,
+      "phone": "0283 8887777",
+      "openTime": "11:00",
+      "closeTime": "21:30",
+      "isOpen": true,
+      "categoryId": 11
     }
   ],
   "products": [
@@ -396,8 +443,7 @@ const seedData = {
       "restaurantId": 1,
       "categoryId": 1,
       "available": true,
-      "discount": 0,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 0
     },
     {
       "id": 2,
@@ -408,8 +454,7 @@ const seedData = {
       "restaurantId": 1,
       "categoryId": 1,
       "available": true,
-      "discount": 10,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 10
     },
     {
       "id": 3,
@@ -420,8 +465,7 @@ const seedData = {
       "restaurantId": 1,
       "categoryId": 1,
       "available": true,
-      "discount": 0,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 0
     },
     {
       "id": 4,
@@ -432,8 +476,7 @@ const seedData = {
       "restaurantId": 2,
       "categoryId": 2,
       "available": true,
-      "discount": 0,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 0
     },
     {
       "id": 5,
@@ -444,8 +487,7 @@ const seedData = {
       "restaurantId": 2,
       "categoryId": 2,
       "available": true,
-      "discount": 0,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 0
     },
     {
       "id": 6,
@@ -456,20 +498,18 @@ const seedData = {
       "restaurantId": 2,
       "categoryId": 2,
       "available": true,
-      "discount": 15,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 15
     },
     {
       "id": 7,
       "name": "Bánh Mì Thập Cẩm",
-      "description": "Bánh mì với đầy đủ topping",
+      "description": "Bánh mì với đầy đủ topping: chả lụa, pate, thịt nguội, dưa góp",
       "price": 25000,
       "image": "https://images.unsplash.com/photo-1558030006-450675393462?w=600",
       "restaurantId": 3,
       "categoryId": 3,
       "available": true,
-      "discount": 15,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 15
     },
     {
       "id": 8,
@@ -480,8 +520,7 @@ const seedData = {
       "restaurantId": 3,
       "categoryId": 3,
       "available": true,
-      "discount": 0,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 0
     },
     {
       "id": 9,
@@ -492,8 +531,7 @@ const seedData = {
       "restaurantId": 3,
       "categoryId": 3,
       "available": true,
-      "discount": 0,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 0
     },
     {
       "id": 10,
@@ -504,8 +542,7 @@ const seedData = {
       "restaurantId": 4,
       "categoryId": 4,
       "available": true,
-      "discount": 20,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 20
     },
     {
       "id": 11,
@@ -516,8 +553,7 @@ const seedData = {
       "restaurantId": 4,
       "categoryId": 4,
       "available": true,
-      "discount": 0,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 0
     },
     {
       "id": 12,
@@ -528,8 +564,7 @@ const seedData = {
       "restaurantId": 4,
       "categoryId": 4,
       "available": true,
-      "discount": 10,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 10
     },
     {
       "id": 13,
@@ -540,8 +575,7 @@ const seedData = {
       "restaurantId": 5,
       "categoryId": 5,
       "available": true,
-      "discount": 0,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 0
     },
     {
       "id": 14,
@@ -552,8 +586,7 @@ const seedData = {
       "restaurantId": 5,
       "categoryId": 5,
       "available": true,
-      "discount": 15,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 15
     },
     {
       "id": 15,
@@ -564,8 +597,7 @@ const seedData = {
       "restaurantId": 5,
       "categoryId": 5,
       "available": true,
-      "discount": 0,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 0
     },
     {
       "id": 16,
@@ -576,8 +608,7 @@ const seedData = {
       "restaurantId": 6,
       "categoryId": 6,
       "available": true,
-      "discount": 0,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 0
     },
     {
       "id": 17,
@@ -588,8 +619,7 @@ const seedData = {
       "restaurantId": 6,
       "categoryId": 6,
       "available": true,
-      "discount": 10,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 10
     },
     {
       "id": 18,
@@ -600,8 +630,7 @@ const seedData = {
       "restaurantId": 6,
       "categoryId": 6,
       "available": true,
-      "discount": 0,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 0
     },
     {
       "id": 19,
@@ -612,8 +641,7 @@ const seedData = {
       "restaurantId": 7,
       "categoryId": 8,
       "available": true,
-      "discount": 0,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 0
     },
     {
       "id": 20,
@@ -624,8 +652,7 @@ const seedData = {
       "restaurantId": 7,
       "categoryId": 8,
       "available": false,
-      "discount": 5,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 5
     },
     {
       "id": 21,
@@ -636,8 +663,7 @@ const seedData = {
       "restaurantId": 8,
       "categoryId": 9,
       "available": true,
-      "discount": 10,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 10
     },
     {
       "id": 22,
@@ -648,8 +674,7 @@ const seedData = {
       "restaurantId": 8,
       "categoryId": 9,
       "available": true,
-      "discount": 0,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 0
     },
     {
       "id": 23,
@@ -660,8 +685,7 @@ const seedData = {
       "restaurantId": 9,
       "categoryId": 10,
       "available": true,
-      "discount": 0,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 0
     },
     {
       "id": 24,
@@ -672,8 +696,7 @@ const seedData = {
       "restaurantId": 9,
       "categoryId": 10,
       "available": true,
-      "discount": 15,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 15
     },
     {
       "id": 25,
@@ -684,8 +707,7 @@ const seedData = {
       "restaurantId": 10,
       "categoryId": 11,
       "available": true,
-      "discount": 0,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 0
     },
     {
       "id": 26,
@@ -696,8 +718,7 @@ const seedData = {
       "restaurantId": 10,
       "categoryId": 11,
       "available": true,
-      "discount": 0,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 0
     },
     {
       "id": 27,
@@ -708,8 +729,7 @@ const seedData = {
       "restaurantId": 11,
       "categoryId": 1,
       "available": true,
-      "discount": 10,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 10
     },
     {
       "id": 28,
@@ -720,8 +740,7 @@ const seedData = {
       "restaurantId": 11,
       "categoryId": 1,
       "available": true,
-      "discount": 0,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 0
     },
     {
       "id": 29,
@@ -732,8 +751,7 @@ const seedData = {
       "restaurantId": 7,
       "categoryId": 8,
       "available": true,
-      "discount": 10,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 10
     },
     {
       "id": 30,
@@ -744,8 +762,315 @@ const seedData = {
       "restaurantId": 6,
       "categoryId": 6,
       "available": true,
-      "discount": 0,
-      "createdAt": "2024-01-15T10:00:00Z"
+      "discount": 0
+    },
+    {
+      "id": 33,
+      "name": "Sushi Cá Hồi",
+      "description": "Sushi cá hồi tươi ngon chuẩn Nhật",
+      "price": 90000,
+      "image": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 34,
+      "name": "Sushi Cá Ngừ",
+      "description": "Sushi cá ngừ tươi, dai mềm",
+      "price": 95000,
+      "image": "https://images.unsplash.com/photo-1603052875480-44b6f89a1f4f?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 5
+    },
+    {
+      "id": 35,
+      "name": "Sushi Tôm",
+      "description": "Sushi tôm tươi ngon, dai vừa phải",
+      "price": 90000,
+      "image": "https://images.unsplash.com/photo-1589307001296-6a9dc2c1151d?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 36,
+      "name": "Sashimi Cá Hồi",
+      "description": "Sashimi cá hồi tươi nguyên miếng",
+      "price": 120000,
+      "image": "https://images.unsplash.com/photo-1562967916-eb82221dfb36?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 10
+    },
+    {
+      "id": 37,
+      "name": "Sashimi Cá Ngừ",
+      "description": "Sashimi cá ngừ tươi, thơm ngậy",
+      "price": 125000,
+      "image": "https://images.unsplash.com/photo-1603052875513-71f1bbd0a8ad?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 38,
+      "name": "Ramen Tonkotsu",
+      "description": "Ramen nước dùng xương heo đậm đà, thịt heo mềm",
+      "price": 120000,
+      "image": "https://images.unsplash.com/photo-1550547660-d9450f859349?w=600",
+      "restaurantId": 13,
+      "categoryId": 11,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 39,
+      "name": "Ramen Shoyu",
+      "description": "Ramen nước dùng xì dầu Nhật Bản",
+      "price": 110000,
+      "image": "https://images.unsplash.com/photo-1605479569830-2a04e5c1c3de?w=600",
+      "restaurantId": 13,
+      "categoryId": 11,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 40,
+      "name": "Ramen Miso",
+      "description": "Ramen nước dùng miso thơm ngon",
+      "price": 115000,
+      "image": "https://images.unsplash.com/photo-1605479569830-2a04e5c1c3de?w=600",
+      "restaurantId": 13,
+      "categoryId": 11,
+      "available": true,
+      "discount": 5
+    },
+    {
+      "id": 41,
+      "name": "Tempura Tôm",
+      "description": "Tôm chiên tempura giòn rụm",
+      "price": 90000,
+      "image": "https://images.unsplash.com/photo-1589307001296-6a9dc2c1151d?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 42,
+      "name": "Tempura Rau Củ",
+      "description": "Rau củ chiên tempura giòn ngon",
+      "price": 70000,
+      "image": "https://images.unsplash.com/photo-1603052875513-71f1bbd0a8ad?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 43,
+      "name": "Onigiri Cá Hồi",
+      "description": "Cơm nắm nhân cá hồi Nhật Bản",
+      "price": 35000,
+      "image": "https://images.unsplash.com/photo-1603052875513-71f1bbd0a8ad?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 44,
+      "name": "Onigiri Tôm",
+      "description": "Cơm nắm nhân tôm Nhật Bản",
+      "price": 35000,
+      "image": "https://images.unsplash.com/photo-1603052875480-44b6f89a1f4f?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 45,
+      "name": "Takoyaki",
+      "description": "Bánh bạch tuộc chiên giòn nóng hổi",
+      "price": 45000,
+      "image": "https://images.unsplash.com/photo-1603052875480-44b6f89a1f4f?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 46,
+      "name": "Gyoza",
+      "description": "Bánh xếp Nhật Gyoza chiên giòn",
+      "price": 60000,
+      "image": "https://images.unsplash.com/photo-1605479569830-2a04e5c1c3de?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 47,
+      "name": "Udon Thịt Heo",
+      "description": "Mì Udon nước dùng ngon, thịt heo mềm",
+      "price": 100000,
+      "image": "https://images.unsplash.com/photo-1605479569830-2a04e5c1c3de?w=600",
+      "restaurantId": 13,
+      "categoryId": 11,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 48,
+      "name": "Udon Hải Sản",
+      "description": "Mì Udon nước dùng hải sản",
+      "price": 110000,
+      "image": "https://images.unsplash.com/photo-1603052875513-71f1bbd0a8ad?w=600",
+      "restaurantId": 13,
+      "categoryId": 11,
+      "available": true,
+      "discount": 5
+    },
+    {
+      "id": 49,
+      "name": "Cơm Cá Hồi",
+      "description": "Cơm Nhật kèm cá hồi nướng",
+      "price": 120000,
+      "image": "https://images.unsplash.com/photo-1603052875480-44b6f89a1f4f?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 50,
+      "name": "Cơm Gà Teriyaki",
+      "description": "Cơm Nhật kèm gà sốt Teriyaki",
+      "price": 100000,
+      "image": "https://images.unsplash.com/photo-1603052875480-44b6f89a1f4f?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 51,
+      "name": "Cơm Cá Ngừ",
+      "description": "Cơm Nhật kèm cá ngừ nướng sốt Teriyaki",
+      "price": 110000,
+      "image": "https://images.unsplash.com/photo-1603052875480-44b6f89a1f4f?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 5
+    },
+    {
+      "id": 52,
+      "name": "Cơm Tôm Tempura",
+      "description": "Cơm Nhật kèm tôm chiên tempura",
+      "price": 115000,
+      "image": "https://images.unsplash.com/photo-1603052875480-44b6f89a1f4f?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 53,
+      "name": "Donburi Thịt Heo",
+      "description": "Cơm Nhật donburi thịt heo sốt Teriyaki",
+      "price": 105000,
+      "image": "https://images.unsplash.com/photo-1605479569830-2a04e5c1c3de?w=600",
+      "restaurantId": 13,
+      "categoryId": 11,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 54,
+      "name": "Donburi Hải Sản",
+      "description": "Cơm Nhật donburi hải sản sốt Nhật",
+      "price": 120000,
+      "image": "https://images.unsplash.com/photo-1603052875513-71f1bbd0a8ad?w=600",
+      "restaurantId": 13,
+      "categoryId": 11,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 55,
+      "name": "Mì Soba Nóng",
+      "description": "Mì soba nóng thơm ngon, nước dùng đậm vị",
+      "price": 95000,
+      "image": "https://images.unsplash.com/photo-1605479569830-2a04e5c1c3de?w=600",
+      "restaurantId": 13,
+      "categoryId": 11,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 56,
+      "name": "Mì Soba Lạnh",
+      "description": "Mì soba lạnh mát, ăn kèm sốt đặc biệt",
+      "price": 95000,
+      "image": "https://images.unsplash.com/photo-1603052875513-71f1bbd0a8ad?w=600",
+      "restaurantId": 13,
+      "categoryId": 11,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 57,
+      "name": "Miso Soup",
+      "description": "Canh miso Nhật Bản thanh nhẹ",
+      "price": 35000,
+      "image": "https://images.unsplash.com/photo-1589307001296-6a9dc2c1151d?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 58,
+      "name": "Edamame",
+      "description": "Đậu nành Nhật Bản luộc muối",
+      "price": 40000,
+      "image": "https://images.unsplash.com/photo-1603052875480-44b6f89a1f4f?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 59,
+      "name": "Salad Rong Biển",
+      "description": "Salad rong biển tươi ngon",
+      "price": 50000,
+      "image": "https://images.unsplash.com/photo-1603052875513-71f1bbd0a8ad?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 60,
+      "name": "Matcha Ice Cream",
+      "description": "Kem trà xanh Nhật Bản thơm mát",
+      "price": 45000,
+      "image": "https://images.unsplash.com/photo-1603052875480-44b6f89a1f4f?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
     }
   ],
   "orders": [
@@ -837,7 +1162,7 @@ const seedData = {
       "status": "confirmed",
       "deliveryAddress": "789 Đường Lý Thường Kiệt, Quận 10, TP.HCM",
       "deliveryLatitude": 10.7714,
-      "deliveryLongitude": 106.665,
+      "longitude": 106.665,
       "paymentMethod": "zalopay",
       "note": "Gọi trước khi đến",
       "promotionCode": null,
@@ -869,7 +1194,11 @@ const seedData = {
       "note": "Pizza cắt nhỏ",
       "promotionCode": null,
       "createdAt": "2024-10-26T10:00:00Z",
-      "updatedAt": "2024-10-26T10:00:00Z"
+      "updatedAt": "2025-11-30T10:51:19.442Z",
+      "paymentStatus": "cancelled",
+      "cancelledAt": "2025-11-30T10:51:19.442Z",
+      "cancelledBy": 2,
+      "cancelReason": ""
     },
     {
       "id": 5,
@@ -1004,13 +1333,6 @@ const seedData = {
   ],
   "favorites": [
     {
-      "id": 1,
-      "userId": 2,
-      "type": "restaurant",
-      "referenceId": 2,
-      "createdAt": "2024-10-15T10:00:00Z"
-    },
-    {
       "id": 2,
       "userId": 2,
       "type": "restaurant",
@@ -1044,13 +1366,6 @@ const seedData = {
       "type": "restaurant",
       "referenceId": 11,
       "createdAt": "2024-10-26T11:00:00Z"
-    },
-    {
-      "id": 15,
-      "userId": 2,
-      "type": "product",
-      "referenceId": 16,
-      "createdAt": "2024-10-26T12:00:00Z"
     },
     {
       "id": 6,
@@ -1121,6 +1436,27 @@ const seedData = {
       "type": "product",
       "referenceId": 24,
       "createdAt": "2024-10-26T11:20:00Z"
+    },
+    {
+      "id": 18,
+      "userId": 2,
+      "type": "restaurant",
+      "referenceId": 1,
+      "createdAt": "2025-11-30T16:18:13.170Z"
+    },
+    {
+      "id": 19,
+      "userId": 2,
+      "type": "product",
+      "referenceId": 8,
+      "createdAt": "2025-12-01T03:44:21.142Z"
+    },
+    {
+      "id": 20,
+      "userId": 2,
+      "type": "product",
+      "referenceId": 1,
+      "createdAt": "2025-12-01T09:19:01.868Z"
     }
   ],
   "reviews": [
@@ -1131,7 +1467,6 @@ const seedData = {
       "orderId": 1,
       "rating": 5,
       "comment": "Cơm tấm ngon tuyệt vời! Sườn nướng thơm lừng, bì giòn tan. Sẽ quay lại ủng hộ.",
-      "type": "restaurant",
       "createdAt": "2024-10-20T14:00:00Z",
       "updatedAt": "2024-10-20T14:00:00Z"
     },
@@ -1142,7 +1477,6 @@ const seedData = {
       "orderId": null,
       "rating": 4,
       "comment": "Bánh mì ngon nhưng hơi đợi lâu. Giá cả phải chăng, nhân đầy đặn.",
-      "type": "restaurant",
       "createdAt": "2024-10-22T16:30:00Z",
       "updatedAt": "2024-10-22T16:30:00Z"
     },
@@ -1153,7 +1487,6 @@ const seedData = {
       "orderId": 2,
       "rating": 5,
       "comment": "Phở rất ngon, nước dùng trong ngọt. Thịt bò tươi. Giao hàng nhanh!",
-      "type": "restaurant",
       "createdAt": "2024-10-26T09:30:00Z",
       "updatedAt": "2024-10-26T09:30:00Z"
     },
@@ -1164,7 +1497,6 @@ const seedData = {
       "orderId": null,
       "rating": 4,
       "comment": "Trà sữa ngon, trân châu dai. Nhưng hơi ngọt với mình.",
-      "type": "restaurant",
       "createdAt": "2024-10-24T15:45:00Z",
       "updatedAt": "2024-10-24T15:45:00Z"
     },
@@ -1175,7 +1507,6 @@ const seedData = {
       "orderId": 5,
       "rating": 5,
       "comment": "Đồ chay nhà hàng làm rất ngon, vị thanh đạm, vừa miệng. Lẩu nấm nhiều nấm tươi, rất hài lòng. Giao hàng cũng nhanh nữa.",
-      "type": "restaurant",
       "createdAt": "2024-10-25T13:00:00Z",
       "updatedAt": "2024-10-25T13:00:00Z"
     },
@@ -1186,7 +1517,6 @@ const seedData = {
       "orderId": 1,
       "rating": 4,
       "comment": "Lần này quay lại ăn thấy cơm hơi khô, nhưng sườn nướng vẫn ngon như ngày nào. Ship nhanh.",
-      "type": "restaurant",
       "createdAt": "2024-10-26T10:00:00Z",
       "updatedAt": "2024-10-26T10:00:00Z"
     }
@@ -1201,13 +1531,13 @@ const seedData = {
       "minOrderValue": 100000,
       "maxDiscount": 50000,
       "validFrom": "2024-01-01T00:00:00Z",
-      "validTo": "2025-12-31T23:59:59Z",
+      "validTo": "2024-12-31T23:59:59Z",
       "usageLimit": null,
       "perUserLimit": null,
-      "usageCount": 0,
+      "usageCount": 15,
       "isActive": true,
       "createdAt": "2024-01-01T00:00:00Z",
-      "updatedAt": "2024-01-01T00:00:00Z"
+      "updatedAt": "2024-10-26T09:00:00Z"
     },
     {
       "id": 2,
@@ -1235,10 +1565,10 @@ const seedData = {
       "minOrderValue": 150000,
       "maxDiscount": 50000,
       "validFrom": "2024-01-01T00:00:00Z",
-      "validTo": "2025-12-31T23:59:59Z",
+      "validTo": "2024-12-31T23:59:59Z",
       "usageLimit": null,
       "perUserLimit": 1,
-      "usageCount": 0,
+      "usageCount": 89,
       "isActive": true,
       "createdAt": "2024-01-01T00:00:00Z",
       "updatedAt": "2024-10-24T12:15:00Z"
@@ -1340,9 +1670,9 @@ const seedData = {
       "latitude": 10.7756,
       "longitude": 106.7019,
       "note": "Gọi trước 5 phút khi đến",
-      "isDefault": true,
+      "isDefault": false,
       "createdAt": "2024-02-20T14:30:00Z",
-      "updatedAt": "2024-10-15T10:00:00Z"
+      "updatedAt": "2025-12-01T02:26:24.558Z"
     },
     {
       "id": 2,
@@ -1354,9 +1684,9 @@ const seedData = {
       "latitude": 10.7881,
       "longitude": 106.6983,
       "note": "Tầng 5, phòng 501. Để ở bảo vệ nếu không có người",
-      "isDefault": false,
+      "isDefault": true,
       "createdAt": "2024-02-25T10:00:00Z",
-      "updatedAt": "2024-02-25T10:00:00Z"
+      "updatedAt": "2025-12-01T02:32:35.391Z"
     },
     {
       "id": 3,
@@ -1370,7 +1700,7 @@ const seedData = {
       "note": "Nhấn chuông căn số 5",
       "isDefault": false,
       "createdAt": "2024-03-15T18:00:00Z",
-      "updatedAt": "2024-03-15T18:00:00Z"
+      "updatedAt": "2025-11-30T20:03:55.808Z"
     },
     {
       "id": 4,
