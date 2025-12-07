@@ -45,7 +45,8 @@ class MySQLAdapter {
           database: url.pathname.slice(1), // Remove leading slash
           waitForConnections: true,
           connectionLimit: 10,
-          queueLimit: 0
+          queueLimit: 0,
+          timezone: '+00:00' // CRITICAL: Set timezone to UTC
         };
       } else {
         // Fallback to individual env variables
@@ -57,7 +58,8 @@ class MySQLAdapter {
           database: process.env.DB_NAME || 'funfood',
           waitForConnections: true,
           connectionLimit: 10,
-          queueLimit: 0
+          queueLimit: 0,
+          timezone: '+00:00' // CRITICAL: Set timezone to UTC
         };
       }
 
@@ -106,9 +108,9 @@ class MySQLAdapter {
           address TEXT,
           role VARCHAR(20) DEFAULT 'customer',
           is_active BOOLEAN DEFAULT true,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-          last_login TIMESTAMP NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          last_login DATETIME NULL,
           INDEX idx_email (email),
           INDEX idx_role (role)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
@@ -122,7 +124,7 @@ class MySQLAdapter {
           icon VARCHAR(10),
           image TEXT,
           description TEXT,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           INDEX idx_name (name)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
       `);
@@ -147,8 +149,8 @@ class MySQLAdapter {
           close_time TIME,
           is_open BOOLEAN DEFAULT true,
           manager_id INT,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
           FOREIGN KEY (category_id) REFERENCES categories(id),
           FOREIGN KEY (manager_id) REFERENCES users(id),
           INDEX idx_category (category_id),
@@ -171,8 +173,8 @@ class MySQLAdapter {
           discount INT DEFAULT 0,
           rating DECIMAL(2, 1) DEFAULT 0,
           total_reviews INT DEFAULT 0,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
           FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE,
           FOREIGN KEY (category_id) REFERENCES categories(id),
           INDEX idx_restaurant (restaurant_id),
@@ -205,16 +207,16 @@ class MySQLAdapter {
           promotion_code VARCHAR(20),
           promotion_id INT,
           shipper_id INT,
-          assigned_at TIMESTAMP NULL,
-          confirmed_at TIMESTAMP NULL,
-          preparing_at TIMESTAMP NULL,
-          delivering_at TIMESTAMP NULL,
-          delivered_at TIMESTAMP NULL,
-          cancelled_at TIMESTAMP NULL,
+          assigned_at DATETIME NULL,
+          confirmed_at DATETIME NULL,
+          preparing_at DATETIME NULL,
+          delivering_at DATETIME NULL,
+          delivered_at DATETIME NULL,
+          cancelled_at DATETIME NULL,
           cancelled_by INT,
           cancel_reason TEXT,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
           FOREIGN KEY (user_id) REFERENCES users(id),
           FOREIGN KEY (restaurant_id) REFERENCES restaurants(id),
           FOREIGN KEY (shipper_id) REFERENCES users(id),
@@ -232,8 +234,8 @@ class MySQLAdapter {
           user_id INT,
           product_id INT,
           quantity INT NOT NULL,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
           FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
           FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
           UNIQUE KEY unique_cart_item (user_id, product_id),
@@ -248,7 +250,7 @@ class MySQLAdapter {
           user_id INT,
           type VARCHAR(20) NOT NULL,
           reference_id INT NOT NULL,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
           UNIQUE KEY unique_favorite (user_id, type, reference_id),
           INDEX idx_user (user_id),
@@ -267,8 +269,8 @@ class MySQLAdapter {
           type VARCHAR(20) NOT NULL,
           rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
           comment TEXT,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
           FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
           FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE,
           FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
@@ -289,14 +291,14 @@ class MySQLAdapter {
           discount_value INT NOT NULL,
           min_order_value INT DEFAULT 0,
           max_discount INT,
-          valid_from TIMESTAMP NOT NULL,
-          valid_to TIMESTAMP NOT NULL,
+          valid_from DATETIME NOT NULL,
+          valid_to DATETIME NOT NULL,
           usage_limit INT,
           per_user_limit INT,
           usage_count INT DEFAULT 0,
           is_active BOOLEAN DEFAULT true,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
           INDEX idx_code (code),
           INDEX idx_active (is_active)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
@@ -315,8 +317,8 @@ class MySQLAdapter {
           longitude DECIMAL(11, 8),
           note TEXT,
           is_default BOOLEAN DEFAULT false,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
           FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
           INDEX idx_user (user_id),
           INDEX idx_default (is_default)
@@ -333,7 +335,7 @@ class MySQLAdapter {
           type VARCHAR(20) NOT NULL,
           ref_id INT,
           is_read BOOLEAN DEFAULT false,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
           INDEX idx_user (user_id),
           INDEX idx_read (is_read)
@@ -347,6 +349,43 @@ class MySQLAdapter {
     } finally {
       connection.release();
     }
+  }
+
+  // ==================== DATETIME CONVERSION ====================
+
+  /**
+   * Convert JavaScript Date or ISO string to MySQL DATETIME format
+   * MySQL format: 'YYYY-MM-DD HH:MM:SS'
+   */
+  toMySQLDateTime(value) {
+    if (!value) return null;
+
+    const date = value instanceof Date ? value : new Date(value);
+
+    // Check if valid date
+    if (isNaN(date.getTime())) return null;
+
+    // Format: YYYY-MM-DD HH:MM:SS
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  }
+
+  /**
+   * Convert MySQL DATETIME to ISO string for frontend
+   */
+  fromMySQLDateTime(value) {
+    if (!value) return null;
+
+    // MySQL returns datetime as string 'YYYY-MM-DD HH:MM:SS'
+    // Convert to ISO format for frontend
+    const date = new Date(value);
+    return date.toISOString();
   }
 
   // ==================== CASE CONVERSION ====================
@@ -363,8 +402,12 @@ class MySQLAdapter {
       // Convert snake_case to camelCase
       const camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
 
+      // Handle datetime fields - convert to ISO
+      if ((key.endsWith('_at') || key === 'created_at' || key === 'updated_at') && value) {
+        camelObj[camelKey] = this.fromMySQLDateTime(value);
+      }
       // Recursively convert nested objects, but not JSON fields
-      if (value && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date)) {
+      else if (value && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date)) {
         camelObj[camelKey] = this.toCamelCase(value);
       } else {
         camelObj[camelKey] = value;
@@ -385,10 +428,15 @@ class MySQLAdapter {
       // Convert camelCase to snake_case
       const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
 
-      // Don't convert JSON fields (items, payment_data, etc.)
-      if (key === 'items' || key === 'paymentData' || value instanceof Date) {
-        snakeObj[snakeKey] = value;
-      } else if (value && typeof value === 'object' && !Array.isArray(value)) {
+      // Handle datetime fields - convert to MySQL format
+      if ((key.endsWith('At') || key === 'createdAt' || key === 'updatedAt') && value) {
+        snakeObj[snakeKey] = this.toMySQLDateTime(value);
+      }
+      // Don't convert JSON fields (items, paymentData, etc.)
+      else if (key === 'items' || key === 'paymentData' || value instanceof Date) {
+        snakeObj[snakeKey] = value instanceof Date ? this.toMySQLDateTime(value) : value;
+      }
+      else if (value && typeof value === 'object' && !Array.isArray(value)) {
         snakeObj[snakeKey] = this.toSnakeCase(value);
       } else {
         snakeObj[snakeKey] = value;
@@ -603,7 +651,7 @@ class MySQLAdapter {
     try {
       const snakeData = this.toSnakeCase(data);
       delete snakeData.id; // Don't update ID
-      snakeData.updated_at = new Date();
+      snakeData.updated_at = this.toMySQLDateTime(new Date());
 
       const keys = Object.keys(snakeData);
       const values = Object.values(snakeData);
