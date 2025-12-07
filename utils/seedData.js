@@ -1143,33 +1143,6 @@ const seedData = {
       "updatedAt": "2024-10-26T09:00:00Z"
     },
     {
-      "id": 3,
-      "userId": 3,
-      "restaurantId": 3,
-      "items": [
-        {
-          "productId": 7,
-          "productName": "Bánh Mì Thập Cẩm",
-          "quantity": 3,
-          "price": 25000,
-          "discount": 15
-        }
-      ],
-      "subtotal": 63750,
-      "deliveryFee": 10000,
-      "discount": 0,
-      "total": 73750,
-      "status": "confirmed",
-      "deliveryAddress": "789 Đường Lý Thường Kiệt, Quận 10, TP.HCM",
-      "deliveryLatitude": 10.7714,
-      "longitude": 106.665,
-      "paymentMethod": "zalopay",
-      "note": "Gọi trước khi đến",
-      "promotionCode": null,
-      "createdAt": "2024-10-26T09:15:00Z",
-      "updatedAt": "2024-10-26T09:20:00Z"
-    },
-    {
       "id": 4,
       "userId": 2,
       "restaurantId": 4,
@@ -1465,6 +1438,7 @@ const seedData = {
       "userId": 2,
       "restaurantId": 1,
       "orderId": 1,
+      "type": "restaurant",
       "rating": 5,
       "comment": "Cơm tấm ngon tuyệt vời! Sườn nướng thơm lừng, bì giòn tan. Sẽ quay lại ủng hộ.",
       "createdAt": "2024-10-20T14:00:00Z",
@@ -1475,6 +1449,7 @@ const seedData = {
       "userId": 3,
       "restaurantId": 3,
       "orderId": null,
+      "type": "restaurant",
       "rating": 4,
       "comment": "Bánh mì ngon nhưng hơi đợi lâu. Giá cả phải chăng, nhân đầy đặn.",
       "createdAt": "2024-10-22T16:30:00Z",
@@ -1485,6 +1460,7 @@ const seedData = {
       "userId": 2,
       "restaurantId": 2,
       "orderId": 2,
+      "type": "restaurant",
       "rating": 5,
       "comment": "Phở rất ngon, nước dùng trong ngọt. Thịt bò tươi. Giao hàng nhanh!",
       "createdAt": "2024-10-26T09:30:00Z",
@@ -1495,6 +1471,7 @@ const seedData = {
       "userId": 3,
       "restaurantId": 6,
       "orderId": null,
+      "type": "restaurant",
       "rating": 4,
       "comment": "Trà sữa ngon, trân châu dai. Nhưng hơi ngọt với mình.",
       "createdAt": "2024-10-24T15:45:00Z",
@@ -1505,6 +1482,7 @@ const seedData = {
       "userId": 4,
       "restaurantId": 8,
       "orderId": 5,
+      "type": "restaurant",
       "rating": 5,
       "comment": "Đồ chay nhà hàng làm rất ngon, vị thanh đạm, vừa miệng. Lẩu nấm nhiều nấm tươi, rất hài lòng. Giao hàng cũng nhanh nữa.",
       "createdAt": "2024-10-25T13:00:00Z",
@@ -1515,6 +1493,7 @@ const seedData = {
       "userId": 2,
       "restaurantId": 1,
       "orderId": 1,
+      "type": "restaurant",
       "rating": 4,
       "comment": "Lần này quay lại ăn thấy cơm hơi khô, nhưng sườn nướng vẫn ngon như ngày nào. Ship nhanh.",
       "createdAt": "2024-10-26T10:00:00Z",
@@ -1886,8 +1865,30 @@ function seedDatabase() {
   }
 }
 
+// ==================== SEEDING FUNCTIONS ====================
+
 /**
- * Seed MongoDB Database
+ * 1. Seed JSON Database (Ghi file db.json)
+ */
+function seedJSON() {
+  try {
+    const dbDir = path.join(__dirname, '../database');
+    if (!fs.existsSync(dbDir)) {
+      fs.mkdirSync(dbDir, { recursive: true });
+    }
+
+    // Ghi đè file db.json với dữ liệu mới
+    fs.writeFileSync(DB_FILE, JSON.stringify(seedData, null, 2));
+    console.log('✅ JSON Database seeded successfully!');
+    return true;
+  } catch (error) {
+    console.error('❌ Error seeding JSON database:', error);
+    throw error;
+  }
+}
+
+/**
+ * 2. Seed MongoDB Database
  */
 async function seedMongoDB() {
   try {
@@ -1944,7 +1945,13 @@ async function seedMongoDB() {
 }
 
 /**
- * Seed MySQL/PostgreSQL Database
+ * 3. Seed SQL Database (MySQL / PostgreSQL)
+ */
+/**
+ * 3. Seed SQL Database (MySQL / PostgreSQL)
+ */
+/**
+ * 3. Seed SQL Database (MySQL / PostgreSQL)
  */
 async function seedSQL() {
   try {
@@ -1952,7 +1959,7 @@ async function seedSQL() {
 
     console.log('🔄 Clearing existing SQL data...');
 
-    // Clear existing data (in reverse order due to foreign keys)
+    // 1. Xóa dữ liệu cũ
     const clearOrder = [
       'notifications', 'addresses', 'reviews', 'favorites', 'cart',
       'orders', 'products', 'restaurants', 'promotions', 'categories', 'users'
@@ -1960,19 +1967,51 @@ async function seedSQL() {
 
     for (const collection of clearOrder) {
       try {
-        const items = await db.findAll(collection);
-        for (const item of items) {
-          await db.delete(collection, item.id);
+        // Dùng DELETE FROM để xóa dữ liệu
+        if (process.env.DB_CONNECTION === 'mysql') {
+          await db.pool.query(`DELETE FROM ${collection}`);
+          // Reset Auto Increment về 1 (quan trọng cho MySQL)
+          try {
+            await db.pool.query(`ALTER TABLE ${collection} AUTO_INCREMENT = 1`);
+          } catch (e) { }
+        } else {
+          await db.pool.query(`TRUNCATE TABLE ${collection} CASCADE`);
         }
         console.log(`   ✓ Cleared ${collection}`);
       } catch (err) {
-        console.log(`   ⚠️  Skip ${collection}: ${err.message}`);
+        console.log(`   ⚠️  Skip clearing ${collection}: ${err.message}`);
       }
     }
 
     console.log('\n🔄 Inserting seed data...');
 
-    // Insert seed data (in order to respect foreign keys)
+    // Hàm insert thủ công để GIỮ NGUYÊN ID
+    const insertRaw = async (collection, item) => {
+      const snakeData = db.toSnakeCase(item); // Convert camelCase -> snake_case
+
+      // Chuyển đổi dữ liệu đặc biệt
+      const keys = Object.keys(snakeData);
+      const values = Object.values(snakeData).map(val => {
+        // Stringify JSON nếu cần
+        if (typeof val === 'object' && val !== null && !(val instanceof Date)) {
+          return JSON.stringify(val);
+        }
+        return val;
+      });
+
+      if (process.env.DB_CONNECTION === 'mysql') {
+        const placeholders = keys.map(() => '?').join(', ');
+        const sql = `INSERT INTO ${collection} (${keys.join(', ')}) VALUES (${placeholders})`;
+        await db.pool.execute(sql, values);
+      } else {
+        // PostgreSQL ($1, $2...)
+        const placeholders = keys.map((_, i) => `$${i + 1}`).join(', ');
+        const sql = `INSERT INTO ${collection} (${keys.join(', ')}) VALUES (${placeholders})`;
+        await db.pool.query(sql, values);
+      }
+    };
+
+    // 2. Insert dữ liệu mới
     const insertOrder = [
       'users', 'categories', 'promotions', 'restaurants', 'products',
       'orders', 'cart', 'favorites', 'reviews', 'addresses', 'notifications'
@@ -1986,12 +2025,32 @@ async function seedSQL() {
         let successCount = 0;
         for (const item of items) {
           try {
-            // Remove id field, let database auto-generate
-            const { id, ...itemData } = item;
-            await db.create(collection, itemData);
+            // Clone item để không ảnh hưởng dữ liệu gốc
+            const itemData = { ...item };
+
+            // --- FIX DATE FORMAT (ISO String -> Date Object) ---
+            if (collection === 'promotions') {
+              if (itemData.validFrom) itemData.validFrom = new Date(itemData.validFrom);
+              if (itemData.validTo) itemData.validTo = new Date(itemData.validTo);
+            }
+            if (collection === 'users' && itemData.lastLogin) {
+              itemData.lastLogin = new Date(itemData.lastLogin);
+            }
+            if (collection === 'orders') {
+              if (itemData.assignedAt) itemData.assignedAt = new Date(itemData.assignedAt);
+              if (itemData.confirmedAt) itemData.confirmedAt = new Date(itemData.confirmedAt);
+              if (itemData.preparingAt) itemData.preparingAt = new Date(itemData.preparingAt);
+              if (itemData.deliveringAt) itemData.deliveringAt = new Date(itemData.deliveringAt);
+              if (itemData.deliveredAt) itemData.deliveredAt = new Date(itemData.deliveredAt);
+              if (itemData.cancelledAt) itemData.cancelledAt = new Date(itemData.cancelledAt);
+            }
+            // ---------------------------------------------------
+
+            // Gọi hàm insert thủ công (bao gồm cả ID)
+            await insertRaw(collection, itemData);
             successCount++;
           } catch (err) {
-            console.error(`   ⚠️  Failed to insert item in ${collection}:`, err.message);
+            console.error(`   ⚠️  Failed to insert item ${item.id} in ${collection}:`, err.message);
           }
         }
         console.log(`   ✓ Inserted ${successCount}/${items.length} items into ${collection}`);
@@ -2009,7 +2068,7 @@ async function seedSQL() {
 }
 
 /**
- * Main seed function - detects database type and runs appropriate seeder
+ * Main seed function
  */
 async function seedDatabase() {
   try {
@@ -2024,25 +2083,18 @@ async function seedDatabase() {
 
     switch (dbType.toLowerCase()) {
       case 'json':
-        success = await seedDatabase(); // Fix recursion: call local function seedDatabase handled by if check below if it was exported differently, but here seedDatabase is recursive if called directly. Wait, the main function is named same as exported? No, exported is `seedDatabase`, local implementation calls `seedJSON` inside switch? Ah, the original code had `seedJSON` call inside `seedDatabase` but `seedJSON` function definition is missing in provided code or implicit. The provided code has `seedDatabase` function that handles JSON.
-        // Actually, looking at code provided:
-        // `function seedDatabase()` at line 1478 handles JSON write.
-        // `async function seedDatabase()` at line 1675 is the main entry.
-        // This is a shadowing issue in the provided snippet or just multiple function definitions.
-        // I will assume the first `seedDatabase` is meant to be `seedJSON`.
-        success = true; // Assuming JSON works fine based on structure.
+        // FIX: Gọi hàm seedJSON thay vì gọi đệ quy seedDatabase
+        success = seedJSON();
         break;
 
       case 'mongodb':
         success = await seedMongoDB();
-        // Close MongoDB connection
         setTimeout(() => process.exit(0), 1000);
         break;
 
       case 'mysql':
       case 'postgresql':
         success = await seedSQL();
-        // Close connection pool
         setTimeout(() => process.exit(0), 1000);
         break;
 
@@ -2058,14 +2110,12 @@ async function seedDatabase() {
       console.log(`   - Categories: ${seedData.categories.length}`);
       console.log(`   - Restaurants: ${seedData.restaurants.length}`);
       console.log(`   - Products: ${seedData.products.length}`);
-      console.log(`   - Promotions: ${seedData.promotions.length}`);
 
       console.log('\n🔑 Test accounts (Password: 123456):');
       console.log(`   Admin:    admin@funfood.com`);
       console.log(`   Customer: user@funfood.com`);
-      console.log(`   Customer: customer@funfood.com`);
-      console.log(`   Manager:  manager@funfood.com`);
       console.log(`   Shipper:  shipper@funfood.com`);
+      console.log(`   Manager:  manager.chay@funfood.com`);
 
       console.log('\n✨ Seeding completed successfully!\n');
     }
@@ -2076,30 +2126,12 @@ async function seedDatabase() {
   }
 }
 
-// Rename first function to seedJSON to avoid conflict
-function seedJSON() {
-  try {
-    const dbDir = path.join(__dirname, '../database');
-    if (!fs.existsSync(dbDir)) {
-      fs.mkdirSync(dbDir, { recursive: true });
-    }
-    fs.writeFileSync(DB_FILE, JSON.stringify(seedData, null, 2));
-    console.log('✅ JSON Database seeded successfully!');
-    return true;
-  } catch (error) {
-    console.error('❌ Error seeding JSON database:', error);
-    throw error;
-  }
-}
-
-
 // ==================== CLI EXECUTION ====================
 
 if (require.main === module) {
   // Load environment variables
   require('dotenv').config();
 
-  // Run seeder
   seedDatabase().catch(error => {
     console.error('Unhandled error:', error);
     process.exit(1);
