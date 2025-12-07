@@ -417,8 +417,8 @@ class MySQLAdapter {
   }
 
   /**
-   * Convert camelCase to snake_case
-   */
+     * Convert camelCase to snake_case
+     */
   toSnakeCase(obj) {
     if (!obj || typeof obj !== 'object') return obj;
     if (Array.isArray(obj)) return obj.map(item => this.toSnakeCase(item));
@@ -428,17 +428,23 @@ class MySQLAdapter {
       // Convert camelCase to snake_case
       const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
 
-      // Handle datetime fields - convert to MySQL format
-      if ((key.endsWith('At') || key === 'createdAt' || key === 'updatedAt') && value) {
+      // Handle Date objects
+      if (value instanceof Date) {
         snakeObj[snakeKey] = this.toMySQLDateTime(value);
       }
-      // Don't convert JSON fields (items, paymentData, etc.)
-      else if (key === 'items' || key === 'paymentData' || value instanceof Date) {
-        snakeObj[snakeKey] = value instanceof Date ? this.toMySQLDateTime(value) : value;
+      // Handle datetime fields ending with 'At' or named 'createdAt', 'updatedAt', 'lastLogin'
+      else if ((key.endsWith('At') || key === 'createdAt' || key === 'updatedAt' || key === 'lastLogin') && value) {
+        snakeObj[snakeKey] = this.toMySQLDateTime(value);
       }
+      // Don't convert JSON fields (items, paymentData, etc.) - keep as is
+      else if (key === 'items' || key === 'paymentData') {
+        snakeObj[snakeKey] = value;
+      }
+      // Recursively convert nested objects (but not Date, Buffer, etc.)
       else if (value && typeof value === 'object' && !Array.isArray(value)) {
         snakeObj[snakeKey] = this.toSnakeCase(value);
-      } else {
+      }
+      else {
         snakeObj[snakeKey] = value;
       }
     }
