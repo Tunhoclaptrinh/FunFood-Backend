@@ -622,9 +622,73 @@ class PostgreSQLAdapter {
   }
 
   async applyRelations(items, collection, options) {
-    // PostgreSQL doesn't have native populate like Mongoose
-    // Would need to implement manual JOIN queries or separate queries
-    return items;
+    if (!items || items.length === 0) return items;
+    const resultItems = items.map(i => ({ ...i }));
+    const client = await this.pool.connect();
+
+    try {
+      // 1. Expand
+      if (options.expand) {
+        const relations = options.expand.split(',');
+        for (const relation of relations) {
+          const foreignKey = `${relation}Id`;
+          const idsToFetch = [...new Set(resultItems.map(item => item[foreignKey]).filter(id => id))];
+
+          if (idsToFetch.length > 0) {
+            const targetTable = relation + 's';
+            // Postgres dùng $1, $2...
+            const placeholders = idsToFetch.map((_, i) => `$${i + 1}`).join(',');
+            const res = await client.query(`SELECT * FROM ${targetTable} WHERE id IN (${placeholders})`, idsToFetch);
+
+            const map = {};
+            res.rows.forEach(r => map[r.id] = this.toCamelCase(r));
+
+            resultItems.forEach(item => {
+              if (item[foreignKey]) item[relation] = map[item[foreignKey]] || null;
+            });
+          }
+        }
+      }
+
+      // 2. Embed
+      if (options.embed) {
+        const relations = options.embed.split(',');
+        for (const relation of relations) {
+          let targetTable = relation;
+          let foreignKey = collection.slice(0, -1) + 'Id';
+          if (collection === 'orders' && relation === 'items') continue;
+
+          const parentIds = resultItems.map(i => i.id);
+          if (parentIds.length > 0) {
+            const snakeFK = this.camelToSnake(foreignKey);
+            const placeholders = parentIds.map((_, i) => `$${i + 1}`).join(',');
+
+            const res = await client.query(
+              `SELECT * FROM ${targetTable} WHERE ${snakeFK} IN (${placeholders})`,
+              parentIds
+            );
+
+            const map = {};
+            res.rows.forEach(r => {
+              const converted = this.toCamelCase(r);
+              const pId = converted[foreignKey];
+              if (!map[pId]) map[pId] = [];
+              map[pId].push(converted);
+            });
+
+            resultItems.forEach(item => {
+              item[relation] = map[item.id] || [];
+            });
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Apply relations error:", e);
+    } finally {
+      client.release();
+    }
+
+    return resultItems;
   }
 
   applyFilters(items, filters) {

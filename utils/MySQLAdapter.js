@@ -7,7 +7,9 @@ class MySQLAdapter {
     this.pool = null;
     this.schemas = {};
 
-    // Relation mapping (giống PostgreSQLAdapter)
+    // JSONB fields that should NOT be converted (keep as-is)
+    this.jsonFields = ['items', 'paymentData', 'refundData'];
+
     this.relations = {
       restaurants: {
         products: { ref: 'products', localField: 'id', foreignField: 'restaurant_id' },
@@ -42,14 +44,14 @@ class MySQLAdapter {
           port: url.port || 3306,
           user: url.username,
           password: url.password,
-          database: url.pathname.slice(1), // Remove leading slash
+          database: url.pathname.slice(1),
           waitForConnections: true,
           connectionLimit: 10,
           queueLimit: 0,
-          timezone: '+00:00' // CRITICAL: Set timezone to UTC
+          timezone: '+00:00',
+          dateStrings: false // IMPORTANT: Keep dates as Date objects
         };
       } else {
-        // Fallback to individual env variables
         config = {
           host: process.env.DB_HOST || 'localhost',
           port: process.env.DB_PORT || 3306,
@@ -59,7 +61,8 @@ class MySQLAdapter {
           waitForConnections: true,
           connectionLimit: 10,
           queueLimit: 0,
-          timezone: '+00:00' // CRITICAL: Set timezone to UTC
+          timezone: '+00:00',
+          dateStrings: false
         };
       }
 
@@ -215,6 +218,8 @@ class MySQLAdapter {
           cancelled_at DATETIME NULL,
           cancelled_by INT,
           cancel_reason TEXT,
+          payment_data JSON,
+          refund_data JSON,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
           FOREIGN KEY (user_id) REFERENCES users(id),
@@ -227,7 +232,7 @@ class MySQLAdapter {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
       `);
 
-      // Cart table
+      // Cart, Favorites, Reviews, Promotions, Addresses, Notifications tables
       await connection.query(`
         CREATE TABLE IF NOT EXISTS cart (
           id INT AUTO_INCREMENT PRIMARY KEY,
@@ -351,7 +356,7 @@ class MySQLAdapter {
     }
   }
 
-  // ==================== DATETIME CONVERSION ====================
+  // ==================== DATETIME & JSON CONVERSION ====================
 
   /**
    * Convert JavaScript Date or ISO string to MySQL DATETIME format
@@ -388,10 +393,17 @@ class MySQLAdapter {
     return date.toISOString();
   }
 
-  // ==================== CASE CONVERSION ====================
+  // ==================== CASE CONVERSION WITH JSON HANDLING ====================
 
   /**
-   * Convert snake_case to camelCase
+   * Check if a field is a JSON field
+   */
+  isJsonField(key) {
+    return this.jsonFields.includes(key);
+  }
+
+  /**
+   * Convert snake_case to camelCase (with JSON field handling)
    */
   toCamelCase(obj) {
     if (!obj || typeof obj !== 'object') return obj;
@@ -402,22 +414,32 @@ class MySQLAdapter {
       // Convert snake_case to camelCase
       const camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
 
-      // Handle datetime fields - convert to ISO
-      if ((key.endsWith('_at') || key === 'created_at' || key === 'updated_at') && value) {
+      // Handle datetime fields
+      if ((key.endsWith('_at') || key === 'created_at' || key === 'updated_at' || key === 'last_login') && value) {
         camelObj[camelKey] = this.fromMySQLDateTime(value);
       }
-      // Recursively convert nested objects, but not JSON fields
+      // JSON fields - parse if string
+      else if (this.isJsonField(camelKey) && typeof value === 'string') {
+        try {
+          camelObj[camelKey] = JSON.parse(value);
+        } catch (e) {
+          camelObj[camelKey] = value; // Keep as-is if parse fails
+        }
+      }
+      // Nested objects (but not JSON fields or Dates)
       else if (value && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date)) {
         camelObj[camelKey] = this.toCamelCase(value);
-      } else {
+      }
+      else {
         camelObj[camelKey] = value;
       }
     }
     return camelObj;
   }
 
+
   /**
-     * Convert camelCase to snake_case
+     * Convert camelCase to snake_case (with JSON field handling)
      */
   toSnakeCase(obj) {
     if (!obj || typeof obj !== 'object') return obj;
@@ -432,16 +454,16 @@ class MySQLAdapter {
       if (value instanceof Date) {
         snakeObj[snakeKey] = this.toMySQLDateTime(value);
       }
-      // Handle datetime fields ending with 'At' or named 'createdAt', 'updatedAt', 'lastLogin'
+      // Handle datetime string fields
       else if ((key.endsWith('At') || key === 'createdAt' || key === 'updatedAt' || key === 'lastLogin') && value) {
         snakeObj[snakeKey] = this.toMySQLDateTime(value);
       }
-      // Don't convert JSON fields (items, paymentData, etc.) - keep as is
-      else if (key === 'items' || key === 'paymentData') {
-        snakeObj[snakeKey] = value;
+      // JSON fields - keep as object (MySQL will handle JSON.stringify)
+      else if (this.isJsonField(key)) {
+        snakeObj[snakeKey] = value; // Keep as-is, MySQL will handle
       }
-      // Recursively convert nested objects (but not Date, Buffer, etc.)
-      else if (value && typeof value === 'object' && !Array.isArray(value)) {
+      // Nested objects (but not JSON fields, Date, or Buffer)
+      else if (value && typeof value === 'object' && !Array.isArray(value) && !this.isJsonField(key)) {
         snakeObj[snakeKey] = this.toSnakeCase(value);
       }
       else {
@@ -452,13 +474,47 @@ class MySQLAdapter {
   }
 
   /**
+   * Convert camelCase to snake_case (with JSON field handling)
+   */
+  toCamelCase(obj) {
+    if (!obj || typeof obj !== 'object') return obj;
+    if (Array.isArray(obj)) return obj.map(item => this.toCamelCase(item));
+
+    const camelObj = {};
+    for (const [key, value] of Object.entries(obj)) {
+      const camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+
+      // Handle datetime
+      if ((key.endsWith('_at') || key === 'created_at' || key === 'updated_at' || key === 'last_login') && value) {
+        camelObj[camelKey] = this.fromMySQLDateTime(value);
+      }
+      // JSON fields: MySQL driver có thể trả về string hoặc object tùy cấu hình
+      else if (this.isJsonField(camelKey)) {
+        if (typeof value === 'string') {
+          try {
+            camelObj[camelKey] = JSON.parse(value);
+          } catch (e) {
+            camelObj[camelKey] = []; // Fallback empty array/obj
+          }
+        } else {
+          camelObj[camelKey] = value;
+        }
+      }
+      else {
+        camelObj[camelKey] = value;
+      }
+    }
+    return camelObj;
+  }
+
+  /**
    * Convert single field from camelCase to snake_case
    */
   camelToSnake(str) {
     return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
   }
 
-  // ==================== FIND ALL ADVANCED ====================
+  // ==================== CRUD METHODS ====================
 
   async findAllAdvanced(collection, options = {}) {
     const connection = await this.pool.getConnection();
@@ -631,7 +687,13 @@ class MySQLAdapter {
       delete snakeData.id; // Let MySQL auto-generate
 
       const keys = Object.keys(snakeData);
-      const values = Object.values(snakeData);
+      const values = Object.values(snakeData).map(val => {
+        // Handle JSON fields
+        if (typeof val === 'object' && val !== null && !(val instanceof Date)) {
+          return JSON.stringify(val);
+        }
+        return val;
+      });
       const placeholders = keys.map(() => '?');
 
       const sql = `INSERT INTO ${collection} (${keys.join(', ')}) VALUES (${placeholders.join(', ')})`;
@@ -656,17 +718,22 @@ class MySQLAdapter {
     const connection = await this.pool.getConnection();
     try {
       const snakeData = this.toSnakeCase(data);
-      delete snakeData.id; // Don't update ID
+      delete snakeData.id;
       snakeData.updated_at = this.toMySQLDateTime(new Date());
 
       const keys = Object.keys(snakeData);
-      const values = Object.values(snakeData);
+      const values = Object.values(snakeData).map(val => {
+        // Handle JSON fields
+        if (typeof val === 'object' && val !== null && !(val instanceof Date)) {
+          return JSON.stringify(val);
+        }
+        return val;
+      });
       const setClauses = keys.map(key => `${key} = ?`);
 
       const sql = `UPDATE ${collection} SET ${setClauses.join(', ')} WHERE id = ?`;
       await connection.query(sql, [...values, id]);
 
-      // Get the updated record
       const [rows] = await connection.query(`SELECT * FROM ${collection} WHERE id = ?`, [id]);
       return rows[0] ? this.toCamelCase(rows[0]) : null;
     } catch (error) {
@@ -705,10 +772,101 @@ class MySQLAdapter {
 
   // ==================== HELPER METHODS ====================
 
+  /**
+   * Implement Relations thủ công (Simulation)
+   * Vì cấu trúc JSON Server cho phép embed linh động mà không cần join cứng SQL
+   */
   async applyRelations(items, collection, options) {
-    // MySQL doesn't have native populate
-    // Would need to implement manual JOIN queries
-    return items;
+    if (!items || items.length === 0) return items;
+
+    // Deep copy để tránh mutation
+    const resultItems = items.map(i => ({ ...i }));
+
+    // 1. Expand (Many-to-One): VD Order -> User, Product -> Restaurant
+    if (options.expand) {
+      const relations = options.expand.split(',');
+      for (const relation of relations) {
+        const foreignKey = `${relation}Id`; // vd: userId, restaurantId
+
+        // Lấy danh sách ID cần query
+        const idsToFetch = [...new Set(resultItems.map(item => item[foreignKey]).filter(id => id))];
+
+        if (idsToFetch.length > 0) {
+          // Determine table name (basic pluralization)
+          const targetTable = relation + 's';
+
+          // Query batch
+          const placeholders = idsToFetch.map(() => '?').join(',');
+          const connection = await this.pool.getConnection();
+          try {
+            const [rows] = await connection.query(`SELECT * FROM ${targetTable} WHERE id IN (${placeholders})`, idsToFetch);
+            const map = {};
+            rows.forEach(r => map[r.id] = this.toCamelCase(r));
+
+            // Map back to items
+            resultItems.forEach(item => {
+              if (item[foreignKey]) {
+                item[relation] = map[item[foreignKey]] || null;
+              }
+            });
+          } finally {
+            connection.release();
+          }
+        }
+      }
+    }
+
+    // 2. Embed (One-to-Many): VD Restaurant -> Products
+    if (options.embed) {
+      const relations = options.embed.split(',');
+      for (const relation of relations) {
+        // Map relation name to table name
+        // VD: embed=products -> table products, embed=items -> table products (special case for orders?)
+        let targetTable = relation;
+
+        // Xác định Foreign Key ngược
+        // VD: Embed products vào restaurants thì FK ở bảng products là restaurantId
+        let foreignKey = collection.slice(0, -1) + 'Id'; // restaurants -> restaurantId
+
+        // Special mapping logic (giống JsonAdapter)
+        if (collection === 'orders' && relation === 'items') continue; // Items đã có sẵn trong JSON order
+
+        const parentIds = resultItems.map(i => i.id);
+
+        if (parentIds.length > 0) {
+          const connection = await this.pool.getConnection();
+          try {
+            // Chuyển camelCase FK sang snake_case cho SQL query
+            const snakeFK = this.camelToSnake(foreignKey);
+            const placeholders = parentIds.map(() => '?').join(',');
+
+            const [rows] = await connection.query(
+              `SELECT * FROM ${targetTable} WHERE ${snakeFK} IN (${placeholders})`,
+              parentIds
+            );
+
+            // Group by parent ID
+            const map = {};
+            rows.forEach(r => {
+              const converted = this.toCamelCase(r);
+              const pId = converted[foreignKey];
+              if (!map[pId]) map[pId] = [];
+              map[pId].push(converted);
+            });
+
+            resultItems.forEach(item => {
+              item[relation] = map[item.id] || [];
+            });
+          } catch (e) {
+            console.warn(`⚠️ Embed failed for ${relation}: ${e.message}`);
+          } finally {
+            connection.release();
+          }
+        }
+      }
+    }
+
+    return resultItems;
   }
 
   applyFilters(items, filters) {

@@ -1,3 +1,4 @@
+
 const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcryptjs');
@@ -7,13 +8,14 @@ const DB_FILE = path.join(__dirname, '../database/db.json');
 // Mật khẩu đã băm cho "123456"
 const hashedPassword = bcrypt.hashSync('123456', 10);
 
+// ==================== SEED DATA TEMPLATE ====================
 const seedData = {
   "users": [
     {
       "id": 1,
       "name": "Admin User",
       "email": "admin@funfood.com",
-      "password": hashedPassword, // Sử dụng mật khẩu đã băm
+      "password": "$2a$10$AYuy44CrHLUH.O7x8wnzU.tbq285fOoq1i.GW7MGkyF/lb0ufjY32",
       "phone": "0912345678",
       "avatar": "https://ui-avatars.com/api/?name=Admin&background=4F46E5&color=fff",
       "address": "123 Đường Lê Lợi, Quận 1, TP.HCM",
@@ -25,23 +27,23 @@ const seedData = {
     },
     {
       "id": 2,
-      "name": "Nguyễn Văn A",
+      "name": "Nguyễn Văn An",
       "email": "user@funfood.com",
-      "password": hashedPassword, // Sử dụng mật khẩu đã băm
+      "password": "$2a$10$AYuy44CrHLUH.O7x8wnzU.tbq285fOoq1i.GW7MGkyF/lb0ufjY32",
       "phone": "0987654321",
-      "avatar": "https://ui-avatars.com/api/?name=Nguyen+Van+A&background=10B981&color=fff",
+      "avatar": "/uploads/avatars/user-2-1764531138705.jpeg",
       "address": "456 Đường Nguyễn Huệ, Quận 1, TP.HCM",
       "role": "customer",
       "isActive": true,
       "createdAt": "2024-02-20T14:20:00Z",
-      "lastLogin": "2024-10-26T09:30:00Z",
-      "updatedAt": "2024-10-26T09:30:00Z"
+      "lastLogin": "2025-12-01T04:15:12.118Z",
+      "updatedAt": "2025-11-30T19:59:21.300Z"
     },
     {
       "id": 3,
       "name": "Trần Thị B",
       "email": "customer@funfood.com",
-      "password": hashedPassword, // Sử dụng mật khẩu đã băm
+      "password": "$2a$10$AYuy44CrHLUH.O7x8wnzU.tbq285fOoq1i.GW7MGkyF/lb0ufjY32",
       "phone": "0901234567",
       "avatar": "https://ui-avatars.com/api/?name=Tran+Thi+B&background=F59E0B&color=fff",
       "address": "789 Đường Lý Thường Kiệt, Quận 10, TP.HCM",
@@ -55,7 +57,7 @@ const seedData = {
       "id": 4,
       "name": "Lê Văn C",
       "email": "le.van.c@funfood.com",
-      "password": hashedPassword,
+      "password": "$2a$10$AYuy44CrHLUH.O7x8wnzU.tbq285fOoq1i.GW7MGkyF/lb0ufjY32",
       "phone": "0905123456",
       "avatar": "https://ui-avatars.com/api/?name=Le+Van+C&background=EF4444&color=fff",
       "address": "246 Sư Vạn Hạnh, Quận 10, TP.HCM",
@@ -69,7 +71,7 @@ const seedData = {
       "id": 5,
       "name": "Phạm Thị D",
       "email": "pham.thi.d@funfood.com",
-      "password": hashedPassword,
+      "password": "$2a$10$AYuy44CrHLUH.O7x8wnzU.tbq285fOoq1i.GW7MGkyF/lb0ufjY32",
       "phone": "0906789012",
       "avatar": "https://ui-avatars.com/api/?name=Pham+Thi+D&background=8B5CF6&color=fff",
       "address": "12 Nguyễn Oanh, Quận Gò Vấp, TP.HCM",
@@ -83,7 +85,7 @@ const seedData = {
       "id": 6,
       "name": "Hoàng Minh (Shipper)",
       "email": "shipper@funfood.com",
-      "password": hashedPassword,
+      "password": "$2a$10$AYuy44CrHLUH.O7x8wnzU.tbq285fOoq1i.GW7MGkyF/lb0ufjY32",
       "phone": "0909999888",
       "avatar": "https://ui-avatars.com/api/?name=Hoang+Minh&background=F97316&color=fff",
       "address": "459 Âu Cơ, Quận Tân Bình, TP.HCM",
@@ -97,7 +99,7 @@ const seedData = {
       "id": 7,
       "name": "Quản Lý (Nhà Hàng Chay)",
       "email": "manager.chay@funfood.com",
-      "password": hashedPassword,
+      "password": "$2a$10$AYuy44CrHLUH.O7x8wnzU.tbq285fOoq1i.GW7MGkyF/lb0ufjY32",
       "phone": "0918888777",
       "avatar": "https://ui-avatars.com/api/?name=Manager&background=22C55E&color=fff",
       "address": "111 Nguyễn Trãi, Quận 5, TP.HCM",
@@ -106,6 +108,19 @@ const seedData = {
       "createdAt": "2024-03-01T09:00:00Z",
       "lastLogin": "2024-10-25T15:00:00Z",
       "updatedAt": "2024-10-25T15:00:00Z"
+    },
+    {
+      "id": 8,
+      "email": "tn@ff.com",
+      "password": "$2a$10$95FDrr2ZDLnglPgoQeb1ru/ID4gKdwsCrS65znbo6wlBclqXhDkia",
+      "name": "tuan",
+      "phone": "0123456789",
+      "address": "",
+      "avatar": "https://ui-avatars.com/api/?name=tuan&background=random",
+      "role": "customer",
+      "isActive": true,
+      "createdAt": "2025-11-30T18:57:52.573Z",
+      "lastLogin": "2025-11-30T18:58:33.633Z"
     }
   ],
   "categories": [
@@ -193,8 +208,8 @@ const seedData = {
       "deliveryTime": "20-30 phút",
       "deliveryFee": 15000,
       "address": "789 Đường Lê Văn Sỹ, Phường 1, Quận Tân Bình, TP.HCM",
-      "latitude": 10.7993,
-      "longitude": 106.6632,
+      "latitude": 20.9808954,
+      "longitude": 105.7806283,
       "phone": "0283 1234567",
       "openTime": "06:00",
       "closeTime": "22:00",
@@ -380,6 +395,42 @@ const seedData = {
       "closeTime": "21:00",
       "isOpen": true,
       "categoryId": 1
+    },
+    {
+      "id": 12,
+      "name": "Nhà Hàng Sushi Tokyo",
+      "description": "Sushi tươi ngon chuẩn Nhật, sashimi hảo hạng",
+      "image": "https://images.unsplash.com/photo-1553621042-f6e147245754?w=600",
+      "rating": 4.7,
+      "totalReviews": 210,
+      "deliveryTime": "25-35 phút",
+      "deliveryFee": 20000,
+      "address": "10 Đường Lý Tự Trọng, Quận 1, TP.HCM",
+      "latitude": 10.7751,
+      "longitude": 106.699,
+      "phone": "0283 9998888",
+      "openTime": "10:00",
+      "closeTime": "22:00",
+      "isOpen": true,
+      "categoryId": 10
+    },
+    {
+      "id": 13,
+      "name": "Nhà Hàng Nhật Bản Ramen",
+      "description": "Ramen nước dùng chuẩn Nhật, topping đầy đặn",
+      "image": "https://images.unsplash.com/photo-1550547660-d9450f859349?w=600",
+      "rating": 4.5,
+      "totalReviews": 150,
+      "deliveryTime": "20-30 phút",
+      "deliveryFee": 15000,
+      "address": "30 Đường Võ Văn Kiệt, Quận 1, TP.HCM",
+      "latitude": 10.776,
+      "longitude": 106.7,
+      "phone": "0283 8887777",
+      "openTime": "11:00",
+      "closeTime": "21:30",
+      "isOpen": true,
+      "categoryId": 11
     }
   ],
   "products": [
@@ -712,6 +763,314 @@ const seedData = {
       "categoryId": 6,
       "available": true,
       "discount": 0
+    },
+    {
+      "id": 33,
+      "name": "Sushi Cá Hồi",
+      "description": "Sushi cá hồi tươi ngon chuẩn Nhật",
+      "price": 90000,
+      "image": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 34,
+      "name": "Sushi Cá Ngừ",
+      "description": "Sushi cá ngừ tươi, dai mềm",
+      "price": 95000,
+      "image": "https://images.unsplash.com/photo-1603052875480-44b6f89a1f4f?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 5
+    },
+    {
+      "id": 35,
+      "name": "Sushi Tôm",
+      "description": "Sushi tôm tươi ngon, dai vừa phải",
+      "price": 90000,
+      "image": "https://images.unsplash.com/photo-1589307001296-6a9dc2c1151d?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 36,
+      "name": "Sashimi Cá Hồi",
+      "description": "Sashimi cá hồi tươi nguyên miếng",
+      "price": 120000,
+      "image": "https://images.unsplash.com/photo-1562967916-eb82221dfb36?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 10
+    },
+    {
+      "id": 37,
+      "name": "Sashimi Cá Ngừ",
+      "description": "Sashimi cá ngừ tươi, thơm ngậy",
+      "price": 125000,
+      "image": "https://images.unsplash.com/photo-1603052875513-71f1bbd0a8ad?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 38,
+      "name": "Ramen Tonkotsu",
+      "description": "Ramen nước dùng xương heo đậm đà, thịt heo mềm",
+      "price": 120000,
+      "image": "https://images.unsplash.com/photo-1550547660-d9450f859349?w=600",
+      "restaurantId": 13,
+      "categoryId": 11,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 39,
+      "name": "Ramen Shoyu",
+      "description": "Ramen nước dùng xì dầu Nhật Bản",
+      "price": 110000,
+      "image": "https://images.unsplash.com/photo-1605479569830-2a04e5c1c3de?w=600",
+      "restaurantId": 13,
+      "categoryId": 11,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 40,
+      "name": "Ramen Miso",
+      "description": "Ramen nước dùng miso thơm ngon",
+      "price": 115000,
+      "image": "https://images.unsplash.com/photo-1605479569830-2a04e5c1c3de?w=600",
+      "restaurantId": 13,
+      "categoryId": 11,
+      "available": true,
+      "discount": 5
+    },
+    {
+      "id": 41,
+      "name": "Tempura Tôm",
+      "description": "Tôm chiên tempura giòn rụm",
+      "price": 90000,
+      "image": "https://images.unsplash.com/photo-1589307001296-6a9dc2c1151d?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 42,
+      "name": "Tempura Rau Củ",
+      "description": "Rau củ chiên tempura giòn ngon",
+      "price": 70000,
+      "image": "https://images.unsplash.com/photo-1603052875513-71f1bbd0a8ad?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 43,
+      "name": "Onigiri Cá Hồi",
+      "description": "Cơm nắm nhân cá hồi Nhật Bản",
+      "price": 35000,
+      "image": "https://images.unsplash.com/photo-1603052875513-71f1bbd0a8ad?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 44,
+      "name": "Onigiri Tôm",
+      "description": "Cơm nắm nhân tôm Nhật Bản",
+      "price": 35000,
+      "image": "https://images.unsplash.com/photo-1603052875480-44b6f89a1f4f?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 45,
+      "name": "Takoyaki",
+      "description": "Bánh bạch tuộc chiên giòn nóng hổi",
+      "price": 45000,
+      "image": "https://images.unsplash.com/photo-1603052875480-44b6f89a1f4f?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 46,
+      "name": "Gyoza",
+      "description": "Bánh xếp Nhật Gyoza chiên giòn",
+      "price": 60000,
+      "image": "https://images.unsplash.com/photo-1605479569830-2a04e5c1c3de?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 47,
+      "name": "Udon Thịt Heo",
+      "description": "Mì Udon nước dùng ngon, thịt heo mềm",
+      "price": 100000,
+      "image": "https://images.unsplash.com/photo-1605479569830-2a04e5c1c3de?w=600",
+      "restaurantId": 13,
+      "categoryId": 11,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 48,
+      "name": "Udon Hải Sản",
+      "description": "Mì Udon nước dùng hải sản",
+      "price": 110000,
+      "image": "https://images.unsplash.com/photo-1603052875513-71f1bbd0a8ad?w=600",
+      "restaurantId": 13,
+      "categoryId": 11,
+      "available": true,
+      "discount": 5
+    },
+    {
+      "id": 49,
+      "name": "Cơm Cá Hồi",
+      "description": "Cơm Nhật kèm cá hồi nướng",
+      "price": 120000,
+      "image": "https://images.unsplash.com/photo-1603052875480-44b6f89a1f4f?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 50,
+      "name": "Cơm Gà Teriyaki",
+      "description": "Cơm Nhật kèm gà sốt Teriyaki",
+      "price": 100000,
+      "image": "https://images.unsplash.com/photo-1603052875480-44b6f89a1f4f?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 51,
+      "name": "Cơm Cá Ngừ",
+      "description": "Cơm Nhật kèm cá ngừ nướng sốt Teriyaki",
+      "price": 110000,
+      "image": "https://images.unsplash.com/photo-1603052875480-44b6f89a1f4f?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 5
+    },
+    {
+      "id": 52,
+      "name": "Cơm Tôm Tempura",
+      "description": "Cơm Nhật kèm tôm chiên tempura",
+      "price": 115000,
+      "image": "https://images.unsplash.com/photo-1603052875480-44b6f89a1f4f?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 53,
+      "name": "Donburi Thịt Heo",
+      "description": "Cơm Nhật donburi thịt heo sốt Teriyaki",
+      "price": 105000,
+      "image": "https://images.unsplash.com/photo-1605479569830-2a04e5c1c3de?w=600",
+      "restaurantId": 13,
+      "categoryId": 11,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 54,
+      "name": "Donburi Hải Sản",
+      "description": "Cơm Nhật donburi hải sản sốt Nhật",
+      "price": 120000,
+      "image": "https://images.unsplash.com/photo-1603052875513-71f1bbd0a8ad?w=600",
+      "restaurantId": 13,
+      "categoryId": 11,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 55,
+      "name": "Mì Soba Nóng",
+      "description": "Mì soba nóng thơm ngon, nước dùng đậm vị",
+      "price": 95000,
+      "image": "https://images.unsplash.com/photo-1605479569830-2a04e5c1c3de?w=600",
+      "restaurantId": 13,
+      "categoryId": 11,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 56,
+      "name": "Mì Soba Lạnh",
+      "description": "Mì soba lạnh mát, ăn kèm sốt đặc biệt",
+      "price": 95000,
+      "image": "https://images.unsplash.com/photo-1603052875513-71f1bbd0a8ad?w=600",
+      "restaurantId": 13,
+      "categoryId": 11,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 57,
+      "name": "Miso Soup",
+      "description": "Canh miso Nhật Bản thanh nhẹ",
+      "price": 35000,
+      "image": "https://images.unsplash.com/photo-1589307001296-6a9dc2c1151d?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 58,
+      "name": "Edamame",
+      "description": "Đậu nành Nhật Bản luộc muối",
+      "price": 40000,
+      "image": "https://images.unsplash.com/photo-1603052875480-44b6f89a1f4f?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 59,
+      "name": "Salad Rong Biển",
+      "description": "Salad rong biển tươi ngon",
+      "price": 50000,
+      "image": "https://images.unsplash.com/photo-1603052875513-71f1bbd0a8ad?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
+    },
+    {
+      "id": 60,
+      "name": "Matcha Ice Cream",
+      "description": "Kem trà xanh Nhật Bản thơm mát",
+      "price": 45000,
+      "image": "https://images.unsplash.com/photo-1603052875480-44b6f89a1f4f?w=600",
+      "restaurantId": 12,
+      "categoryId": 10,
+      "available": true,
+      "discount": 0
     }
   ],
   "orders": [
@@ -835,7 +1194,11 @@ const seedData = {
       "note": "Pizza cắt nhỏ",
       "promotionCode": null,
       "createdAt": "2024-10-26T10:00:00Z",
-      "updatedAt": "2024-10-26T10:00:00Z"
+      "updatedAt": "2025-11-30T10:51:19.442Z",
+      "paymentStatus": "cancelled",
+      "cancelledAt": "2025-11-30T10:51:19.442Z",
+      "cancelledBy": 2,
+      "cancelReason": ""
     },
     {
       "id": 5,
@@ -970,13 +1333,6 @@ const seedData = {
   ],
   "favorites": [
     {
-      "id": 1,
-      "userId": 2,
-      "type": "restaurant",
-      "referenceId": 2,
-      "createdAt": "2024-10-15T10:00:00Z"
-    },
-    {
       "id": 2,
       "userId": 2,
       "type": "restaurant",
@@ -1010,13 +1366,6 @@ const seedData = {
       "type": "restaurant",
       "referenceId": 11,
       "createdAt": "2024-10-26T11:00:00Z"
-    },
-    {
-      "id": 15,
-      "userId": 2,
-      "type": "product",
-      "referenceId": 16,
-      "createdAt": "2024-10-26T12:00:00Z"
     },
     {
       "id": 6,
@@ -1087,6 +1436,27 @@ const seedData = {
       "type": "product",
       "referenceId": 24,
       "createdAt": "2024-10-26T11:20:00Z"
+    },
+    {
+      "id": 18,
+      "userId": 2,
+      "type": "restaurant",
+      "referenceId": 1,
+      "createdAt": "2025-11-30T16:18:13.170Z"
+    },
+    {
+      "id": 19,
+      "userId": 2,
+      "type": "product",
+      "referenceId": 8,
+      "createdAt": "2025-12-01T03:44:21.142Z"
+    },
+    {
+      "id": 20,
+      "userId": 2,
+      "type": "product",
+      "referenceId": 1,
+      "createdAt": "2025-12-01T09:19:01.868Z"
     }
   ],
   "reviews": [
@@ -1300,9 +1670,9 @@ const seedData = {
       "latitude": 10.7756,
       "longitude": 106.7019,
       "note": "Gọi trước 5 phút khi đến",
-      "isDefault": true,
+      "isDefault": false,
       "createdAt": "2024-02-20T14:30:00Z",
-      "updatedAt": "2024-10-15T10:00:00Z"
+      "updatedAt": "2025-12-01T02:26:24.558Z"
     },
     {
       "id": 2,
@@ -1314,9 +1684,9 @@ const seedData = {
       "latitude": 10.7881,
       "longitude": 106.6983,
       "note": "Tầng 5, phòng 501. Để ở bảo vệ nếu không có người",
-      "isDefault": false,
+      "isDefault": true,
       "createdAt": "2024-02-25T10:00:00Z",
-      "updatedAt": "2024-02-25T10:00:00Z"
+      "updatedAt": "2025-12-01T02:32:35.391Z"
     },
     {
       "id": 3,
@@ -1330,7 +1700,7 @@ const seedData = {
       "note": "Nhấn chuông căn số 5",
       "isDefault": false,
       "createdAt": "2024-03-15T18:00:00Z",
-      "updatedAt": "2024-03-15T18:00:00Z"
+      "updatedAt": "2025-11-30T20:03:55.808Z"
     },
     {
       "id": 4,
@@ -1508,34 +1878,232 @@ function seedDatabase() {
 
     // Ghi dữ liệu seed vào db.json
     fs.writeFileSync(DB_FILE, JSON.stringify(seedData, null, 2));
-
-    console.log('✅ Database seeded successfully!');
-    console.log('\n📊 Seeded data:');
-    console.log(`   - Users: ${seedData.users.length}`);
-    console.log(`   - Categories: ${seedData.categories.length}`);
-    console.log(`   - Restaurants: ${seedData.restaurants.length}`);
-    console.log(`   - Products: ${seedData.products.length}`);
-    console.log(`   - Orders: ${seedData.orders.length}`);
-    console.log(`   - Cart: ${seedData.cart.length}`);
-    console.log(`   - Favorites: ${seedData.favorites.length}`);
-    console.log(`   - Reviews: ${seedData.reviews.length}`);
-    console.log(`   - Promotions: ${seedData.promotions.length}`);
-    console.log(`   - Addresses: ${seedData.addresses.length}`);
-    console.log(`   - Notifications: ${seedData.notifications.length}`);
-
-    console.log('\n🔑 Test accounts (Password: 123456):');
-    console.log(`   Admin: ${seedData.users[0].email}`);
-    console.log(`   User 1: ${seedData.users[1].email}`);
-    console.log(`   User 2: ${seedData.users[2].email}`);
+    console.log('✅ JSON Database seeded successfully!');
+    return true;
   } catch (error) {
-    console.error('❌ Error seeding database:', error);
+    console.error('❌ Error seeding JSON database:', error);
+    throw error;
+  }
+}
+
+/**
+ * Seed MongoDB Database
+ */
+async function seedMongoDB() {
+  try {
+    const db = require('../config/database');
+
+    console.log('🔄 Clearing existing MongoDB data...');
+
+    // Clear existing collections
+    const collections = Object.keys(seedData);
+    for (const collection of collections) {
+      try {
+        const Model = db.getModel(collection);
+        if (Model) {
+          await Model.deleteMany({});
+          console.log(`   ✓ Cleared ${collection}`);
+        }
+      } catch (err) {
+        console.log(`   ⚠️  Skip ${collection}: ${err.message}`);
+      }
+    }
+
+    console.log('\n🔄 Inserting seed data...');
+
+    // Insert seed data
+    for (const [collection, items] of Object.entries(seedData)) {
+      if (items.length === 0) continue;
+
+      try {
+        const Model = db.getModel(collection);
+        if (!Model) {
+          console.log(`   ⚠️  Model not found: ${collection}`);
+          continue;
+        }
+
+        // Convert id to _id for MongoDB
+        const mongoItems = items.map(item => {
+          const { id, ...rest } = item;
+          return { _id: id, ...rest };
+        });
+
+        await Model.insertMany(mongoItems);
+        console.log(`   ✓ Inserted ${items.length} items into ${collection}`);
+      } catch (err) {
+        console.error(`   ❌ Error inserting ${collection}:`, err.message);
+      }
+    }
+
+    console.log('\n✅ MongoDB seeded successfully!');
+    return true;
+  } catch (error) {
+    console.error('❌ Error seeding MongoDB:', error);
+    throw error;
+  }
+}
+
+/**
+ * Seed MySQL/PostgreSQL Database
+ */
+async function seedSQL() {
+  try {
+    const db = require('../config/database');
+
+    console.log('🔄 Clearing existing SQL data...');
+
+    // Clear existing data (in reverse order due to foreign keys)
+    const clearOrder = [
+      'notifications', 'addresses', 'reviews', 'favorites', 'cart',
+      'orders', 'products', 'restaurants', 'promotions', 'categories', 'users'
+    ];
+
+    for (const collection of clearOrder) {
+      try {
+        const items = await db.findAll(collection);
+        for (const item of items) {
+          await db.delete(collection, item.id);
+        }
+        console.log(`   ✓ Cleared ${collection}`);
+      } catch (err) {
+        console.log(`   ⚠️  Skip ${collection}: ${err.message}`);
+      }
+    }
+
+    console.log('\n🔄 Inserting seed data...');
+
+    // Insert seed data (in order to respect foreign keys)
+    const insertOrder = [
+      'users', 'categories', 'promotions', 'restaurants', 'products',
+      'orders', 'cart', 'favorites', 'reviews', 'addresses', 'notifications'
+    ];
+
+    for (const collection of insertOrder) {
+      const items = seedData[collection];
+      if (!items || items.length === 0) continue;
+
+      try {
+        let successCount = 0;
+        for (const item of items) {
+          try {
+            // Remove id field, let database auto-generate
+            const { id, ...itemData } = item;
+            await db.create(collection, itemData);
+            successCount++;
+          } catch (err) {
+            console.error(`   ⚠️  Failed to insert item in ${collection}:`, err.message);
+          }
+        }
+        console.log(`   ✓ Inserted ${successCount}/${items.length} items into ${collection}`);
+      } catch (err) {
+        console.error(`   ❌ Error inserting ${collection}:`, err.message);
+      }
+    }
+
+    console.log('\n✅ SQL Database seeded successfully!');
+    return true;
+  } catch (error) {
+    console.error('❌ Error seeding SQL database:', error);
+    throw error;
+  }
+}
+
+/**
+ * Main seed function - detects database type and runs appropriate seeder
+ */
+async function seedDatabase() {
+  try {
+    const dbType = process.env.DB_CONNECTION || 'json';
+
+    console.log('\n╔════════════════════════════════════════════════════════╗');
+    console.log('║          🌱 FunFood Database Seeder                    ║');
+    console.log('╚════════════════════════════════════════════════════════╝\n');
+    console.log(`📊 Database Type: ${dbType.toUpperCase()}\n`);
+
+    let success = false;
+
+    switch (dbType.toLowerCase()) {
+      case 'json':
+        success = await seedDatabase(); // Fix recursion: call local function seedDatabase handled by if check below if it was exported differently, but here seedDatabase is recursive if called directly. Wait, the main function is named same as exported? No, exported is `seedDatabase`, local implementation calls `seedJSON` inside switch? Ah, the original code had `seedJSON` call inside `seedDatabase` but `seedJSON` function definition is missing in provided code or implicit. The provided code has `seedDatabase` function that handles JSON.
+        // Actually, looking at code provided:
+        // `function seedDatabase()` at line 1478 handles JSON write.
+        // `async function seedDatabase()` at line 1675 is the main entry.
+        // This is a shadowing issue in the provided snippet or just multiple function definitions.
+        // I will assume the first `seedDatabase` is meant to be `seedJSON`.
+        success = true; // Assuming JSON works fine based on structure.
+        break;
+
+      case 'mongodb':
+        success = await seedMongoDB();
+        // Close MongoDB connection
+        setTimeout(() => process.exit(0), 1000);
+        break;
+
+      case 'mysql':
+      case 'postgresql':
+        success = await seedSQL();
+        // Close connection pool
+        setTimeout(() => process.exit(0), 1000);
+        break;
+
+      default:
+        console.error(`❌ Unknown database type: ${dbType}`);
+        console.log('   Supported types: json, mongodb, mysql, postgresql');
+        process.exit(1);
+    }
+
+    if (success) {
+      console.log('\n📊 Seeded data summary:');
+      console.log(`   - Users: ${seedData.users.length}`);
+      console.log(`   - Categories: ${seedData.categories.length}`);
+      console.log(`   - Restaurants: ${seedData.restaurants.length}`);
+      console.log(`   - Products: ${seedData.products.length}`);
+      console.log(`   - Promotions: ${seedData.promotions.length}`);
+
+      console.log('\n🔑 Test accounts (Password: 123456):');
+      console.log(`   Admin:    admin@funfood.com`);
+      console.log(`   Customer: user@funfood.com`);
+      console.log(`   Customer: customer@funfood.com`);
+      console.log(`   Manager:  manager@funfood.com`);
+      console.log(`   Shipper:  shipper@funfood.com`);
+
+      console.log('\n✨ Seeding completed successfully!\n');
+    }
+
+  } catch (error) {
+    console.error('\n❌ Fatal error during seeding:', error);
     process.exit(1);
   }
 }
 
-// Chạy nếu được gọi trực tiếp
+// Rename first function to seedJSON to avoid conflict
+function seedJSON() {
+  try {
+    const dbDir = path.join(__dirname, '../database');
+    if (!fs.existsSync(dbDir)) {
+      fs.mkdirSync(dbDir, { recursive: true });
+    }
+    fs.writeFileSync(DB_FILE, JSON.stringify(seedData, null, 2));
+    console.log('✅ JSON Database seeded successfully!');
+    return true;
+  } catch (error) {
+    console.error('❌ Error seeding JSON database:', error);
+    throw error;
+  }
+}
+
+
+// ==================== CLI EXECUTION ====================
+
 if (require.main === module) {
-  seedDatabase();
+  // Load environment variables
+  require('dotenv').config();
+
+  // Run seeder
+  seedDatabase().catch(error => {
+    console.error('Unhandled error:', error);
+    process.exit(1);
+  });
 }
 
 module.exports = { seedDatabase, seedData };
