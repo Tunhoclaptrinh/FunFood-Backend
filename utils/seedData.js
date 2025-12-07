@@ -7,13 +7,14 @@ const DB_FILE = path.join(__dirname, '../database/db.json');
 // Mật khẩu đã băm cho "123456"
 const hashedPassword = bcrypt.hashSync('123456', 10);
 
+// ==================== SEED DATA TEMPLATE ====================
 const seedData = {
   "users": [
     {
       "id": 1,
       "name": "Admin User",
       "email": "admin@funfood.com",
-      "password": hashedPassword, // Sử dụng mật khẩu đã băm
+      "password": hashedPassword,
       "phone": "0912345678",
       "avatar": "https://ui-avatars.com/api/?name=Admin&background=4F46E5&color=fff",
       "address": "123 Đường Lê Lợi, Quận 1, TP.HCM",
@@ -25,11 +26,11 @@ const seedData = {
     },
     {
       "id": 2,
-      "name": "Nguyễn Văn A",
+      "name": "Nguyễn Văn An",
       "email": "user@funfood.com",
-      "password": hashedPassword, // Sử dụng mật khẩu đã băm
+      "password": hashedPassword,
       "phone": "0987654321",
-      "avatar": "https://ui-avatars.com/api/?name=Nguyen+Van+A&background=10B981&color=fff",
+      "avatar": "https://ui-avatars.com/api/?name=Nguyen+Van+An&background=10B981&color=fff",
       "address": "456 Đường Nguyễn Huệ, Quận 1, TP.HCM",
       "role": "customer",
       "isActive": true,
@@ -41,7 +42,7 @@ const seedData = {
       "id": 3,
       "name": "Trần Thị B",
       "email": "customer@funfood.com",
-      "password": hashedPassword, // Sử dụng mật khẩu đã băm
+      "password": hashedPassword,
       "phone": "0901234567",
       "avatar": "https://ui-avatars.com/api/?name=Tran+Thi+B&background=F59E0B&color=fff",
       "address": "789 Đường Lý Thường Kiệt, Quận 10, TP.HCM",
@@ -186,49 +187,51 @@ const seedData = {
     {
       "id": 1,
       "name": "Quán Cơm Tấm Sườn Bì Chả",
-      "description": "Cơm tấm truyền thống Sài Gòn với sườn nướng thơm ngon, bì giòn tan và chả trứng đậm đà",
+      "description": "Cơm tấm truyền thống Sài Gòn với sườn nướng thơm ngon",
       "image": "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=600",
       "rating": 4.5,
       "totalReviews": 128,
       "deliveryTime": "20-30 phút",
       "deliveryFee": 15000,
-      "address": "789 Đường Lê Văn Sỹ, Phường 1, Quận Tân Bình, TP.HCM",
+      "address": "789 Đường Lê Văn Sỹ, Quận Tân Bình, TP.HCM",
       "latitude": 10.7993,
       "longitude": 106.6632,
       "phone": "0283 1234567",
       "openTime": "06:00",
       "closeTime": "22:00",
       "isOpen": true,
-      "categoryId": 1
+      "categoryId": 1,
+      "managerId": 7
     },
     {
       "id": 2,
       "name": "Phở Hà Nội",
-      "description": "Phở bò chính gốc Hà Nội, nước dùng ninh từ xương trong nhiều giờ, thơm ngon đậm đà",
+      "description": "Phở bò chính gốc Hà Nội, nước dùng ninh từ xương",
       "image": "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=600",
       "rating": 4.7,
       "totalReviews": 256,
       "deliveryTime": "25-35 phút",
       "deliveryFee": 20000,
-      "address": "123 Đường Pasteur, Phường Bến Nghé, Quận 1, TP.HCM",
+      "address": "123 Đường Pasteur, Quận 1, TP.HCM",
       "latitude": 10.7756,
       "longitude": 106.7019,
       "phone": "0283 7654321",
       "openTime": "06:30",
       "closeTime": "23:00",
       "isOpen": true,
-      "categoryId": 2
+      "categoryId": 2,
+      "managerId": null
     },
     {
       "id": 3,
       "name": "Bánh Mì Huỳnh Hoa",
-      "description": "Bánh mì thập cẩm đặc biệt nổi tiếng khắp Sài Gòn với nhân đầy ắp",
+      "description": "Bánh mì thập cẩm đặc biệt nổi tiếng",
       "image": "https://images.unsplash.com/photo-1558030006-450675393462?w=600",
       "rating": 4.8,
       "totalReviews": 512,
       "deliveryTime": "15-25 phút",
       "deliveryFee": 10000,
-      "address": "456 Đường Lê Thị Riêng, Phường Bến Thành, Quận 1, TP.HCM",
+      "address": "456 Đường Lê Thị Riêng, Quận 1, TP.HCM",
       "latitude": 10.7691,
       "longitude": 106.6978,
       "phone": "0283 2345678",
@@ -392,7 +395,8 @@ const seedData = {
       "restaurantId": 1,
       "categoryId": 1,
       "available": true,
-      "discount": 0
+      "discount": 0,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 2,
@@ -403,7 +407,8 @@ const seedData = {
       "restaurantId": 1,
       "categoryId": 1,
       "available": true,
-      "discount": 10
+      "discount": 10,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 3,
@@ -414,7 +419,8 @@ const seedData = {
       "restaurantId": 1,
       "categoryId": 1,
       "available": true,
-      "discount": 0
+      "discount": 0,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 4,
@@ -425,7 +431,8 @@ const seedData = {
       "restaurantId": 2,
       "categoryId": 2,
       "available": true,
-      "discount": 0
+      "discount": 0,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 5,
@@ -436,7 +443,8 @@ const seedData = {
       "restaurantId": 2,
       "categoryId": 2,
       "available": true,
-      "discount": 0
+      "discount": 0,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 6,
@@ -447,18 +455,20 @@ const seedData = {
       "restaurantId": 2,
       "categoryId": 2,
       "available": true,
-      "discount": 15
+      "discount": 15,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
-      "id": 7,
+      "id": 3,
       "name": "Bánh Mì Thập Cẩm",
-      "description": "Bánh mì với đầy đủ topping: chả lụa, pate, thịt nguội, dưa góp",
+      "description": "Bánh mì với đầy đủ topping",
       "price": 25000,
       "image": "https://images.unsplash.com/photo-1558030006-450675393462?w=600",
       "restaurantId": 3,
       "categoryId": 3,
       "available": true,
-      "discount": 15
+      "discount": 15,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 8,
@@ -469,7 +479,8 @@ const seedData = {
       "restaurantId": 3,
       "categoryId": 3,
       "available": true,
-      "discount": 0
+      "discount": 0,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 9,
@@ -480,7 +491,8 @@ const seedData = {
       "restaurantId": 3,
       "categoryId": 3,
       "available": true,
-      "discount": 0
+      "discount": 0,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 10,
@@ -491,7 +503,8 @@ const seedData = {
       "restaurantId": 4,
       "categoryId": 4,
       "available": true,
-      "discount": 20
+      "discount": 20,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 11,
@@ -502,7 +515,8 @@ const seedData = {
       "restaurantId": 4,
       "categoryId": 4,
       "available": true,
-      "discount": 0
+      "discount": 0,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 12,
@@ -513,7 +527,8 @@ const seedData = {
       "restaurantId": 4,
       "categoryId": 4,
       "available": true,
-      "discount": 10
+      "discount": 10,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 13,
@@ -524,7 +539,8 @@ const seedData = {
       "restaurantId": 5,
       "categoryId": 5,
       "available": true,
-      "discount": 0
+      "discount": 0,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 14,
@@ -535,7 +551,8 @@ const seedData = {
       "restaurantId": 5,
       "categoryId": 5,
       "available": true,
-      "discount": 15
+      "discount": 15,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 15,
@@ -546,7 +563,8 @@ const seedData = {
       "restaurantId": 5,
       "categoryId": 5,
       "available": true,
-      "discount": 0
+      "discount": 0,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 16,
@@ -557,7 +575,8 @@ const seedData = {
       "restaurantId": 6,
       "categoryId": 6,
       "available": true,
-      "discount": 0
+      "discount": 0,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 17,
@@ -568,7 +587,8 @@ const seedData = {
       "restaurantId": 6,
       "categoryId": 6,
       "available": true,
-      "discount": 10
+      "discount": 10,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 18,
@@ -579,7 +599,8 @@ const seedData = {
       "restaurantId": 6,
       "categoryId": 6,
       "available": true,
-      "discount": 0
+      "discount": 0,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 19,
@@ -590,7 +611,8 @@ const seedData = {
       "restaurantId": 7,
       "categoryId": 8,
       "available": true,
-      "discount": 0
+      "discount": 0,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 20,
@@ -601,7 +623,8 @@ const seedData = {
       "restaurantId": 7,
       "categoryId": 8,
       "available": false,
-      "discount": 5
+      "discount": 5,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 21,
@@ -612,7 +635,8 @@ const seedData = {
       "restaurantId": 8,
       "categoryId": 9,
       "available": true,
-      "discount": 10
+      "discount": 10,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 22,
@@ -623,7 +647,8 @@ const seedData = {
       "restaurantId": 8,
       "categoryId": 9,
       "available": true,
-      "discount": 0
+      "discount": 0,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 23,
@@ -634,7 +659,8 @@ const seedData = {
       "restaurantId": 9,
       "categoryId": 10,
       "available": true,
-      "discount": 0
+      "discount": 0,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 24,
@@ -645,7 +671,8 @@ const seedData = {
       "restaurantId": 9,
       "categoryId": 10,
       "available": true,
-      "discount": 15
+      "discount": 15,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 25,
@@ -656,7 +683,8 @@ const seedData = {
       "restaurantId": 10,
       "categoryId": 11,
       "available": true,
-      "discount": 0
+      "discount": 0,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 26,
@@ -667,7 +695,8 @@ const seedData = {
       "restaurantId": 10,
       "categoryId": 11,
       "available": true,
-      "discount": 0
+      "discount": 0,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 27,
@@ -678,7 +707,8 @@ const seedData = {
       "restaurantId": 11,
       "categoryId": 1,
       "available": true,
-      "discount": 10
+      "discount": 10,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 28,
@@ -689,7 +719,8 @@ const seedData = {
       "restaurantId": 11,
       "categoryId": 1,
       "available": true,
-      "discount": 0
+      "discount": 0,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 29,
@@ -700,7 +731,8 @@ const seedData = {
       "restaurantId": 7,
       "categoryId": 8,
       "available": true,
-      "discount": 10
+      "discount": 10,
+      "createdAt": "2024-01-15T10:00:00Z"
     },
     {
       "id": 30,
@@ -711,7 +743,8 @@ const seedData = {
       "restaurantId": 6,
       "categoryId": 6,
       "available": true,
-      "discount": 0
+      "discount": 0,
+      "createdAt": "2024-01-15T10:00:00Z"
     }
   ],
   "orders": [
@@ -1161,13 +1194,13 @@ const seedData = {
       "minOrderValue": 100000,
       "maxDiscount": 50000,
       "validFrom": "2024-01-01T00:00:00Z",
-      "validTo": "2024-12-31T23:59:59Z",
+      "validTo": "2025-12-31T23:59:59Z",
       "usageLimit": null,
       "perUserLimit": null,
-      "usageCount": 15,
+      "usageCount": 0,
       "isActive": true,
       "createdAt": "2024-01-01T00:00:00Z",
-      "updatedAt": "2024-10-26T09:00:00Z"
+      "updatedAt": "2024-01-01T00:00:00Z"
     },
     {
       "id": 2,
@@ -1195,10 +1228,10 @@ const seedData = {
       "minOrderValue": 150000,
       "maxDiscount": 50000,
       "validFrom": "2024-01-01T00:00:00Z",
-      "validTo": "2024-12-31T23:59:59Z",
+      "validTo": "2025-12-31T23:59:59Z",
       "usageLimit": null,
       "perUserLimit": 1,
-      "usageCount": 89,
+      "usageCount": 0,
       "isActive": true,
       "createdAt": "2024-01-01T00:00:00Z",
       "updatedAt": "2024-10-24T12:15:00Z"
@@ -1508,34 +1541,209 @@ function seedDatabase() {
 
     // Ghi dữ liệu seed vào db.json
     fs.writeFileSync(DB_FILE, JSON.stringify(seedData, null, 2));
-
-    console.log('✅ Database seeded successfully!');
-    console.log('\n📊 Seeded data:');
-    console.log(`   - Users: ${seedData.users.length}`);
-    console.log(`   - Categories: ${seedData.categories.length}`);
-    console.log(`   - Restaurants: ${seedData.restaurants.length}`);
-    console.log(`   - Products: ${seedData.products.length}`);
-    console.log(`   - Orders: ${seedData.orders.length}`);
-    console.log(`   - Cart: ${seedData.cart.length}`);
-    console.log(`   - Favorites: ${seedData.favorites.length}`);
-    console.log(`   - Reviews: ${seedData.reviews.length}`);
-    console.log(`   - Promotions: ${seedData.promotions.length}`);
-    console.log(`   - Addresses: ${seedData.addresses.length}`);
-    console.log(`   - Notifications: ${seedData.notifications.length}`);
-
-    console.log('\n🔑 Test accounts (Password: 123456):');
-    console.log(`   Admin: ${seedData.users[0].email}`);
-    console.log(`   User 1: ${seedData.users[1].email}`);
-    console.log(`   User 2: ${seedData.users[2].email}`);
+    console.log('✅ JSON Database seeded successfully!');
+    return true;
   } catch (error) {
-    console.error('❌ Error seeding database:', error);
+    console.error('❌ Error seeding JSON database:', error);
+    throw error;
+  }
+}
+
+/**
+ * Seed MongoDB Database
+ */
+async function seedMongoDB() {
+  try {
+    const db = require('../config/database');
+
+    console.log('🔄 Clearing existing MongoDB data...');
+
+    // Clear existing collections
+    const collections = Object.keys(seedData);
+    for (const collection of collections) {
+      try {
+        const Model = db.getModel(collection);
+        if (Model) {
+          await Model.deleteMany({});
+          console.log(`   ✓ Cleared ${collection}`);
+        }
+      } catch (err) {
+        console.log(`   ⚠️  Skip ${collection}: ${err.message}`);
+      }
+    }
+
+    console.log('\n🔄 Inserting seed data...');
+
+    // Insert seed data
+    for (const [collection, items] of Object.entries(seedData)) {
+      if (items.length === 0) continue;
+
+      try {
+        const Model = db.getModel(collection);
+        if (!Model) {
+          console.log(`   ⚠️  Model not found: ${collection}`);
+          continue;
+        }
+
+        // Convert id to _id for MongoDB
+        const mongoItems = items.map(item => {
+          const { id, ...rest } = item;
+          return { _id: id, ...rest };
+        });
+
+        await Model.insertMany(mongoItems);
+        console.log(`   ✓ Inserted ${items.length} items into ${collection}`);
+      } catch (err) {
+        console.error(`   ❌ Error inserting ${collection}:`, err.message);
+      }
+    }
+
+    console.log('\n✅ MongoDB seeded successfully!');
+    return true;
+  } catch (error) {
+    console.error('❌ Error seeding MongoDB:', error);
+    throw error;
+  }
+}
+
+/**
+ * Seed MySQL/PostgreSQL Database
+ */
+async function seedSQL() {
+  try {
+    const db = require('../config/database');
+
+    console.log('🔄 Clearing existing SQL data...');
+
+    // Clear existing data (in reverse order due to foreign keys)
+    const clearOrder = [
+      'notifications', 'addresses', 'reviews', 'favorites', 'cart',
+      'orders', 'products', 'restaurants', 'promotions', 'categories', 'users'
+    ];
+
+    for (const collection of clearOrder) {
+      try {
+        const items = await db.findAll(collection);
+        for (const item of items) {
+          await db.delete(collection, item.id);
+        }
+        console.log(`   ✓ Cleared ${collection}`);
+      } catch (err) {
+        console.log(`   ⚠️  Skip ${collection}: ${err.message}`);
+      }
+    }
+
+    console.log('\n🔄 Inserting seed data...');
+
+    // Insert seed data (in order to respect foreign keys)
+    const insertOrder = [
+      'users', 'categories', 'promotions', 'restaurants', 'products',
+      'orders', 'cart', 'favorites', 'reviews', 'addresses', 'notifications'
+    ];
+
+    for (const collection of insertOrder) {
+      const items = seedData[collection];
+      if (!items || items.length === 0) continue;
+
+      try {
+        let successCount = 0;
+        for (const item of items) {
+          try {
+            // Remove id field, let database auto-generate
+            const { id, ...itemData } = item;
+            await db.create(collection, itemData);
+            successCount++;
+          } catch (err) {
+            console.error(`   ⚠️  Failed to insert item in ${collection}:`, err.message);
+          }
+        }
+        console.log(`   ✓ Inserted ${successCount}/${items.length} items into ${collection}`);
+      } catch (err) {
+        console.error(`   ❌ Error inserting ${collection}:`, err.message);
+      }
+    }
+
+    console.log('\n✅ SQL Database seeded successfully!');
+    return true;
+  } catch (error) {
+    console.error('❌ Error seeding SQL database:', error);
+    throw error;
+  }
+}
+
+/**
+ * Main seed function - detects database type and runs appropriate seeder
+ */
+async function seedDatabase() {
+  try {
+    const dbType = process.env.DB_CONNECTION || 'json';
+
+    console.log('\n╔════════════════════════════════════════════════════════╗');
+    console.log('║          🌱 FunFood Database Seeder                    ║');
+    console.log('╚════════════════════════════════════════════════════════╝\n');
+    console.log(`📊 Database Type: ${dbType.toUpperCase()}\n`);
+
+    let success = false;
+
+    switch (dbType.toLowerCase()) {
+      case 'json':
+        success = await seedJSON();
+        break;
+
+      case 'mongodb':
+        success = await seedMongoDB();
+        // Close MongoDB connection
+        setTimeout(() => process.exit(0), 1000);
+        break;
+
+      case 'mysql':
+      case 'postgresql':
+        success = await seedSQL();
+        // Close connection pool
+        setTimeout(() => process.exit(0), 1000);
+        break;
+
+      default:
+        console.error(`❌ Unknown database type: ${dbType}`);
+        console.log('   Supported types: json, mongodb, mysql, postgresql');
+        process.exit(1);
+    }
+
+    if (success) {
+      console.log('\n📊 Seeded data summary:');
+      console.log(`   - Users: ${seedData.users.length}`);
+      console.log(`   - Categories: ${seedData.categories.length}`);
+      console.log(`   - Restaurants: ${seedData.restaurants.length}`);
+      console.log(`   - Products: ${seedData.products.length}`);
+      console.log(`   - Promotions: ${seedData.promotions.length}`);
+
+      console.log('\n🔑 Test accounts (Password: 123456):');
+      console.log(`   Admin:    admin@funfood.com`);
+      console.log(`   Customer: user@funfood.com`);
+      console.log(`   Customer: customer@funfood.com`);
+      console.log(`   Manager:  manager@funfood.com`);
+      console.log(`   Shipper:  shipper@funfood.com`);
+
+      console.log('\n✨ Seeding completed successfully!\n');
+    }
+
+  } catch (error) {
+    console.error('\n❌ Fatal error during seeding:', error);
     process.exit(1);
   }
 }
 
-// Chạy nếu được gọi trực tiếp
+// ==================== CLI EXECUTION ====================
+
 if (require.main === module) {
-  seedDatabase();
+  // Load environment variables
+  require('dotenv').config();
+
+  // Run seeder
+  seedDatabase().catch(error => {
+    console.error('Unhandled error:', error);
+    process.exit(1);
+  });
 }
 
 module.exports = { seedDatabase, seedData };
