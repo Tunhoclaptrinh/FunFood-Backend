@@ -97,19 +97,6 @@
       "createdAt": "2024-03-01T09:00:00Z",
       "lastLogin": "2024-10-25T15:00:00Z",
       "updatedAt": "2024-10-25T15:00:00Z"
-    },
-    {
-      "id": 8,
-      "email": "tn@ff.com",
-      "password": "$2a$10$95FDrr2ZDLnglPgoQeb1ru/ID4gKdwsCrS65znbo6wlBclqXhDkia",
-      "name": "tuan",
-      "phone": "0123456789",
-      "address": "",
-      "avatar": "https://ui-avatars.com/api/?name=tuan&background=random",
-      "role": "customer",
-      "isActive": true,
-      "createdAt": "2025-11-30T18:57:52.573Z",
-      "lastLogin": "2025-11-30T18:58:33.633Z"
     }
   ],
   "categories": [

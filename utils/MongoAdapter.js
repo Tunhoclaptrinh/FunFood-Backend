@@ -42,10 +42,28 @@ class MongoAdapter {
     const schemasDir = path.join(__dirname, '../schemas');
     const files = fs.readdirSync(schemasDir);
 
+    // Map schema filenames to collection names (matching db.json keys)
+    const modelMapping = {
+      'user.schema.js': 'users',
+      'category.schema.js': 'categories',
+      'restaurant.schema.js': 'restaurants',
+      'product.schema.js': 'products',
+      'order.schema.js': 'orders',
+      'cart.schema.js': 'cart',          // Singular to match db.json
+      'favorite.schema.js': 'favorites',
+      'review.schema.js': 'reviews',
+      'promotion.schema.js': 'promotions',
+      'address.schema.js': 'addresses',
+      'notification.schema.js': 'notifications',
+      'payment.schema.js': 'payments'
+    };
+
     files.forEach(file => {
       if (file === 'index.js') return;
 
-      const entityName = file.replace('.schema.js', 's');
+      // Use mapping or fallback to simple 's' suffix
+      const entityName = modelMapping[file] || file.replace('.schema.js', 's');
+
       const schemaDef = require(path.join(schemasDir, file));
 
       const mongooseFields = {};
@@ -70,7 +88,7 @@ class MongoAdapter {
         };
       }
 
-      // Giữ ID là Number để tương thích với Frontend
+      // Keep ID as Number to compatible with Frontend
       mongooseFields._id = { type: Number };
 
       if (!mongoose.models[entityName]) {
@@ -80,16 +98,16 @@ class MongoAdapter {
           toObject: { virtuals: true }
         });
 
-        // Virtual field để map _id -> id
+        // Virtual field to map _id -> id
         schema.virtual('id').get(function () {
           return this._id;
         });
 
-        // Setup Virtuals cho populate
+        // Setup Virtuals for populate
         const rels = this.relations[entityName];
         if (rels) {
           for (const [field, config] of Object.entries(rels)) {
-            // Chỉ thêm virtual nếu không trùng với field thật
+            // Only add virtual if it doesn't conflict with real field
             if (!mongooseFields[field]) {
               schema.virtual(field, {
                 ref: config.ref,
