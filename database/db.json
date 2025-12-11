@@ -97,6 +97,78 @@
       "createdAt": "2024-03-01T09:00:00Z",
       "lastLogin": "2024-10-25T15:00:00Z",
       "updatedAt": "2024-10-25T15:00:00Z"
+    },
+    {
+      "id": 15,
+      "name": "Trần Hùng (Shipper)",
+      "email": "shipper2@funfood.com",
+      "password": "$2a$10$AYuy44CrHLUH.O7x8wnzU.tbq285fOoq1i.GW7MGkyF/lb0ufjY32",
+      "phone": "0911223344",
+      "avatar": "https://ui-avatars.com/api/?name=Tran+Hung&background=0ea5e9&color=fff",
+      "address": "12 Đường 3/2, Quận 10, TP.HCM",
+      "role": "shipper",
+      "isActive": true,
+      "createdAt": "2024-02-10T08:00:00Z",
+      "lastLogin": "2025-12-11T09:00:00Z",
+      "updatedAt": "2025-12-11T09:00:00Z"
+    },
+    {
+      "id": 16,
+      "name": "Lê Tuấn (Shipper)",
+      "email": "shipper3@funfood.com",
+      "password": "$2a$10$AYuy44CrHLUH.O7x8wnzU.tbq285fOoq1i.GW7MGkyF/lb0ufjY32",
+      "phone": "0998877665",
+      "avatar": "https://ui-avatars.com/api/?name=Le+Tuan&background=6366f1&color=fff",
+      "address": "Gò Vấp, TP.HCM",
+      "role": "shipper",
+      "isActive": false,
+      "createdAt": "2024-03-01T08:00:00Z",
+      "lastLogin": "2024-10-20T08:00:00Z",
+      "updatedAt": "2024-10-20T08:00:00Z"
+    }
+  ],
+  "shipper_profiles": [
+    {
+      "id": 1,
+      "userId": 6,
+      "isOnline": true,
+      "currentStatus": "delivering",
+      "currentLatitude": 10.785,
+      "currentLongitude": 106.643,
+      "vehicleType": "motorcycle",
+      "vehiclePlate": "59-T1 123.45",
+      "rating": 4.9,
+      "totalRides": 150,
+      "incomeToday": 250000,
+      "walletBalance": 1200000
+    },
+    {
+      "id": 2,
+      "userId": 15,
+      "isOnline": true,
+      "currentStatus": "available",
+      "currentLatitude": 10.77,
+      "currentLongitude": 106.69,
+      "vehicleType": "motorcycle",
+      "vehiclePlate": "59-K1 999.99",
+      "rating": 4.5,
+      "totalRides": 40,
+      "incomeToday": 0,
+      "walletBalance": 50000
+    },
+    {
+      "id": 3,
+      "userId": 16,
+      "isOnline": false,
+      "currentStatus": "offline",
+      "currentLatitude": null,
+      "currentLongitude": null,
+      "vehicleType": "motorcycle",
+      "vehiclePlate": "59-G1 567.89",
+      "rating": 5.0,
+      "totalRides": 10,
+      "incomeToday": 0,
+      "walletBalance": 300000
     }
   ],
   "categories": [
@@ -179,8 +251,8 @@
       "name": "Quán Cơm Tấm Sườn Bì Chả",
       "description": "Cơm tấm truyền thống Sài Gòn với sườn nướng thơm ngon, bì giòn tan và chả trứng đậm đà",
       "image": "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=600",
-      "rating": 4.5,
-      "totalReviews": 128,
+      "rating": 4.8,
+      "totalReviews": 4,
       "deliveryTime": "20-30 phút",
       "deliveryFee": 15000,
       "address": "789 Đường Lê Văn Sỹ, Phường 1, Quận Tân Bình, TP.HCM",
@@ -1263,6 +1335,190 @@
       "promotionCode": "WEEKEND20",
       "createdAt": "2024-10-26T10:50:00Z",
       "updatedAt": "2024-10-26T10:55:00Z"
+    },
+    {
+      "id": 8,
+      "userId": 3,
+      "restaurantId": 2,
+      "shipperId": null,
+      "items": [
+        {
+          "productId": 4,
+          "productName": "Phở Bò Tái",
+          "quantity": 1,
+          "price": 55000,
+          "discount": 0
+        }
+      ],
+      "subtotal": 55000,
+      "deliveryFee": 15000,
+      "discount": 0,
+      "total": 70000,
+      "status": "finding_driver",
+      "deliveryAddress": "789 Đường Lý Thường Kiệt, Quận 10, TP.HCM",
+      "deliveryLatitude": 10.7714,
+      "deliveryLongitude": 106.665,
+      "paymentMethod": "cash",
+      "createdAt": "2025-12-11T10:30:00Z",
+      "updatedAt": "2025-12-11T10:30:00Z"
+    },
+    {
+      "id": 9,
+      "userId": 4,
+      "restaurantId": 1,
+      "shipperId": 6,
+      "items": [
+        {
+          "productId": 1,
+          "productName": "Cơm Tấm Sườn Bì Chả",
+          "quantity": 1,
+          "price": 45000,
+          "discount": 0
+        }
+      ],
+      "subtotal": 45000,
+      "deliveryFee": 15000,
+      "discount": 0,
+      "total": 60000,
+      "status": "driver_accepted",
+      "deliveryAddress": "246 Sư Vạn Hạnh, Quận 10, TP.HCM",
+      "deliveryLatitude": 10.7729,
+      "deliveryLongitude": 106.6698,
+      "paymentMethod": "momo",
+      "createdAt": "2025-12-11T10:15:00Z",
+      "updatedAt": "2025-12-11T10:16:00Z"
+    },
+    {
+      "id": 10,
+      "userId": 5,
+      "restaurantId": 6,
+      "shipperId": 15,
+      "items": [
+        {
+          "productId": 16,
+          "productName": "Trà Sữa Trân Châu",
+          "quantity": 2,
+          "price": 45000,
+          "discount": 0
+        }
+      ],
+      "subtotal": 90000,
+      "deliveryFee": 10000,
+      "discount": 0,
+      "total": 100000,
+      "status": "driver_picking_up",
+      "deliveryAddress": "12 Nguyễn Oanh, Gò Vấp, TP.HCM",
+      "deliveryLatitude": 10.8354,
+      "deliveryLongitude": 106.6784,
+      "paymentMethod": "cash",
+      "createdAt": "2025-12-11T10:00:00Z",
+      "updatedAt": "2025-12-11T10:20:00Z"
+    },
+    {
+      "id": 11,
+      "userId": 2,
+      "restaurantId": 3,
+      "shipperId": 6,
+      "items": [
+        {
+          "productId": 7,
+          "productName": "Bánh Mì Thập Cẩm",
+          "quantity": 5,
+          "price": 25000,
+          "discount": 0
+        }
+      ],
+      "subtotal": 125000,
+      "deliveryFee": 15000,
+      "discount": 0,
+      "total": 140000,
+      "status": "cancelled",
+      "deliveryAddress": "456 Đường Nguyễn Huệ, Quận 1, TP.HCM",
+      "deliveryLatitude": 10.7756,
+      "deliveryLongitude": 106.7019,
+      "paymentMethod": "cash",
+      "cancelReason": "Không liên lạc được với khách hàng",
+      "cancelledBy": 6,
+      "createdAt": "2025-12-10T18:00:00Z",
+      "updatedAt": "2025-12-10T18:45:00Z"
+    },
+    {
+      "id": 12,
+      "userId": 4,
+      "restaurantId": 9,
+      "shipperId": null,
+      "items": [
+        {"productId": 23, "productName": "Tôm Hùm Nướng Phô Mai", "quantity": 4, "price": 450000, "discount": 0},
+        {"productId": 24, "productName": "Cua Rang Me", "quantity": 2, "price": 320000, "discount": 0}
+      ],
+      "subtotal": 2440000,
+      "deliveryFee": 35000,
+      "discount": 0,
+      "total": 2475000,
+      "status": "finding_driver",
+      "deliveryAddress": "Biệt thự Lan Anh, Quận 2, TP.HCM",
+      "deliveryLatitude": 10.789,
+      "deliveryLongitude": 106.72,
+      "paymentMethod": "cash",
+      "note": "Đơn giá trị cao, vui lòng gọi trước, tiền mặt chuẩn bị sẵn",
+      "createdAt": "2025-12-11T10:35:00Z",
+      "updatedAt": "2025-12-11T10:35:00Z"
+    },
+    {
+      "id": 13,
+      "userId": 5,
+      "restaurantId": 7,
+      "shipperId": null,
+      "items": [{"productId": 19, "productName": "Lẩu Tomyum Hải Sản", "quantity": 1, "price": 350000, "discount": 0}],
+      "subtotal": 350000,
+      "deliveryFee": 55000,
+      "discount": 0,
+      "total": 405000,
+      "status": "finding_driver",
+      "deliveryAddress": "Khu chế xuất Tân Thuận, Quận 7, TP.HCM",
+      "deliveryLatitude": 10.74,
+      "deliveryLongitude": 106.75,
+      "paymentMethod": "momo",
+      "note": "Giao cổng 2, hơi xa nên mình tip thêm 20k tiền mặt nhé",
+      "createdAt": "2025-12-11T10:32:00Z",
+      "updatedAt": "2025-12-11T10:32:00Z"
+    },
+    {
+      "id": 14,
+      "userId": 3,
+      "restaurantId": 2,
+      "shipperId": 16,
+      "items": [{"productId": 5, "productName": "Phở Bò Chín", "quantity": 2, "price": 50000, "discount": 0}],
+      "subtotal": 100000,
+      "deliveryFee": 15000,
+      "discount": 0,
+      "total": 115000,
+      "status": "driver_accepted",
+      "deliveryAddress": "Quận 3, TP.HCM",
+      "deliveryLatitude": 10.78,
+      "deliveryLongitude": 106.68,
+      "paymentMethod": "cash",
+      "createdAt": "2025-12-11T10:34:00Z",
+      "updatedAt": "2025-12-11T10:34:30Z"
+    },
+    {
+      "id": 15,
+      "userId": 2,
+      "restaurantId": 4,
+      "shipperId": 15,
+      "items": [{"productId": 10, "productName": "Pizza Margherita", "quantity": 1, "price": 180000, "discount": 0}],
+      "subtotal": 180000,
+      "deliveryFee": 20000,
+      "discount": 0,
+      "total": 200000,
+      "status": "driver_arrived",
+      "deliveryAddress": "Landmark 81, Bình Thạnh, TP.HCM",
+      "deliveryLatitude": 10.795,
+      "deliveryLongitude": 106.72,
+      "paymentMethod": "card",
+      "note": "Đang đợi quán nướng bánh (khoảng 15p)",
+      "createdAt": "2025-12-11T10:10:00Z",
+      "updatedAt": "2025-12-11T10:25:00Z"
     }
   ],
   "cart": [
@@ -1440,6 +1696,9 @@
       "id": 1,
       "userId": 2,
       "restaurantId": 1,
+      "type": "product",
+      "refId": 3,
+      "productId": 3,
       "orderId": 1,
       "rating": 5,
       "comment": "Cơm tấm ngon tuyệt vời! Sườn nướng thơm lừng, bì giòn tan. Sẽ quay lại ủng hộ.",
@@ -1495,6 +1754,27 @@
       "comment": "Lần này quay lại ăn thấy cơm hơi khô, nhưng sườn nướng vẫn ngon như ngày nào. Ship nhanh.",
       "createdAt": "2024-10-26T10:00:00Z",
       "updatedAt": "2024-10-26T10:00:00Z"
+    },
+    {
+      "id": 7,
+      "type": "restaurant",
+      "restaurantId": 1,
+      "rating": 5,
+      "comment": "Cos ver ok",
+      "userId": 2,
+      "createdAt": "2025-12-11T09:46:01.605Z",
+      "updatedAt": "2025-12-11T09:46:01.605Z"
+    },
+    {
+      "id": 8,
+      "userId": 2,
+      "restaurantId": 1,
+      "orderId": 1,
+      "rating": 5,
+      "comment": "okok",
+      "createdAt": "2025-12-11T10:26:28.283Z",
+      "updatedAt": "2025-12-11T10:26:28.283Z",
+      "type": "restaurant"
     }
   ],
   "promotions": [
@@ -1839,6 +2119,112 @@
       "refId": 6,
       "isRead": false,
       "createdAt": "2024-10-25T09:00:00Z"
+    },
+    {
+      "id": 10,
+      "userId": 2,
+      "title": "Review Submitted",
+      "message": "Your restaurant review has been submitted successfully",
+      "type": "review",
+      "refId": 7,
+      "isRead": true,
+      "createdAt": "2025-12-11T09:46:01.607Z"
+    },
+    {
+      "id": 11,
+      "userId": 6,
+      "title": "Có đơn hàng mới gần bạn!",
+      "message": "Đơn hàng từ Quán Cơm Tấm Sườn (1.2km). Phí ship: 15.000đ. Nhận ngay!",
+      "type": "new_order",
+      "refId": 8,
+      "isRead": false,
+      "createdAt": "2025-12-11T10:30:05Z"
+    },
+    {
+      "id": 12,
+      "userId": 6,
+      "title": "Tiền thưởng đã về ví",
+      "message": "Bạn nhận được 50.000đ tiền thưởng hoàn thành nhiệm vụ ngày 10/12.",
+      "type": "wallet",
+      "refId": null,
+      "isRead": true,
+      "createdAt": "2025-12-11T08:00:00Z"
+    },
+    {
+      "id": 13,
+      "userId": 15,
+      "title": "Khách hàng đã hủy đơn",
+      "message": "Đơn hàng #11 đã bị hủy. Bạn sẽ được đền bù 5.000đ phí di chuyển.",
+      "type": "order_cancelled",
+      "refId": 11,
+      "isRead": false,
+      "createdAt": "2025-12-10T18:45:05Z"
+    },
+    {
+      "id": 14,
+      "userId": 6,
+      "title": "Cảnh báo số dư ví",
+      "message": "Số dư ví của bạn dưới 50.000đ. Vui lòng nạp thêm để nhận đơn hàng COD giá trị cao.",
+      "type": "system_alert",
+      "refId": null,
+      "isRead": false,
+      "createdAt": "2025-12-10T09:00:00Z"
+    },
+    {
+      "id": 15,
+      "userId": 15,
+      "title": "Yêu cầu xác thực",
+      "message": "Vui lòng cập nhật ảnh chụp bằng lái xe mới trước ngày 31/12 để tránh bị khóa tài khoản.",
+      "type": "account_update",
+      "refId": null,
+      "isRead": false,
+      "createdAt": "2025-12-01T10:00:00Z"
+    }
+  ],
+  "wallet_transactions": [
+    {
+      "id": 1,
+      "shipperId": 6,
+      "amount": 15000,
+      "type": "deposit",
+      "description": "Phí ship đơn hàng #1",
+      "referenceId": 1,
+      "balanceBefore": 1185000,
+      "balanceAfter": 1200000,
+      "createdAt": "2024-10-20T13:15:00Z"
+    },
+    {
+      "id": 2,
+      "shipperId": 6,
+      "amount": -500000,
+      "type": "withdrawal",
+      "description": "Rút tiền về tài khoản ngân hàng VCB",
+      "referenceId": null,
+      "balanceBefore": 1700000,
+      "balanceAfter": 1200000,
+      "createdAt": "2024-10-25T08:00:00Z"
+    },
+    {
+      "id": 3,
+      "shipperId": 15,
+      "amount": -100000,
+      "type": "deduction",
+      "description": "Ký quỹ kích hoạt tài khoản",
+      "referenceId": null,
+      "balanceBefore": 150000,
+      "balanceAfter": 50000,
+      "createdAt": "2024-02-10T08:05:00Z"
+    },
+    {
+      "id": 4,
+      "shipperId": 6,
+      "amount": 50000,
+      "type": "bonus",
+      "description": "Thưởng thi đua tuần",
+      "referenceId": null,
+      "balanceBefore": 1200000,
+      "balanceAfter": 1250000,
+      "createdAt": "2025-12-11T08:00:00Z"
     }
   ]
 }
