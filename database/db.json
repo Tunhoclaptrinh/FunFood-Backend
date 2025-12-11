@@ -11,7 +11,7 @@
       "role": "admin",
       "isActive": true,
       "createdAt": "2024-01-15T10:30:00Z",
-      "lastLogin": "2024-10-26T08:00:00Z",
+      "lastLogin": "2025-12-11T15:12:45.951Z",
       "updatedAt": "2024-10-26T08:00:00Z"
     },
     {
@@ -81,7 +81,7 @@
       "role": "shipper",
       "isActive": true,
       "createdAt": "2024-01-20T08:00:00Z",
-      "lastLogin": "2024-10-26T10:20:00Z",
+      "lastLogin": "2025-12-11T15:38:38.492Z",
       "updatedAt": "2024-10-26T10:20:00Z"
     },
     {
@@ -95,7 +95,7 @@
       "role": "manager",
       "isActive": true,
       "createdAt": "2024-03-01T09:00:00Z",
-      "lastLogin": "2024-10-25T15:00:00Z",
+      "lastLogin": "2025-12-11T15:41:27.793Z",
       "updatedAt": "2024-10-25T15:00:00Z"
     },
     {
@@ -165,7 +165,7 @@
       "currentLongitude": null,
       "vehicleType": "motorcycle",
       "vehiclePlate": "59-G1 567.89",
-      "rating": 5.0,
+      "rating": 5,
       "totalRides": 10,
       "incomeToday": 0,
       "walletBalance": 300000
@@ -388,7 +388,8 @@
       "openTime": "08:00",
       "closeTime": "21:00",
       "isOpen": true,
-      "categoryId": 9
+      "categoryId": 9,
+      "managerId": 7
     },
     {
       "id": 9,
@@ -1448,8 +1449,20 @@
       "restaurantId": 9,
       "shipperId": null,
       "items": [
-        {"productId": 23, "productName": "Tôm Hùm Nướng Phô Mai", "quantity": 4, "price": 450000, "discount": 0},
-        {"productId": 24, "productName": "Cua Rang Me", "quantity": 2, "price": 320000, "discount": 0}
+        {
+          "productId": 23,
+          "productName": "Tôm Hùm Nướng Phô Mai",
+          "quantity": 4,
+          "price": 450000,
+          "discount": 0
+        },
+        {
+          "productId": 24,
+          "productName": "Cua Rang Me",
+          "quantity": 2,
+          "price": 320000,
+          "discount": 0
+        }
       ],
       "subtotal": 2440000,
       "deliveryFee": 35000,
@@ -1469,7 +1482,15 @@
       "userId": 5,
       "restaurantId": 7,
       "shipperId": null,
-      "items": [{"productId": 19, "productName": "Lẩu Tomyum Hải Sản", "quantity": 1, "price": 350000, "discount": 0}],
+      "items": [
+        {
+          "productId": 19,
+          "productName": "Lẩu Tomyum Hải Sản",
+          "quantity": 1,
+          "price": 350000,
+          "discount": 0
+        }
+      ],
       "subtotal": 350000,
       "deliveryFee": 55000,
       "discount": 0,
@@ -1488,7 +1509,15 @@
       "userId": 3,
       "restaurantId": 2,
       "shipperId": 16,
-      "items": [{"productId": 5, "productName": "Phở Bò Chín", "quantity": 2, "price": 50000, "discount": 0}],
+      "items": [
+        {
+          "productId": 5,
+          "productName": "Phở Bò Chín",
+          "quantity": 2,
+          "price": 50000,
+          "discount": 0
+        }
+      ],
       "subtotal": 100000,
       "deliveryFee": 15000,
       "discount": 0,
@@ -1506,7 +1535,15 @@
       "userId": 2,
       "restaurantId": 4,
       "shipperId": 15,
-      "items": [{"productId": 10, "productName": "Pizza Margherita", "quantity": 1, "price": 180000, "discount": 0}],
+      "items": [
+        {
+          "productId": 10,
+          "productName": "Pizza Margherita",
+          "quantity": 1,
+          "price": 180000,
+          "discount": 0
+        }
+      ],
       "subtotal": 180000,
       "deliveryFee": 20000,
       "discount": 0,
@@ -1519,6 +1556,84 @@
       "note": "Đang đợi quán nướng bánh (khoảng 15p)",
       "createdAt": "2025-12-11T10:10:00Z",
       "updatedAt": "2025-12-11T10:25:00Z"
+    },
+    {
+      "id": 16,
+      "userId": 7,
+      "restaurantId": 8,
+      "items": [
+        {
+          "productId": 21,
+          "productName": "Lẩu Nấm Chay",
+          "quantity": 2,
+          "price": 180000,
+          "discount": 10,
+          "finalPrice": 162000,
+          "itemTotal": 324000
+        }
+      ],
+      "subtotal": 324000,
+      "deliveryFee": 25000,
+      "discount": 0,
+      "total": 349000,
+      "status": "confirmed",
+      "paymentStatus": "pending",
+      "paymentMethod": "cash",
+      "deliveryAddress": "123 ABC Street, District 1, Ho Chi Minh City",
+      "deliveryLatitude": 10.7769,
+      "deliveryLongitude": 106.7009,
+      "estimatedDistance": 3.4,
+      "estimatedDeliveryTime": "26-36 phút",
+      "note": "Không hành",
+      "promotionCode": "FUNFOOD10",
+      "promotionId": null,
+      "shipperId": null,
+      "assignedAt": null,
+      "pickedUpAt": null,
+      "deliveredAt": null,
+      "createdAt": "2025-12-11T15:27:04.376Z",
+      "updatedAt": "2025-12-11T15:27:35.799Z",
+      "confirmedAt": "2025-12-11T15:27:35.799Z"
+    },
+    {
+      "id": 17,
+      "userId": 7,
+      "restaurantId": 8,
+      "items": [
+        {
+          "productId": 21,
+          "productName": "Lẩu Nấm Chay",
+          "quantity": 2,
+          "price": 180000,
+          "discount": 10,
+          "finalPrice": 162000,
+          "itemTotal": 324000
+        }
+      ],
+      "subtotal": 324000,
+      "deliveryFee": 25000,
+      "discount": 0,
+      "total": 349000,
+      "status": "delivering",
+      "paymentStatus": "pending",
+      "paymentMethod": "cash",
+      "deliveryAddress": "123 ABC Street, District 1, Ho Chi Minh City",
+      "deliveryLatitude": 10.7769,
+      "deliveryLongitude": 106.7009,
+      "estimatedDistance": 3.4,
+      "estimatedDeliveryTime": "26-36 phút",
+      "note": "Không hành",
+      "promotionCode": "FUNFOOD10",
+      "promotionId": null,
+      "shipperId": 6,
+      "assignedAt": "2025-12-11T15:39:06.752Z",
+      "pickedUpAt": null,
+      "deliveredAt": null,
+      "createdAt": "2025-12-11T15:31:13.423Z",
+      "updatedAt": "2025-12-11T15:39:06.752Z",
+      "confirmedAt": "2025-12-11T15:36:44.646Z",
+      "preparingAt": "2025-12-11T15:38:31.441Z",
+      "deliveringAt": "2025-12-11T15:39:06.752Z"
     }
   ],
   "cart": [
@@ -2179,6 +2294,106 @@
       "refId": null,
       "isRead": false,
       "createdAt": "2025-12-01T10:00:00Z"
+    },
+    {
+      "id": 16,
+      "userId": 7,
+      "title": "Order Created",
+      "message": "Order #16 has been placed successfully. Total: 349,000đ",
+      "type": "order",
+      "refId": 16,
+      "isRead": false,
+      "createdAt": "2025-12-11T15:27:04.430Z"
+    },
+    {
+      "id": 17,
+      "userId": 7,
+      "title": "New Order Received",
+      "message": "New order #16 from customer. Please confirm.",
+      "type": "order",
+      "refId": 16,
+      "isRead": false,
+      "createdAt": "2025-12-11T15:27:04.431Z"
+    },
+    {
+      "id": 18,
+      "userId": 7,
+      "title": "Order Status Updated",
+      "message": "Your order #16 is now confirmed",
+      "type": "order",
+      "refId": 16,
+      "isRead": false,
+      "createdAt": "2025-12-11T15:27:35.800Z"
+    },
+    {
+      "id": 19,
+      "userId": 7,
+      "title": "Order Created",
+      "message": "Order #17 has been placed successfully. Total: 349,000đ",
+      "type": "order",
+      "refId": 17,
+      "isRead": false,
+      "createdAt": "2025-12-11T15:31:13.424Z"
+    },
+    {
+      "id": 20,
+      "userId": 7,
+      "title": "New Order Received",
+      "message": "New order #17 from customer. Please confirm.",
+      "type": "order",
+      "refId": 17,
+      "isRead": false,
+      "createdAt": "2025-12-11T15:31:13.434Z"
+    },
+    {
+      "id": 21,
+      "userId": 7,
+      "title": "Order Status Updated",
+      "message": "Your order #17 is now confirmed",
+      "type": "order",
+      "refId": 17,
+      "isRead": false,
+      "createdAt": "2025-12-11T15:36:44.647Z"
+    },
+    {
+      "id": 22,
+      "userId": 7,
+      "title": "Order Status Updated",
+      "message": "Your order #17 is now preparing",
+      "type": "order",
+      "refId": 17,
+      "isRead": false,
+      "createdAt": "2025-12-11T15:38:31.442Z"
+    },
+    {
+      "id": 23,
+      "userId": 6,
+      "title": "New Order Ready",
+      "message": "Order #17 is ready for pickup",
+      "type": "order",
+      "refId": 17,
+      "isRead": false,
+      "createdAt": "2025-12-11T15:38:31.443Z"
+    },
+    {
+      "id": 24,
+      "userId": 15,
+      "title": "New Order Ready",
+      "message": "Order #17 is ready for pickup",
+      "type": "order",
+      "refId": 17,
+      "isRead": false,
+      "createdAt": "2025-12-11T15:38:31.462Z"
+    },
+    {
+      "id": 25,
+      "userId": 7,
+      "title": "Order Picked Up",
+      "message": "Your order #17 is on the way!",
+      "type": "order",
+      "refId": 17,
+      "isRead": false,
+      "createdAt": "2025-12-11T15:39:06.752Z"
     }
   ],
   "wallet_transactions": [

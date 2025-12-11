@@ -1256,22 +1256,100 @@
       "name": "13. Shipper",
       "item": [
         {
-          "name": "Get Assigned Orders",
+          "name": "1. Get Available Orders (Preparing)",
           "request": {
             "method": "GET",
-            "url": {"raw": "{{baseUrl}}/shipper/orders", "host": ["{{baseUrl}}"], "path": ["shipper", "orders"]}
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/shipper/orders/available",
+              "host": ["{{baseUrl}}"],
+              "path": ["shipper", "orders", "available"]
+            },
+            "description": "Lấy danh sách các đơn hàng đang ở trạng thái 'preparing' và chưa có shipper nhận."
           }
         },
         {
-          "name": "Update Delivery Status",
+          "name": "2. Accept Order",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/shipper/orders/{{orderId}}/accept",
+              "host": ["{{baseUrl}}"],
+              "path": ["shipper", "orders", "{{orderId}}", "accept"]
+            },
+            "description": "Shipper nhận đơn hàng. Trạng thái đơn sẽ chuyển từ 'preparing' sang 'delivering'."
+          }
+        },
+        {
+          "name": "3. Get My Deliveries (Current)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/shipper/orders/my-deliveries",
+              "host": ["{{baseUrl}}"],
+              "path": ["shipper", "orders", "my-deliveries"]
+            },
+            "description": "Xem danh sách đơn hàng shipper này đang đi giao (status: delivering)."
+          }
+        },
+        {
+          "name": "4. Update Delivery Status (To Delivered)",
           "request": {
             "method": "PATCH",
-            "body": {"mode": "raw", "raw": "{\n  \"status\": \"delivering\"\n}"},
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"delivered\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
               "raw": "{{baseUrl}}/shipper/orders/{{orderId}}/status",
               "host": ["{{baseUrl}}"],
               "path": ["shipper", "orders", "{{orderId}}", "status"]
-            }
+            },
+            "description": "Cập nhật trạng thái đơn hàng. Thường dùng để hoàn tất đơn (delivered)."
+          }
+        },
+        {
+          "name": "5. Get Delivery History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/shipper/orders/history?_page=1&_limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["shipper", "orders", "history"],
+              "query": [
+                {
+                  "key": "_page",
+                  "value": "1"
+                },
+                {
+                  "key": "_limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Xem lịch sử các đơn đã giao thành công (delivered)."
+          }
+        },
+        {
+          "name": "6. Get Shipper Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/shipper/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["shipper", "stats"]
+            },
+            "description": "Xem thống kê thu nhập và số lượng đơn hàng của Shipper."
           }
         }
       ]
