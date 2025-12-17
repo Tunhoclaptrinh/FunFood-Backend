@@ -7,13 +7,13 @@ module.exports = {
   },
   subtotal: {
     type: 'number',
-    required: true,
+    required: false, // Client không cần gửi, Service sẽ tự tính
     min: 0,
     description: 'Subtotal amount'
   },
   deliveryFee: {
     type: 'number',
-    required: true,
+    required: false, // Client không cần gửi
     min: 0,
     description: 'Delivery fee'
   },
@@ -26,13 +26,13 @@ module.exports = {
   },
   total: {
     type: 'number',
-    required: true,
+    required: false,
     min: 0,
-    description: 'Total amount',
+    // vì client không gửi total nên hàm này thường sẽ không chạy hoặc data.total là undefined
     custom: (value, data) => {
-      // Check if total matches calculated subtotal + fees
+      if (value === undefined) return null; // Bỏ qua nếu không gửi
       const calculated = (data.subtotal || 0) + (data.deliveryFee || 0) - (data.discount || 0);
-      if (Math.abs(value - calculated) > 1) {  // Allow 1đ rounding error
+      if (Math.abs(value - calculated) > 1) {
         return `Total mismatch. Expected ${calculated}, got ${value}`;
       }
       return null;

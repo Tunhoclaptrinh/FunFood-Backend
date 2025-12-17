@@ -52,12 +52,14 @@ exports.calculateDeliveryFee = (distance) => {
   const perKm = 5000;     // Per km for 2-5km
   const extraPerKm = 7000; // Per km for > 5km
 
-  if (distance <= 2) {
+  const distanceKm = parseFloat(distance.toFixed(1));
+
+  if (distanceKm <= 2) {
     return baseFee;
-  } else if (distance <= 5) {
-    return baseFee + Math.ceil(distance - 2) * perKm;
+  } else if (distanceKm <= 5) {
+    return baseFee + Math.ceil(distanceKm - 2) * perKm;
   } else {
-    return baseFee + 3 * perKm + Math.ceil(distance - 5) * extraPerKm;
+    return baseFee + 3 * perKm + Math.ceil(distanceKm - 5) * extraPerKm;
   }
 };
 
