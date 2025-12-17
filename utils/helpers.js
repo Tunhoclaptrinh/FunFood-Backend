@@ -48,19 +48,16 @@ exports.calculateDistance = (lat1, lon1, lat2, lon2) => {
  * @returns {number} - Delivery fee in VND
  */
 exports.calculateDeliveryFee = (distance) => {
+  const distanceKm = parseFloat(distance.toFixed(1));
+
   const baseFee = 15000;  // Base fee for <= 2km
   const perKm = 5000;     // Per km for 2-5km
   const extraPerKm = 7000; // Per km for > 5km
 
-  const distanceKm = parseFloat(distance.toFixed(1));
 
-  if (distanceKm <= 2) {
-    return baseFee;
-  } else if (distanceKm <= 5) {
-    return baseFee + Math.ceil(distanceKm - 2) * perKm;
-  } else {
-    return baseFee + 3 * perKm + Math.ceil(distanceKm - 5) * extraPerKm;
-  }
+  if (distanceKm <= 2) return baseFee;
+  else if (distanceKm <= 5) return baseFee + Math.ceil(distanceKm - 2) * perKm;
+  else return baseFee + 3 * perKm + Math.ceil(distanceKm - 5) * extraPerKm;
 };
 
 /**
